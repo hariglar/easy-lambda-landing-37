@@ -1,6 +1,7 @@
 
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import { 
   Eye, 
   FileEdit, 
@@ -11,7 +12,12 @@ import {
   Users,
   Clock,
   Mouse,
-  Globe
+  Globe,
+  Smartphone,
+  Laptop,
+  ShoppingCart,
+  Target,
+  Activity
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -48,6 +54,30 @@ const stats = [
     change: "+8%",
     trend: "up",
     icon: Mouse
+  }
+];
+
+const deviceStats = {
+  mobile: 58,
+  desktop: 32,
+  tablet: 10
+};
+
+const conversionMetrics = [
+  {
+    label: "Homepage",
+    rate: 4.2,
+    progress: 84
+  },
+  {
+    label: "Product Page",
+    rate: 3.8,
+    progress: 76
+  },
+  {
+    label: "Checkout",
+    rate: 2.9,
+    progress: 58
   }
 ];
 
@@ -119,6 +149,72 @@ export default function Dashboard() {
             </div>
           </Card>
         ))}
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card className="shadow-sm">
+          <div className="p-6 border-b">
+            <h2 className="text-lg font-semibold">Device Distribution</h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              How users are accessing your pages
+            </p>
+          </div>
+          <div className="p-6 space-y-6">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Smartphone className="w-4 h-4 text-blue-500" />
+                  <span className="text-sm font-medium">Mobile</span>
+                </div>
+                <span className="text-sm font-bold">{deviceStats.mobile}%</span>
+              </div>
+              <Progress value={deviceStats.mobile} className="h-2" />
+            </div>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Laptop className="w-4 h-4 text-purple-500" />
+                  <span className="text-sm font-medium">Desktop</span>
+                </div>
+                <span className="text-sm font-bold">{deviceStats.desktop}%</span>
+              </div>
+              <Progress value={deviceStats.desktop} className="h-2" />
+            </div>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Target className="w-4 h-4 text-green-500" />
+                  <span className="text-sm font-medium">Tablet</span>
+                </div>
+                <span className="text-sm font-bold">{deviceStats.tablet}%</span>
+              </div>
+              <Progress value={deviceStats.tablet} className="h-2" />
+            </div>
+          </div>
+        </Card>
+
+        <Card className="shadow-sm">
+          <div className="p-6 border-b">
+            <h2 className="text-lg font-semibold">Page Performance</h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              Conversion rates by page
+            </p>
+          </div>
+          <div className="p-6 space-y-6">
+            {conversionMetrics.map((metric, index) => (
+              <div key={index} className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Activity className="w-4 h-4 text-primary" />
+                    <span className="text-sm font-medium">{metric.label}</span>
+                  </div>
+                  <span className="text-sm font-bold">{metric.rate}%</span>
+                </div>
+                <Progress value={metric.progress} className="h-2" />
+              </div>
+            ))}
+          </div>
+        </Card>
       </div>
 
       <Card className="shadow-sm">
