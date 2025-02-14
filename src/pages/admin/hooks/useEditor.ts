@@ -17,6 +17,7 @@ export function useEditor() {
   const templateId = searchParams.get("template");
   const pageId = searchParams.get("pageId");
 
+  // Load existing content when editing a page
   useEffect(() => {
     if (pageId) {
       const storedPages = JSON.parse(localStorage.getItem('pages') || '[]');
@@ -27,6 +28,10 @@ export function useEditor() {
         const headerElement = document.querySelector('h1');
         if (headerElement) {
           headerElement.textContent = `Editing: ${pageToEdit.title}`;
+        }
+        // Load the page's content if it exists
+        if (pageToEdit.content) {
+          setContent(pageToEdit.content);
         }
       }
     }
@@ -57,7 +62,38 @@ export function useEditor() {
 
   const handleSave = async () => {
     try {
+      // Simulate API delay
       await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      if (pageId) {
+        // Update existing page
+        const storedPages = JSON.parse(localStorage.getItem('pages') || '[]');
+        const pageIndex = storedPages.findIndex((p: any) => p.id === Number(pageId));
+        
+        if (pageIndex !== -1) {
+          // Update existing page
+          storedPages[pageIndex] = {
+            ...storedPages[pageIndex],
+            content,
+            lastModified: new Date().toISOString().split('T')[0]
+          };
+        } else {
+          // If not found in stored pages, check mock pages
+          const mockPageIndex = mockPages.findIndex(p => p.id === Number(pageId));
+          if (mockPageIndex !== -1) {
+            // Create a new stored page based on the mock page
+            storedPages.push({
+              ...mockPages[mockPageIndex],
+              id: Number(pageId),
+              content,
+              lastModified: new Date().toISOString().split('T')[0]
+            });
+          }
+        }
+        
+        localStorage.setItem('pages', JSON.stringify(storedPages));
+      }
+
       setLastSaved(new Date());
       setIsDirty(false);
       toast.success("Changes saved successfully!");
