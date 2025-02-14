@@ -7,6 +7,7 @@ import {
   Eye,
   PlusCircle 
 } from "lucide-react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Sidebar,
@@ -18,6 +19,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { TemplateSelectionDialog } from "@/pages/admin/components/TemplateSelectionDialog";
 
 const menuItems = [
   {
@@ -49,13 +51,14 @@ const menuItems = [
 
 export function AdminSidebar() {
   const navigate = useNavigate();
+  const [showTemplateDialog, setShowTemplateDialog] = useState(false);
 
   return (
     <Sidebar>
       <SidebarContent>
         <div className="p-6">
           <button 
-            onClick={() => navigate('/admin/pages/new')}
+            onClick={() => setShowTemplateDialog(true)}
             className="w-full flex items-center justify-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors"
           >
             <PlusCircle size={20} />
@@ -83,6 +86,11 @@ export function AdminSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      
+      <TemplateSelectionDialog 
+        open={showTemplateDialog} 
+        onOpenChange={setShowTemplateDialog}
+      />
     </Sidebar>
   );
 }
