@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { TemplateContent, defaultContent } from "../types/editor";
@@ -95,25 +96,33 @@ export function useEditor() {
     }
   }, [pageId, pageTitle, pageUrl, content]);
 
+  // Watch for content changes and trigger isDirty
   useEffect(() => {
-    if (isDirty) {
-      if (autoSaveTimer) {
-        clearTimeout(autoSaveTimer);
-      }
-      
-      const timer = setTimeout(() => {
-        handleSave();
-      }, 3000);
-      
-      setAutoSaveTimer(timer);
+    setIsDirty(true);
+  }, [content, pageTitle, pageUrl]);
+
+  // Auto-save effect
+  useEffect(() => {
+    if (!isDirty) return;
+
+    console.log('Auto-save timer started');
+    if (autoSaveTimer) {
+      clearTimeout(autoSaveTimer);
     }
+    
+    const timer = setTimeout(() => {
+      console.log('Auto-saving...');
+      handleSave();
+    }, 3000);
+    
+    setAutoSaveTimer(timer);
     
     return () => {
       if (autoSaveTimer) {
         clearTimeout(autoSaveTimer);
       }
     };
-  }, [isDirty, content, pageTitle, pageUrl, handleSave]);
+  }, [isDirty, handleSave]);
 
   useEffect(() => {
     if (pageId) {
@@ -149,7 +158,6 @@ export function useEditor() {
     index?: number,
     field?: string
   ) => {
-    setIsDirty(true);
     setContent(prev => {
       const newContent = { ...prev };
       if (index !== undefined && field && Array.isArray(newContent[section])) {
