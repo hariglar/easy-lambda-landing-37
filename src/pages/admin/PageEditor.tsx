@@ -41,6 +41,7 @@ export default function PageEditor() {
         pageUrl={pageUrl}
         pageTitle={pageTitle}
         setPageUrl={setPageUrl}
+        content={content}
       />
 
       <Card className="p-6">
