@@ -1,17 +1,18 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { mockPages } from "../data/mockData";
 import { useContent } from "./useContent";
 import { isUrlUnique } from "../utils/urlUtils";
+import { Template } from "../types";
 
 export function useEditor() {
   const [searchParams] = useSearchParams();
   const [currentTab, setCurrentTab] = useState("design");
-  const [selectedTemplate, setSelectedTemplate] = useState<number | null>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [metaExpanded, setMetaExpanded] = useState(false);
 
-  const templateId = searchParams.get("template");
+  const templateId = searchParams.get("template") || "1"; // Default to "1" if not provided
   const pageId = searchParams.get("pageId");
 
   const {

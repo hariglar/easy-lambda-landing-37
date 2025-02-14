@@ -32,6 +32,8 @@ export default function PageEditor() {
     handleSave
   } = useEditor();
 
+  const currentTemplate = templates.find(t => t.id === Number(templateId)) || null;
+
   return (
     <div className="space-y-8 animate-in fade-in">
       <EditorHeader 
@@ -81,8 +83,8 @@ export default function PageEditor() {
 
         <TabsContent value="design" className="space-y-6">
           <DesignTab 
-            templateId={templateId}
-            selectedTemplate={selectedTemplate}
+            templateId={Number(templateId)}
+            selectedTemplate={currentTemplate}
             setSelectedTemplate={setSelectedTemplate}
             metaExpanded={metaExpanded}
             setMetaExpanded={setMetaExpanded}
