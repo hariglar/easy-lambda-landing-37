@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { ArrowRight } from "lucide-react";
 import { RichTextEditor } from "../../components/editor/RichTextEditor";
 import { TemplateContent } from "../../types/editor";
+import { useState } from "react";
 
 interface NewsletterSectionProps {
   newsletter: TemplateContent['newsletter'];
@@ -12,6 +13,8 @@ interface NewsletterSectionProps {
 }
 
 export function NewsletterSection({ newsletter, onContentChange, isEditing }: NewsletterSectionProps) {
+  const [editingField, setEditingField] = useState<string | null>(null);
+
   const EditableContent = ({ 
     value, 
     onChange,
@@ -27,12 +30,35 @@ export function NewsletterSection({ newsletter, onContentChange, isEditing }: Ne
       return <div className={className} dangerouslySetInnerHTML={{ __html: value }} />;
     }
 
+    if (isEditing && editingField !== identifier) {
+      return (
+        <div 
+          className={`${className} cursor-pointer hover:ring-2 hover:ring-primary hover:ring-opacity-50 rounded`}
+          onClick={() => setEditingField(identifier)}
+          dangerouslySetInnerHTML={{ __html: value }}
+        />
+      );
+    }
+
     return (
-      <RichTextEditor
-        content={value}
-        onChange={onChange}
-        className={className}
-      />
+      <div className="relative">
+        <RichTextEditor
+          content={value}
+          onChange={(newValue) => {
+            onChange(newValue);
+            setEditingField(null);
+          }}
+          className={className}
+        />
+        <Button
+          size="sm"
+          variant="ghost"
+          className="absolute top-2 right-2"
+          onClick={() => setEditingField(null)}
+        >
+          Done
+        </Button>
+      </div>
     );
   };
 

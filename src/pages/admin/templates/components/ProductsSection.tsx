@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ShoppingBag, Star, Heart } from "lucide-react";
 import { RichTextEditor } from "../../components/editor/RichTextEditor";
 import { TemplateContent } from "../../types/editor";
+import { useState } from "react";
 
 interface ProductsSectionProps {
   products: TemplateContent['products'];
@@ -11,6 +12,8 @@ interface ProductsSectionProps {
 }
 
 export function ProductsSection({ products, onContentChange, isEditing }: ProductsSectionProps) {
+  const [editingField, setEditingField] = useState<string | null>(null);
+
   const EditableContent = ({ 
     value, 
     onChange,
@@ -26,12 +29,35 @@ export function ProductsSection({ products, onContentChange, isEditing }: Produc
       return <div className={className} dangerouslySetInnerHTML={{ __html: value }} />;
     }
 
+    if (isEditing && editingField !== identifier) {
+      return (
+        <div 
+          className={`${className} cursor-pointer hover:ring-2 hover:ring-primary hover:ring-opacity-50 rounded`}
+          onClick={() => setEditingField(identifier)}
+          dangerouslySetInnerHTML={{ __html: value }}
+        />
+      );
+    }
+
     return (
-      <RichTextEditor
-        content={value}
-        onChange={onChange}
-        className={className}
-      />
+      <div className="relative">
+        <RichTextEditor
+          content={value}
+          onChange={(newValue) => {
+            onChange(newValue);
+            setEditingField(null);
+          }}
+          className={className}
+        />
+        <Button
+          size="sm"
+          variant="ghost"
+          className="absolute top-2 right-2"
+          onClick={() => setEditingField(null)}
+        >
+          Done
+        </Button>
+      </div>
     );
   };
 
