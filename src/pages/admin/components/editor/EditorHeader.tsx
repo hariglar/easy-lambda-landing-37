@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Clock, Eye, Save, Globe, AlertTriangle, Copy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -108,7 +109,7 @@ export function EditorHeader({ lastSaved, onSave, isDirty, pageUrl, pageTitle }:
         currentPage.url = originalPublishedUrl;
         localStorage.setItem('pages', JSON.stringify(storedPages));
         toast.success("URL reverted to original");
-        window.location.reload(); // Reload the current page to reflect the changes
+        setPublishDialogOpen(false); // Close the dialog after reverting
       }
     }
   };
