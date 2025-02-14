@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,10 +17,20 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Eye, FileEdit, Globe, Trash2, ArrowUp, ArrowDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
-// Mock data - expanded for pagination example
 const mockPages = [
   {
     id: 1,
@@ -80,12 +89,14 @@ const ITEMS_PER_PAGE = 5;
 
 export default function Pages() {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [pages, setPages] = useState(mockPages);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortField, setSortField] = useState<SortField>("lastModified");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
   const [statusFilter, setStatusFilter] = useState<"all" | "published" | "draft">("all");
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageToDelete, setPageToDelete] = useState<number | null>(null);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -117,6 +128,15 @@ export default function Pages() {
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
+
+  const handleDeletePage = (pageId: number) => {
+    setPages(prevPages => prevPages.filter(page => page.id !== pageId));
+    toast({
+      title: "Page deleted",
+      description: "The page has been successfully deleted.",
+    });
+    setPageToDelete(null);
+  };
 
   return (
     <div className="space-y-8 animate-in fade-in">
@@ -234,7 +254,12 @@ export default function Pages() {
                     >
                       <FileEdit className="w-4 h-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="text-destructive">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="text-destructive"
+                      onClick={() => setPageToDelete(page.id)}
+                    >
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>
@@ -279,6 +304,27 @@ export default function Pages() {
           </div>
         )}
       </div>
+
+      <AlertDialog open={pageToDelete !== null} onOpenChange={() => setPageToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the page
+              and remove all of its data from our servers.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => pageToDelete && handleDeletePage(pageToDelete)}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
