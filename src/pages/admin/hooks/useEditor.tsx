@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useCallback } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useBeforeUnload } from "react-router-dom";
 import { TemplateContent, defaultContent } from "../types/editor";
 import { mockPages } from "../data/mockData";
 import { toast } from "sonner";
@@ -15,10 +15,22 @@ export function useEditor() {
   const [isDirty, setIsDirty] = useState(false);
   const [pageTitle, setPageTitle] = useState("New Page");
   const [pageUrl, setPageUrl] = useState("/new-page");
-  const [autoSaveTimer, setAutoSaveTimer] = useState<NodeJS.Timeout | null>(null);
 
   const templateId = searchParams.get("template");
   const pageId = searchParams.get("pageId");
+
+  // Prevent leaving page with unsaved changes
+  useBeforeUnload(
+    useCallback(
+      (event) => {
+        if (isDirty) {
+          event.preventDefault();
+          return (event.returnValue = "You have unsaved changes. Are you sure you want to leave?");
+        }
+      },
+      [isDirty]
+    )
+  );
 
   const isUrlUnique = useCallback((url: string, currentPageId: number | null) => {
     const storedPages = JSON.parse(localStorage.getItem('pages') || '[]');
@@ -117,16 +129,6 @@ export function useEditor() {
       }
       return newContent;
     });
-
-    // Reset auto-save timer
-    if (autoSaveTimer) {
-      clearTimeout(autoSaveTimer);
-    }
-    const timer = setTimeout(() => {
-      console.log('Auto-saving...');
-      handleSave();
-    }, 3000);
-    setAutoSaveTimer(timer);
   };
 
   // Load existing content when editing a page
@@ -157,15 +159,6 @@ export function useEditor() {
       }
     }
   }, [pageId]);
-
-  // Cleanup auto-save timer on unmount
-  useEffect(() => {
-    return () => {
-      if (autoSaveTimer) {
-        clearTimeout(autoSaveTimer);
-      }
-    };
-  }, [autoSaveTimer]);
 
   return {
     currentTab,
