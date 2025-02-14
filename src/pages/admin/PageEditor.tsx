@@ -88,7 +88,6 @@ export default function PageEditor() {
             setMetaExpanded={setMetaExpanded}
             templates={templates}
             content={content}
-            handleContentChange={handleContentChange}
           />
         </TabsContent>
 
