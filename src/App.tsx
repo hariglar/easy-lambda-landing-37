@@ -23,7 +23,13 @@ const PublishedPage = () => {
     return <NotFound />;
   }
   
-  return <EcommerceLanding content={page.content} />;
+  return (
+    <EcommerceLanding 
+      content={page.content} 
+      onContentChange={() => {}} 
+      isEditing={false} 
+    />
+  );
 };
 
 const App = () => (
@@ -40,7 +46,7 @@ const App = () => (
           <Route path="/admin/pages/:id/edit" element={<AdminLayout><PageEditor /></AdminLayout>} />
           <Route path="/preview/*" element={<Preview />} />
           <Route path="/admin/*" element={<AdminLayout><NotFound /></AdminLayout>} />
-          <Route path="/*" element={<PublishedPage />} /> {/* This will catch all other routes */}
+          <Route path="/*" element={<PublishedPage />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

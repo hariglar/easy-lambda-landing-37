@@ -1,67 +1,56 @@
 
-import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import EcommerceLanding from './admin/templates/EcommerceLanding';
-import { TemplateContent } from './admin/types/editor';
-import NotFound from './NotFound';
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { defaultContent } from "./admin/types/editor";
+import EcommerceLanding from "./admin/templates/EcommerceLanding";
 
 export default function Preview() {
-  const location = useLocation();
-  const [content, setContent] = useState<TemplateContent | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [dimensions, setDimensions] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
+  const [content, setContent] = useState(defaultContent);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    try {
-      // Remove /preview from the pathname and decode URL
-      const pageUrl = decodeURIComponent(location.pathname.replace('/preview', ''));
-      console.log('Looking for page with URL:', pageUrl);
-      
-      // Load the page content from localStorage
-      const storedPages = JSON.parse(localStorage.getItem('pages') || '[]');
-      console.log('Stored pages:', storedPages);
-      
-      // Find the page with decoded URL comparison
-      const currentPage = storedPages.find((p: any) => {
-        const storedUrl = p.url.trim();
-        const normalizedStoredUrl = storedUrl.startsWith('/') ? storedUrl : `/${storedUrl}`;
-        const normalizedPageUrl = pageUrl.trim();
-        
-        console.log('Comparing URLs:', {
-          normalizedStoredUrl,
-          normalizedPageUrl,
-          match: normalizedStoredUrl === normalizedPageUrl
-        });
-        
-        return normalizedStoredUrl === normalizedPageUrl;
+    const handleResize = () => {
+      setDimensions({
+        width: window.innerWidth,
+        height: window.innerHeight,
       });
-      
-      if (currentPage?.content) {
-        console.log('Found page:', currentPage);
-        setContent(currentPage.content);
-      } else {
-        console.log('Page not found');
-        setError('Page not found');
-      }
-    } catch (err) {
-      console.error('Error loading page:', err);
-      setError('Failed to load page content');
-    } finally {
-      setIsLoading(false);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    const previewData = sessionStorage.getItem('previewData');
+    if (previewData) {
+      setContent(JSON.parse(previewData));
     }
-  }, [location.pathname]);
+  }, []);
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg">Loading...</div>
+  return (
+    <div className="min-h-screen bg-background relative">
+      <Button
+        variant="ghost"
+        size="icon"
+        className="fixed top-4 right-4 z-50"
+        onClick={() => navigate(-1)}
+      >
+        <X className="h-4 w-4" />
+      </Button>
+
+      <div style={{ width: dimensions.width, height: dimensions.height }}>
+        <EcommerceLanding 
+          content={content} 
+          onContentChange={() => {}} 
+          isEditing={false}
+        />
       </div>
-    );
-  }
-
-  if (error || !content) {
-    return <NotFound />;
-  }
-
-  return <EcommerceLanding content={content} />;
+    </div>
+  );
 }
