@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -248,10 +249,12 @@ export default function Pages() {
             <Pagination>
               <PaginationContent>
                 <PaginationItem>
-                  <PaginationPrevious 
+                  <PaginationLink
                     onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                    disabled={currentPage === 1}
-                  />
+                    className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
+                  >
+                    <span>Previous</span>
+                  </PaginationLink>
                 </PaginationItem>
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                   <PaginationItem key={page}>
@@ -264,10 +267,12 @@ export default function Pages() {
                   </PaginationItem>
                 ))}
                 <PaginationItem>
-                  <PaginationNext 
+                  <PaginationLink
                     onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                    disabled={currentPage === totalPages}
-                  />
+                    className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
+                  >
+                    <span>Next</span>
+                  </PaginationLink>
                 </PaginationItem>
               </PaginationContent>
             </Pagination>
