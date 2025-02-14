@@ -27,7 +27,6 @@ interface PagePreviewDialogProps {
 }
 
 export function PagePreviewDialog({ isOpen, onOpenChange, page }: PagePreviewDialogProps) {
-  const navigate = useNavigate();
   const [content, setContent] = useState<TemplateContent | null>(null);
 
   useEffect(() => {
@@ -39,11 +38,6 @@ export function PagePreviewDialog({ isOpen, onOpenChange, page }: PagePreviewDia
       }
     }
   }, [isOpen, page.id]);
-
-  const handleViewFullPage = () => {
-    onOpenChange(false); // Close the dialog
-    navigate(`/admin/pages/${page.id}/edit`); // Navigate to the full page editor
-  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -87,12 +81,9 @@ export function PagePreviewDialog({ isOpen, onOpenChange, page }: PagePreviewDia
             </div>
           </div>
 
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-end">
             <Button variant="outline" onClick={() => onOpenChange(false)}>
               Close
-            </Button>
-            <Button onClick={handleViewFullPage}>
-              View Full Page
             </Button>
           </div>
         </div>
