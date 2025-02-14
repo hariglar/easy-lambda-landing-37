@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Template } from "../../types";
 import EcommerceLanding from "../../templates/EcommerceLanding";
-import { TemplateContent } from "../../PageEditor";
+import { TemplateContent } from "../../types/editor";
 
 interface DesignTabProps {
   templateId: string | null;

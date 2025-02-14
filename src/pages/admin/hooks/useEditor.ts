@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { TemplateContent, defaultContent } from "../types/editor";
 import { mockPages } from "../data/mockData";
+import { toast } from "sonner";
 
 export function useEditor() {
   const [searchParams] = useSearchParams();

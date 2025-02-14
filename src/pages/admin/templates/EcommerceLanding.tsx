@@ -10,7 +10,7 @@ import {
   Truck,
   RefreshCw
 } from "lucide-react";
-import { TemplateContent } from "../PageEditor";
+import { TemplateContent } from "../types/editor";
 
 interface EcommerceLandingProps {
   content: TemplateContent;
