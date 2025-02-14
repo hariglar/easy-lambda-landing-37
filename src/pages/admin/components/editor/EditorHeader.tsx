@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Clock, Eye, Save, Globe, AlertTriangle, Copy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -135,8 +134,6 @@ export function EditorHeader({ lastSaved, onSave, isDirty, pageUrl, pageTitle }:
       
       toast.success("Page published successfully!");
       setPublishDialogOpen(false);
-      
-      navigate("/admin/pages");
     } catch (error) {
       toast.error("Failed to publish page. Please try again.");
     } finally {
