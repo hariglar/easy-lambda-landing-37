@@ -62,7 +62,7 @@ const defaultContent: TemplateContent = {
     title: "Discover Luxury Fashion",
     subtitle: "Explore our curated collection of premium fashion and accessories",
     ctaText: "Shop Now",
-    backgroundImage: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1600&h=800&fit=crop"
+    backgroundImage: "https://images.unsplash.com/photo-1441986338219-ce68d2c6f44d?w=1600&h=800&fit=crop"
   },
   features: [
     { title: "Free Shipping", description: "On orders over $50" },
@@ -106,6 +106,22 @@ export default function PageEditor() {
   const [isDirty, setIsDirty] = useState(false);
 
   const templateId = searchParams.get("template");
+  const pageId = searchParams.get("pageId");
+
+  useEffect(() => {
+    if (pageId) {
+      const storedPages = JSON.parse(localStorage.getItem('pages') || '[]');
+      const mockAndStoredPages = [...mockPages, ...storedPages];
+      const pageToEdit = mockAndStoredPages.find(p => p.id === Number(pageId));
+      
+      if (pageToEdit) {
+        const headerElement = document.querySelector('h1');
+        if (headerElement) {
+          headerElement.textContent = `Editing: ${pageToEdit.title}`;
+        }
+      }
+    }
+  }, [pageId]);
 
   const handleContentChange = (
     section: keyof TemplateContent,
@@ -132,8 +148,6 @@ export default function PageEditor() {
 
   const handleSave = async () => {
     try {
-      // Here you would typically make an API call to save the content
-      // For now, we'll just simulate a save
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       setLastSaved(new Date());

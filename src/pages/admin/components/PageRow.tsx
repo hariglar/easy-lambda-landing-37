@@ -51,7 +51,7 @@ export function PageRow({ page, onDeleteClick }: PageRowProps) {
             <Button 
               variant="ghost" 
               size="icon"
-              onClick={() => navigate(`/admin/pages/${page.id}/edit`)}
+              onClick={() => navigate(`/admin/pages/new?pageId=${page.id}`)}
             >
               <FileEdit className="w-4 h-4" />
             </Button>
