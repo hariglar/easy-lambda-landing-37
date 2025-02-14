@@ -1,4 +1,3 @@
-
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -41,6 +40,7 @@ export default function PageEditor() {
         isDirty={isDirty}
         pageUrl={pageUrl}
         pageTitle={pageTitle}
+        setPageUrl={setPageUrl}
       />
 
       <Card className="p-6">

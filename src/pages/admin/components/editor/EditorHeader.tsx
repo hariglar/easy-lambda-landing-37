@@ -20,9 +20,10 @@ interface EditorHeaderProps {
   isDirty: boolean;
   pageUrl: string;
   pageTitle: string;
+  setPageUrl: (url: string) => void;
 }
 
-export function EditorHeader({ lastSaved, onSave, isDirty, pageUrl, pageTitle }: EditorHeaderProps) {
+export function EditorHeader({ lastSaved, onSave, isDirty, pageUrl, pageTitle, setPageUrl }: EditorHeaderProps) {
   const navigate = useNavigate();
   const [publishDialogOpen, setPublishDialogOpen] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
@@ -108,8 +109,9 @@ export function EditorHeader({ lastSaved, onSave, isDirty, pageUrl, pageTitle }:
       if (currentPage) {
         currentPage.url = originalPublishedUrl;
         localStorage.setItem('pages', JSON.stringify(storedPages));
+        setPageUrl(originalPublishedUrl); // Update the Page URL field
         toast.success("URL reverted to original");
-        setPublishDialogOpen(false); // Close the dialog after reverting
+        setPublishDialogOpen(false);
       }
     }
   };
