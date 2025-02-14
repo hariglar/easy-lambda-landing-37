@@ -1,6 +1,6 @@
 
 import { useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useBlocker } from "react-router-dom";
 
 export function useNavigationProtection(isDirty: boolean) {
   const location = useLocation();
@@ -23,20 +23,9 @@ export function useNavigationProtection(isDirty: boolean) {
     };
   }, [isDirty]);
 
-  // Handle in-app navigation
-  useEffect(() => {
-    const unblock = navigate((to) => {
-      if (isDirty && to.pathname !== location.pathname) {
-        const userChoice = window.confirm(
-          "You have unsaved changes. Are you sure you want to leave?"
-        );
-        return userChoice;
-      }
-      return true;
-    });
-
-    return () => {
-      if (unblock) unblock();
-    };
-  }, [isDirty, navigate, location.pathname]);
+  // Handle in-app navigation using useBlocker
+  useBlocker(
+    ({ currentLocation, nextLocation }) =>
+      isDirty && currentLocation.pathname !== nextLocation.pathname
+  );
 }
