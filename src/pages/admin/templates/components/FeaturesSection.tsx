@@ -40,23 +40,35 @@ export function FeaturesSection({ features, onContentChange, isEditing }: Featur
     }
 
     return (
-      <div className="relative">
-        <RichTextEditor
-          content={value}
-          onChange={(newValue) => {
-            onChange(newValue);
-            setEditingField(null);
-          }}
-          className={className}
-        />
-        <Button
-          size="sm"
-          variant="ghost"
-          className="absolute top-2 right-2"
-          onClick={() => setEditingField(null)}
-        >
-          Done
-        </Button>
+      <div className="fixed inset-x-0 top-1/4 z-50 mx-auto max-w-2xl bg-background p-6 shadow-lg border rounded-lg">
+        <div className="mb-4">
+          <h3 className="text-lg font-semibold mb-2">Edit Content</h3>
+          <RichTextEditor
+            content={value}
+            onChange={(newValue) => {
+              onChange(newValue);
+              setEditingField(null);
+            }}
+            className={`min-h-[200px] ${className}`}
+          />
+        </div>
+        <div className="flex justify-end gap-2">
+          <Button
+            variant="outline"
+            onClick={() => setEditingField(null)}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={() => {
+              onChange(value);
+              setEditingField(null);
+            }}
+          >
+            Save Changes
+          </Button>
+        </div>
+        <div className="fixed inset-0 bg-black/40 -z-10" onClick={() => setEditingField(null)} />
       </div>
     );
   };
