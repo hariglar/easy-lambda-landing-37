@@ -1,9 +1,8 @@
+
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Clock, Eye, Save, Share2, Globe } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
@@ -16,7 +15,7 @@ import { toast } from "sonner";
 
 interface EditorHeaderProps {
   lastSaved: Date | null;
-  onSave: () => void;
+  onSave: () => Promise<void>;
   isDirty: boolean;
   pageUrl: string;
   pageTitle: string;
@@ -28,14 +27,22 @@ export function EditorHeader({ lastSaved, onSave, isDirty, pageUrl, pageTitle }:
   const [isPublishing, setIsPublishing] = useState(false);
 
   const handlePreview = async () => {
-    // First save any pending changes
-    if (isDirty) {
+    try {
+      // Always save before preview when creating a new page
       await onSave();
+      
+      // Ensure the pageUrl starts with a slash
+      const normalizedUrl = pageUrl.startsWith('/') ? pageUrl : `/${pageUrl}`;
+      const previewUrl = `/preview${normalizedUrl}`;
+      
+      // Add a small delay to ensure the save completes
+      setTimeout(() => {
+        window.open(previewUrl, '_blank');
+      }, 100);
+      
+    } catch (error) {
+      toast.error("Please save the page before previewing");
     }
-    
-    // Construct the preview URL and open in new tab
-    const previewUrl = `/preview${pageUrl}`;
-    window.open(previewUrl, '_blank');
   };
 
   const handlePublish = async () => {
@@ -61,24 +68,9 @@ export function EditorHeader({ lastSaved, onSave, isDirty, pageUrl, pageTitle }:
       // Save back to localStorage
       localStorage.setItem('pages', JSON.stringify(storedPages));
       
-      const publicUrl = `https://yoursite.com${pageUrl.startsWith('/') ? pageUrl : `/${pageUrl}`}`;
-      toast.success("Page published successfully!", {
-        description: (
-          <div className="mt-2">
-            <p>Your page is now live at:</p>
-            <a 
-              href={publicUrl} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-blue-500 hover:underline"
-            >
-              {publicUrl}
-            </a>
-          </div>
-        ),
-        duration: 5000,
-      });
+      toast.success("Page published successfully!");
       setPublishDialogOpen(false);
+      
       // After successful publish, navigate back to pages list
       navigate("/admin/pages");
     } catch (error) {
