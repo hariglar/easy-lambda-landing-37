@@ -23,6 +23,7 @@ export default function PageEditor() {
     lastSaved,
     content,
     isDirty,
+    setIsDirty,
     templateId,
     pageTitle,
     setPageTitle,
@@ -46,7 +47,7 @@ export default function PageEditor() {
               value={pageTitle}
               onChange={(e) => {
                 setPageTitle(e.target.value);
-                if (!isDirty) setIsDirty(true);
+                setIsDirty(true);
               }}
               placeholder="Enter page title..."
             />

@@ -39,10 +39,8 @@ export function useEditor() {
       const mockPage = mockPages.find(p => p.id === Number(pageId));
       if (mockPage) {
         setPageTitle(mockPage.title);
-        // For mock pages, we might need to initialize their content
-        const mockPageContent = mockPage.content || defaultContent;
-        console.log('Using mock page content:', mockPageContent);
-        setContent(mockPageContent);
+        // For mock pages, initialize with default content
+        setContent(defaultContent);
       }
     }
   }, [pageId]);
@@ -148,6 +146,7 @@ export function useEditor() {
     lastSaved,
     content,
     isDirty,
+    setIsDirty, // Added this to fix the missing setIsDirty error
     templateId,
     pageTitle,
     setPageTitle,
