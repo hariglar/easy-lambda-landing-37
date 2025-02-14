@@ -76,7 +76,7 @@ export function PageRow({ page, onDeleteClick }: PageRowProps) {
       </TableRow>
 
       <PagePreviewDialog
-        isOpen={showPreview}
+        open={showPreview}
         onOpenChange={setShowPreview}
         page={pageWithContent}
       />
