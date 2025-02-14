@@ -15,17 +15,27 @@ export default function Preview() {
     try {
       // Remove /preview from the pathname to get the actual page URL
       const pageUrl = location.pathname.replace('/preview', '');
+      console.log('Looking for page with URL:', pageUrl);
       
       // Load the page content from localStorage
       const storedPages = JSON.parse(localStorage.getItem('pages') || '[]');
-      const currentPage = storedPages.find((p: any) => p.url === pageUrl);
+      console.log('Stored pages:', storedPages);
+      
+      // Find the page, ensuring both URLs start with / for comparison
+      const currentPage = storedPages.find((p: any) => {
+        const storedUrl = p.url.startsWith('/') ? p.url : `/${p.url}`;
+        return storedUrl === pageUrl;
+      });
       
       if (currentPage?.content) {
+        console.log('Found page:', currentPage);
         setContent(currentPage.content);
       } else {
+        console.log('Page not found');
         setError('Page not found');
       }
     } catch (err) {
+      console.error('Error loading page:', err);
       setError('Failed to load page content');
     } finally {
       setIsLoading(false);
