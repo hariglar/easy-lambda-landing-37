@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   ShoppingBag,
   Star,
@@ -10,7 +9,7 @@ import {
   RefreshCw
 } from "lucide-react";
 import { TemplateContent } from "../types/editor";
-import { useState } from "react";
+import { EditableText } from "../components/editor/EditableText";
 
 interface EcommerceLandingProps {
   content: TemplateContent;
@@ -20,52 +19,6 @@ interface EcommerceLandingProps {
 
 export default function EcommerceLanding({ content, onContentChange, isEditing }: EcommerceLandingProps) {
   const { hero, features, products, newsletter } = content;
-  const [editingField, setEditingField] = useState<string | null>(null);
-
-  const EditableText = ({ 
-    value, 
-    onChange, 
-    className = "", 
-    type = "text",
-    identifier
-  }: { 
-    value: string; 
-    onChange: (value: string) => void; 
-    className?: string;
-    type?: "text" | "heading";
-    identifier: string;
-  }) => {
-    const isCurrentlyEditing = editingField === identifier;
-    
-    if (!isEditing) {
-      return <span className={className}>{value}</span>;
-    }
-
-    return isCurrentlyEditing ? (
-      <Input
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className={`${className} !bg-white/90 !border-primary`}
-        autoFocus
-        onBlur={() => setEditingField(null)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            setEditingField(null);
-          }
-        }}
-      />
-    ) : (
-      <div
-        className={`${className} cursor-pointer relative group`}
-        onClick={() => setEditingField(identifier)}
-      >
-        <span>{value}</span>
-        {isEditing && (
-          <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-        )}
-      </div>
-    );
-  };
 
   return (
     <div className="w-full min-h-screen">
@@ -83,15 +36,16 @@ export default function EcommerceLanding({ content, onContentChange, isEditing }
           <EditableText
             value={hero.title}
             onChange={(value) => onContentChange('hero', { title: value })}
-            className="text-5xl md:text-6xl font-bold mb-6 animate-in fade-in slide-in-from-bottom-4 duration-700 block"
-            type="heading"
+            className="text-5xl md:text-6xl font-bold mb-6 animate-in fade-in slide-in-from-bottom-4 duration-700"
             identifier="hero.title"
+            isEditing={isEditing}
           />
           <EditableText
             value={hero.subtitle}
             onChange={(value) => onContentChange('hero', { subtitle: value })}
-            className="text-xl md:text-2xl mb-8 max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200 block"
+            className="text-xl md:text-2xl mb-8 max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200"
             identifier="hero.subtitle"
+            isEditing={isEditing}
           />
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
             <Button size="lg" className="min-w-[200px] bg-white text-black hover:bg-white/90">
@@ -100,6 +54,7 @@ export default function EcommerceLanding({ content, onContentChange, isEditing }
                 onChange={(value) => onContentChange('hero', { ctaText: value })}
                 className="inline-flex items-center"
                 identifier="hero.ctaText"
+                isEditing={isEditing}
               />
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
@@ -109,6 +64,7 @@ export default function EcommerceLanding({ content, onContentChange, isEditing }
                 onChange={(value) => onContentChange('hero', { lookbookText: value })}
                 className="inline-flex items-center"
                 identifier="hero.lookbookText"
+                isEditing={isEditing}
               />
             </Button>
           </div>
@@ -133,12 +89,14 @@ export default function EcommerceLanding({ content, onContentChange, isEditing }
                     onChange={(value) => onContentChange('features', value, index, 'title')}
                     className="text-lg font-semibold mb-2"
                     identifier={`feature.${index}.title`}
+                    isEditing={isEditing}
                   />
                   <EditableText
                     value={feature.description}
                     onChange={(value) => onContentChange('features', value, index, 'description')}
                     className="text-muted-foreground"
                     identifier={`feature.${index}.description`}
+                    isEditing={isEditing}
                   />
                 </div>
               );
@@ -156,6 +114,7 @@ export default function EcommerceLanding({ content, onContentChange, isEditing }
             className="text-3xl font-bold text-center mb-12"
             type="heading"
             identifier="products.sectionTitle"
+            isEditing={isEditing}
           />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {products.map((product, index) => (
@@ -184,6 +143,7 @@ export default function EcommerceLanding({ content, onContentChange, isEditing }
                     onChange={(value) => onContentChange('products', value, index, 'name')}
                     className="text-lg font-semibold mb-2 block"
                     identifier={`product.${index}.name`}
+                    isEditing={isEditing}
                   />
                   <div className="flex items-center justify-between mb-4">
                     <EditableText
@@ -191,6 +151,7 @@ export default function EcommerceLanding({ content, onContentChange, isEditing }
                       onChange={(value) => onContentChange('products', value, index, 'price')}
                       className="text-primary font-bold"
                       identifier={`product.${index}.price`}
+                      isEditing={isEditing}
                     />
                     <div className="flex items-center gap-1">
                       <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
@@ -206,6 +167,7 @@ export default function EcommerceLanding({ content, onContentChange, isEditing }
                       onChange={(value) => onContentChange('products', value, index, 'buttonText')}
                       className="inline-flex items-center"
                       identifier={`product.${index}.buttonText`}
+                      isEditing={isEditing}
                     />
                   </Button>
                 </div>
@@ -225,12 +187,14 @@ export default function EcommerceLanding({ content, onContentChange, isEditing }
               className="text-3xl font-bold mb-4 block"
               type="heading"
               identifier="newsletter.title"
+              isEditing={isEditing}
             />
             <EditableText
               value={newsletter.description}
               onChange={(value) => onContentChange('newsletter', { description: value })}
               className="mb-8 text-primary-foreground/80 block"
               identifier="newsletter.description"
+              isEditing={isEditing}
             />
             <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
               {isEditing ? (
@@ -246,6 +210,7 @@ export default function EcommerceLanding({ content, onContentChange, isEditing }
                       onChange={(value) => onContentChange('newsletter', { placeholderText: value })}
                       className="text-black px-3 w-full"
                       identifier="newsletter.placeholderText"
+                      isEditing={isEditing}
                     />
                   </div>
                 </div>
@@ -262,6 +227,7 @@ export default function EcommerceLanding({ content, onContentChange, isEditing }
                   onChange={(value) => onContentChange('newsletter', { buttonText: value })}
                   className="inline-flex items-center"
                   identifier="newsletter.buttonText"
+                  isEditing={isEditing}
                 />
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
