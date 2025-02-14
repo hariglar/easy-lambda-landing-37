@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -233,29 +234,18 @@ export default function EcommerceLanding({ content, onContentChange, isEditing }
               identifier="newsletter.description"
             />
             <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-              {isEditing ? (
-                <div className="relative flex-1">
-                  <Input 
-                    type="email" 
-                    placeholder={newsletter.placeholderText}
-                    className="bg-white text-black"
+              <Input 
+                type="email" 
+                placeholder={isEditing ? (
+                  <EditableText
+                    value={newsletter.placeholderText || "Enter your email"}
+                    onChange={(value) => onContentChange('newsletter', { placeholderText: value })}
+                    className="text-black"
+                    identifier="newsletter.placeholderText"
                   />
-                  <div className="absolute inset-0 flex items-center">
-                    <EditableText
-                      value={newsletter.placeholderText}
-                      onChange={(value) => onContentChange('newsletter', { placeholderText: value })}
-                      className="text-black px-3 w-full"
-                      identifier="newsletter.placeholderText"
-                    />
-                  </div>
-                </div>
-              ) : (
-                <Input 
-                  type="email" 
-                  placeholder={newsletter.placeholderText}
-                  className="bg-white text-black"
-                />
-              )}
+                ) : (newsletter.placeholderText || "Enter your email")}
+                className="bg-white text-black"
+              />
               <Button variant="secondary" className="whitespace-nowrap">
                 <EditableText
                   value={newsletter.buttonText || "Subscribe"}
