@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Clock, Eye, Save, Globe, Copy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { TemplateContent } from "../../types/editor";
 
 interface EditorHeaderActionsProps {
   lastSaved: Date | null;
@@ -11,26 +10,15 @@ interface EditorHeaderActionsProps {
   isDirty: boolean;
   pageUrl: string;
   onPublish: () => void;
-  content: TemplateContent;
 }
 
-export function EditorHeaderActions({ 
-  lastSaved, 
-  onSave, 
-  isDirty, 
-  pageUrl, 
-  onPublish,
-  content 
-}: EditorHeaderActionsProps) {
+export function EditorHeaderActions({ lastSaved, onSave, isDirty, pageUrl, onPublish }: EditorHeaderActionsProps) {
   const navigate = useNavigate();
   
   const handlePreview = async () => {
     try {
       // Save the page first
       await onSave();
-      
-      // Store the current content in sessionStorage for preview
-      sessionStorage.setItem('previewData', JSON.stringify(content));
       
       // Clean and normalize the URL, ensuring proper encoding
       const cleanUrl = pageUrl.trim();

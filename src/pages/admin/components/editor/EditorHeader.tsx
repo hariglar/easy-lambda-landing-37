@@ -1,11 +1,11 @@
 
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Globe } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useState, useMemo } from "react";
 import { EditorHeaderActions } from "./EditorHeaderActions";
 import { PublishDialog } from "./PublishDialog";
-import { useState } from "react";
-import { TemplateContent } from "../../types/editor";
+import { toast } from "sonner";
 
 interface EditorHeaderProps {
   lastSaved: Date | null;
@@ -14,47 +14,126 @@ interface EditorHeaderProps {
   pageUrl: string;
   pageTitle: string;
   setPageUrl: (url: string) => void;
-  content: TemplateContent;
 }
 
-export function EditorHeader({ 
-  lastSaved, 
-  onSave, 
-  isDirty, 
-  pageUrl,
-  pageTitle,
-  setPageUrl,
-  content
-}: EditorHeaderProps) {
-  const [showPublishDialog, setShowPublishDialog] = useState(false);
+export function EditorHeader({ lastSaved, onSave, isDirty, pageUrl, pageTitle, setPageUrl }: EditorHeaderProps) {
+  const navigate = useNavigate();
+  const [publishDialogOpen, setPublishDialogOpen] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [originalPublishedUrl, setOriginalPublishedUrl] = useState<string | null>(null);
+
+  const formattedUrl = useMemo(() => {
+    const formatted = pageUrl
+      .toLowerCase()
+      .replace(/[^a-z0-9-]/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .replace(/-+/g, '-');
+
+    return formatted.startsWith('/') ? formatted : `/${formatted}`;
+  }, [pageUrl]);
+
+  const handlePublishClick = () => {
+    const storedPages = JSON.parse(localStorage.getItem('pages') || '[]');
+    const currentPageId = new URLSearchParams(window.location.search).get('pageId');
+    const currentPage = storedPages.find((p: any) => p.id === Number(currentPageId));
+    
+    if (currentPage?.status === 'published') {
+      setOriginalPublishedUrl(currentPage.url);
+    } else {
+      setOriginalPublishedUrl(null);
+    }
+    
+    setPublishDialogOpen(true);
+  };
+
+  const handlePublish = async () => {
+    await onSave();
+
+    setIsPublishing(true);
+    try {
+      const storedPages = JSON.parse(localStorage.getItem('pages') || '[]');
+      const currentPageId = new URLSearchParams(window.location.search).get('pageId');
+      const currentPage = storedPages.find((p: any) => p.id === Number(currentPageId));
+      
+      if (!currentPage) {
+        throw new Error("Page not found");
+      }
+
+      // Check URL uniqueness before publishing
+      const otherPages = storedPages.filter((p: any) => p.id !== Number(currentPageId));
+      const isUrlTaken = otherPages.some((p: any) => p.url === formattedUrl);
+      
+      if (isUrlTaken) {
+        toast.error("This URL is already in use by another page. Please choose a different URL.");
+        setIsPublishing(false);
+        return;
+      }
+
+      currentPage.url = formattedUrl;
+      currentPage.status = "published";
+      currentPage.publishedAt = new Date().toISOString();
+      
+      localStorage.setItem('pages', JSON.stringify(storedPages));
+      
+      toast.success("Page published successfully!");
+      setPublishDialogOpen(false);
+    } catch (error) {
+      toast.error("Failed to publish page. Please try again.");
+    } finally {
+      setIsPublishing(false);
+    }
+  };
+
+  const handleRevertUrl = () => {
+    if (originalPublishedUrl) {
+      const storedPages = JSON.parse(localStorage.getItem('pages') || '[]');
+      const currentPageId = new URLSearchParams(window.location.search).get('pageId');
+      const currentPage = storedPages.find((p: any) => p.id === Number(currentPageId));
+      
+      if (currentPage) {
+        currentPage.url = originalPublishedUrl;
+        localStorage.setItem('pages', JSON.stringify(storedPages));
+        setPageUrl(originalPublishedUrl);
+        setPublishDialogOpen(false);
+      }
+    }
+  };
+
+  const hasUrlChanged = originalPublishedUrl && originalPublishedUrl !== formattedUrl;
 
   return (
-    <Card className="p-4">
+    <>
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <h1 className="text-lg font-semibold">{pageTitle}</h1>
-          <Button variant="ghost" size="sm" className="text-muted-foreground">
-            <Globe className="w-4 h-4 mr-2" />
-            {pageUrl}
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" onClick={() => navigate("/admin/pages")}>
+            <ArrowLeft className="w-4 h-4" />
           </Button>
+          <div>
+            <h1 className="text-4xl font-bold tracking-tight">{pageTitle || "Create New Page"}</h1>
+            <p className="text-muted-foreground mt-2">
+              Design and publish your landing page.
+            </p>
+          </div>
         </div>
-
         <EditorHeaderActions
           lastSaved={lastSaved}
           onSave={onSave}
           isDirty={isDirty}
           pageUrl={pageUrl}
-          onPublish={() => setShowPublishDialog(true)}
-          content={content}
+          onPublish={handlePublishClick}
         />
       </div>
 
       <PublishDialog
-        open={showPublishDialog}
-        onOpenChange={setShowPublishDialog}
-        pageUrl={pageUrl}
-        onUrlChange={setPageUrl}
+        open={publishDialogOpen}
+        onOpenChange={setPublishDialogOpen}
+        originalPublishedUrl={originalPublishedUrl}
+        formattedUrl={formattedUrl}
+        hasUrlChanged={hasUrlChanged}
+        onRevertUrl={handleRevertUrl}
+        onPublish={handlePublish}
+        isPublishing={isPublishing}
       />
-    </Card>
+    </>
   );
 }

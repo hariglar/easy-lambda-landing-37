@@ -5,7 +5,6 @@ import { TableRow, TableCell } from "@/components/ui/table";
 import { Eye, FileEdit, Globe, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { PagePreviewDialog } from "./PagePreviewDialog";
-import { TemplateContent, defaultContent } from "../types/editor";
 
 interface PageRowProps {
   page: {
@@ -15,7 +14,6 @@ interface PageRowProps {
     url: string;
     lastModified: string;
     views: number;
-    content?: TemplateContent;
   };
   onDeleteClick: (id: number) => void;
 }
@@ -23,12 +21,6 @@ interface PageRowProps {
 export function PageRow({ page, onDeleteClick }: PageRowProps) {
   const navigate = useNavigate();
   const [showPreview, setShowPreview] = useState(false);
-
-  // Ensure we always have content, fallback to defaultContent if none exists
-  const pageWithContent = {
-    ...page,
-    content: page.content || defaultContent
-  };
 
   return (
     <>
@@ -76,9 +68,9 @@ export function PageRow({ page, onDeleteClick }: PageRowProps) {
       </TableRow>
 
       <PagePreviewDialog
-        open={showPreview}
+        isOpen={showPreview}
         onOpenChange={setShowPreview}
-        page={pageWithContent}
+        page={page}
       />
     </>
   );
