@@ -23,7 +23,7 @@ export function EditorHeaderActions({ lastSaved, onSave, isDirty, pageUrl, onPub
       // Clean and normalize the URL, ensuring proper encoding
       const cleanUrl = pageUrl.trim();
       const normalizedUrl = cleanUrl.startsWith('/') ? cleanUrl : `/${cleanUrl}`;
-      const previewUrl = `/preview${normalizedUrl}`;
+      const previewUrl = `${window.location.origin}/preview${normalizedUrl}`;
       
       // Open in new tab
       window.open(previewUrl, '_blank');
