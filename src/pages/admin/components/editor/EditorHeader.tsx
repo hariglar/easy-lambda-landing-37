@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useState, useMemo } from "react";
 import { EditorHeaderActions } from "./EditorHeaderActions";
 import { PublishDialog } from "./PublishDialog";
+import { toast } from "sonner";
 
 interface EditorHeaderProps {
   lastSaved: Date | null;
@@ -43,6 +44,44 @@ export function EditorHeader({ lastSaved, onSave, isDirty, pageUrl, pageTitle, s
     }
     
     setPublishDialogOpen(true);
+  };
+
+  const handlePublish = async () => {
+    await onSave();
+
+    setIsPublishing(true);
+    try {
+      const storedPages = JSON.parse(localStorage.getItem('pages') || '[]');
+      const currentPageId = new URLSearchParams(window.location.search).get('pageId');
+      const currentPage = storedPages.find((p: any) => p.id === Number(currentPageId));
+      
+      if (!currentPage) {
+        throw new Error("Page not found");
+      }
+
+      // Check URL uniqueness before publishing
+      const otherPages = storedPages.filter((p: any) => p.id !== Number(currentPageId));
+      const isUrlTaken = otherPages.some((p: any) => p.url === formattedUrl);
+      
+      if (isUrlTaken) {
+        toast.error("This URL is already in use by another page. Please choose a different URL.");
+        setIsPublishing(false);
+        return;
+      }
+
+      currentPage.url = formattedUrl;
+      currentPage.status = "published";
+      currentPage.publishedAt = new Date().toISOString();
+      
+      localStorage.setItem('pages', JSON.stringify(storedPages));
+      
+      toast.success("Page published successfully!");
+      setPublishDialogOpen(false);
+    } catch (error) {
+      toast.error("Failed to publish page. Please try again.");
+    } finally {
+      setIsPublishing(false);
+    }
   };
 
   const handleRevertUrl = () => {
