@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { mockPages } from "../data/mockData";
-import { useNavigationProtection } from "./useNavigationProtection";
 import { useContent } from "./useContent";
 import { isUrlUnique } from "../utils/urlUtils";
 
@@ -28,9 +27,6 @@ export function useEditor() {
     handleSave,
     setContent
   } = useContent(pageId);
-
-  // Apply navigation protection
-  useNavigationProtection(isDirty);
 
   // Load existing content when editing a page
   useEffect(() => {
