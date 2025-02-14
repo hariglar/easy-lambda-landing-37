@@ -21,10 +21,20 @@ export default function Preview() {
       const storedPages = JSON.parse(localStorage.getItem('pages') || '[]');
       console.log('Stored pages:', storedPages);
       
-      // Find the page, ensuring both URLs start with / for comparison
+      // Find the page, ensuring URL comparison is normalized
       const currentPage = storedPages.find((p: any) => {
-        const storedUrl = p.url.startsWith('/') ? p.url : `/${p.url}`;
-        return storedUrl === pageUrl;
+        // Normalize both URLs by ensuring they start with / and trimming any trailing spaces
+        const storedUrl = p.url.trim();
+        const normalizedStoredUrl = storedUrl.startsWith('/') ? storedUrl : `/${storedUrl}`;
+        const normalizedPageUrl = pageUrl.trim();
+        
+        console.log('Comparing URLs:', {
+          normalizedStoredUrl,
+          normalizedPageUrl,
+          match: normalizedStoredUrl === normalizedPageUrl
+        });
+        
+        return normalizedStoredUrl === normalizedPageUrl;
       });
       
       if (currentPage?.content) {
