@@ -1,5 +1,6 @@
+
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Clock, Eye, Save, Share2, Globe, AlertTriangle, Copy } from "lucide-react";
+import { ArrowLeft, Clock, Eye, Save, Globe, AlertTriangle, Copy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useMemo } from "react";
 import {
@@ -78,7 +79,7 @@ export function EditorHeader({ lastSaved, onSave, isDirty, pageUrl, pageTitle }:
       localStorage.setItem('pages', JSON.stringify(storedPages));
       
       toast.success("Page duplicated successfully!");
-      navigate(`/admin/pages/new?pageId=${newPageId}&template=ecommerce`);
+      navigate("/admin/pages"); // Navigate back to pages list instead
     } catch (error) {
       toast.error("Failed to duplicate page. Please try again.");
     }
