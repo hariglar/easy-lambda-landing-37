@@ -151,7 +151,13 @@ export default function EcommerceLanding({ content, onContentChange, isEditing }
       {/* Products Section */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">Featured Products</h2>
+          <EditableText
+            value="Featured Products"
+            onChange={(value) => onContentChange('products', { sectionTitle: value })}
+            className="text-3xl font-bold text-center mb-12"
+            type="heading"
+            identifier="products.sectionTitle"
+          />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {products.map((product, index) => (
               <div 
@@ -196,7 +202,12 @@ export default function EcommerceLanding({ content, onContentChange, isEditing }
                   </div>
                   <Button className="w-full">
                     <ShoppingBag className="mr-2 h-4 w-4" />
-                    Add to Cart
+                    <EditableText
+                      value="Add to Cart"
+                      onChange={(value) => onContentChange('products', value, index, 'buttonText')}
+                      className="inline-flex items-center"
+                      identifier={`product.${index}.buttonText`}
+                    />
                   </Button>
                 </div>
               </div>
@@ -225,7 +236,14 @@ export default function EcommerceLanding({ content, onContentChange, isEditing }
             <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
               <Input 
                 type="email" 
-                placeholder="Enter your email"
+                placeholder={isEditing ? (
+                  <EditableText
+                    value={newsletter.placeholderText || "Enter your email"}
+                    onChange={(value) => onContentChange('newsletter', { placeholderText: value })}
+                    className="text-black"
+                    identifier="newsletter.placeholderText"
+                  />
+                ) : (newsletter.placeholderText || "Enter your email")}
                 className="bg-white text-black"
               />
               <Button variant="secondary" className="whitespace-nowrap">
