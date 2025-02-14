@@ -27,7 +27,7 @@ export const defaultContent: TemplateContent = {
     title: "Discover Luxury Fashion",
     subtitle: "Explore our curated collection of premium fashion and accessories",
     ctaText: "Shop Now",
-    backgroundImage: "https://images.unsplash.com/photo-1441986338219-ce68d2c6f44d?w=1600&h=800&fit=crop"
+    backgroundImage: "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=1600&h=900&fit=crop"
   },
   features: [
     { title: "Free Shipping", description: "On orders over $50" },

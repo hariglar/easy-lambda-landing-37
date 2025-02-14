@@ -24,12 +24,13 @@ export default function EcommerceLanding({ content }: EcommerceLandingProps) {
       {/* Hero Section */}
       <section className="relative h-[600px] flex items-center justify-center overflow-hidden">
         <div 
-          className="absolute inset-0 bg-cover bg-center" 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{ 
-            backgroundImage: `url("${hero.backgroundImage}")`,
-            filter: 'brightness(0.7)'
+            backgroundImage: hero.backgroundImage ? `url("${hero.backgroundImage}")` : 'none',
+            backgroundColor: !hero.backgroundImage ? 'rgb(15 23 42)' : undefined,
           }} 
         />
+        <div className="absolute inset-0 bg-black/40" />
         <div className="relative z-10 container mx-auto px-4 text-center text-white">
           <h1 className="text-5xl md:text-6xl font-bold mb-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
             {hero.title}
