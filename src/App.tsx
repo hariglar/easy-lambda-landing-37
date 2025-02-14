@@ -8,6 +8,7 @@ import { AdminLayout } from "./components/AdminLayout";
 import Dashboard from "./pages/admin/Dashboard";
 import Pages from "./pages/admin/Pages";
 import PageEditor from "./pages/admin/PageEditor";
+import Preview from "./pages/Preview";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,7 @@ const App = () => (
           <Route path="/admin/pages" element={<AdminLayout><Pages /></AdminLayout>} />
           <Route path="/admin/pages/new" element={<AdminLayout><PageEditor /></AdminLayout>} />
           <Route path="/admin/pages/:id/edit" element={<AdminLayout><PageEditor /></AdminLayout>} />
+          <Route path="/preview/*" element={<Preview />} />
           <Route path="/admin/*" element={<AdminLayout><NotFound /></AdminLayout>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
