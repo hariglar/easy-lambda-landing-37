@@ -6,9 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Globe } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import EcommerceLanding from "../templates/EcommerceLanding";
 import { TemplateContent } from "../types/editor";
@@ -79,12 +77,6 @@ export function PagePreviewDialog({ isOpen, onOpenChange, page }: PagePreviewDia
               <p className="text-muted-foreground">Total Views</p>
               <p className="font-medium">{page.views.toLocaleString()}</p>
             </div>
-          </div>
-
-          <div className="flex justify-end">
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
-              Close
-            </Button>
           </div>
         </div>
       </DialogContent>
