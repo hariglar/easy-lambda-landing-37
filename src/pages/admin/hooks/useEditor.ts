@@ -20,19 +20,24 @@ export function useEditor() {
   // Load existing content when editing a page
   useEffect(() => {
     if (pageId) {
+      console.log('Loading content for pageId:', pageId);
       const storedPages = JSON.parse(localStorage.getItem('pages') || '[]');
-      const mockAndStoredPages = [...mockPages, ...storedPages];
-      const pageToEdit = mockAndStoredPages.find(p => p.id === Number(pageId));
       
-      if (pageToEdit) {
-        const headerElement = document.querySelector('h1');
-        if (headerElement) {
-          headerElement.textContent = `Editing: ${pageToEdit.title}`;
-        }
-        // Load the page's content if it exists
-        if (pageToEdit.content) {
-          setContent(pageToEdit.content);
-        }
+      // First check stored pages
+      const storedPage = storedPages.find(p => p.id === Number(pageId));
+      if (storedPage?.content) {
+        console.log('Found stored page content:', storedPage.content);
+        setContent(storedPage.content);
+        return;
+      }
+      
+      // If not found in stored pages, check mock pages
+      const mockPage = mockPages.find(p => p.id === Number(pageId));
+      if (mockPage) {
+        // For mock pages, we might need to initialize their content
+        const mockPageContent = mockPage.content || defaultContent;
+        console.log('Using mock page content:', mockPageContent);
+        setContent(mockPageContent);
       }
     }
   }, [pageId]);
@@ -69,32 +74,41 @@ export function useEditor() {
       const currentDate = new Date().toISOString().split('T')[0];
 
       if (pageId) {
-        // Update existing page
+        // Always create or update in storedPages
         const pageIndex = storedPages.findIndex((p: any) => p.id === Number(pageId));
         
         if (pageIndex !== -1) {
-          // Update existing page
+          // Update existing stored page
+          console.log('Updating existing stored page:', pageId);
           storedPages[pageIndex] = {
             ...storedPages[pageIndex],
             content,
             lastModified: currentDate
           };
         } else {
-          // If not found in stored pages, check mock pages
-          const mockPageIndex = mockPages.findIndex(p => p.id === Number(pageId));
-          if (mockPageIndex !== -1) {
-            // Create a new stored page based on the mock page
-            storedPages.push({
-              ...mockPages[mockPageIndex],
+          // Create new stored page, either from mock or as new
+          const mockPage = mockPages.find(p => p.id === Number(pageId));
+          console.log('Creating new stored page from mock:', mockPage);
+          storedPages.push({
+            ...(mockPage || {
               id: Number(pageId),
-              content,
-              lastModified: currentDate
-            });
-          }
+              title: "New Page",
+              status: "draft",
+              url: `/page-${pageId}`,
+              views: 0
+            }),
+            content,
+            lastModified: currentDate
+          });
         }
       } else {
-        // Create new page
-        const newPageId = Math.max(...storedPages.map((p: any) => p.id), 0) + 1;
+        // Create completely new page
+        const newPageId = Math.max(
+          ...storedPages.map((p: any) => p.id),
+          ...mockPages.map(p => p.id),
+          0
+        ) + 1;
+        console.log('Creating completely new page:', newPageId);
         storedPages.push({
           id: newPageId,
           title: "New Page",
@@ -110,6 +124,8 @@ export function useEditor() {
       setLastSaved(new Date());
       setIsDirty(false);
       toast.success("Changes saved successfully!");
+      
+      console.log('Saved pages:', storedPages);
     } catch (error) {
       console.error('Save error:', error);
       toast.error("Failed to save changes. Please try again.");
