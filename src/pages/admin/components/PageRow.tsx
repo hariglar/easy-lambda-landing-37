@@ -5,6 +5,7 @@ import { TableRow, TableCell } from "@/components/ui/table";
 import { Eye, FileEdit, Globe, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { PagePreviewDialog } from "./PagePreviewDialog";
+import { TemplateContent } from "../types/editor";
 
 interface PageRowProps {
   page: {
@@ -14,6 +15,7 @@ interface PageRowProps {
     url: string;
     lastModified: string;
     views: number;
+    content: TemplateContent;
   };
   onDeleteClick: (id: number) => void;
 }
