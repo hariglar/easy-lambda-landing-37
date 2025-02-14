@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { TemplateContent, defaultContent } from "../types/editor";
@@ -89,7 +88,7 @@ export function useEditor() {
       const currentPageId = pageId ? Number(pageId) : null;
       
       if (!isUrlUnique(pageUrl, currentPageId)) {
-        toast.error("This URL is already in use by another page. Please choose a different URL.", {
+        toast.error("This URL is already in use by another page.", {
           description: "Please choose a different URL.",
           action: {
             label: <X className="h-4 w-4" />,
@@ -162,7 +161,8 @@ export function useEditor() {
       console.log('Saved pages:', storedPages);
     } catch (error) {
       console.error('Save error:', error);
-      toast.error("Failed to save changes. Please try again.", {
+      toast.error("Failed to save changes.", {
+        description: "Please try again.",
         action: {
           label: <X className="h-4 w-4" />,
           onClick: () => toast.dismiss()
