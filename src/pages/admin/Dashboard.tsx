@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -117,10 +116,6 @@ export default function Dashboard() {
             Here's what's happening with your landing pages today.
           </p>
         </div>
-        <Button onClick={() => navigate("/admin/pages/new")} size="lg" className="shadow-sm">
-          <PlusCircle className="w-4 h-4 mr-2" />
-          Create New Page
-        </Button>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
