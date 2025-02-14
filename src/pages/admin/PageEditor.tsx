@@ -1,30 +1,19 @@
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { 
-  ArrowLeft, 
-  Save, 
-  Globe, 
-  Code, 
-  Layout, 
-  Type, 
-  Image as ImageIcon,
-  Layers,
-  Settings,
-  Eye,
-  Share2,
-  Clock
-} from "lucide-react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { cn } from "@/lib/utils";
-import EcommerceLanding from "./templates/EcommerceLanding";
+import { Globe, ImageIcon, Layout, Layers, Type } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
+import { EditorHeader } from "./components/editor/EditorHeader";
+import { EditorTabs } from "./components/editor/EditorTabs";
+import { DesignTab } from "./components/editor/DesignTab";
+import { Template } from "./types";
 
-const templates = [
+const templates: Template[] = [
   {
     id: 1,
     name: "Minimal Landing",
@@ -46,7 +35,6 @@ const templates = [
 ];
 
 export default function PageEditor() {
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [currentTab, setCurrentTab] = useState("design");
   const [selectedTemplate, setSelectedTemplate] = useState<number | null>(null);
@@ -55,161 +43,22 @@ export default function PageEditor() {
 
   const templateId = searchParams.get("template");
 
-  const renderTemplate = () => {
-    switch (templateId) {
-      case "ecommerce":
-        return <EcommerceLanding />;
-      default:
-        return null;
-    }
-  };
-
   return (
     <div className="space-y-8 animate-in fade-in">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/admin/pages")}>
-            <ArrowLeft className="w-4 h-4" />
-          </Button>
-          <div>
-            <h1 className="text-4xl font-bold tracking-tight">Create New Page</h1>
-            <p className="text-muted-foreground mt-2">
-              Design and publish your landing page.
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-4">
-          {lastSaved && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Clock className="w-4 h-4" />
-              Last saved {lastSaved.toLocaleTimeString()}
-            </div>
-          )}
-          <Button variant="outline">
-            <Share2 className="w-4 h-4 mr-2" />
-            Share
-          </Button>
-          <Button variant="outline">
-            <Eye className="w-4 h-4 mr-2" />
-            Preview
-          </Button>
-          <Button>
-            <Save className="w-4 h-4 mr-2" />
-            Save Changes
-          </Button>
-        </div>
-      </div>
+      <EditorHeader lastSaved={lastSaved} />
 
       <Tabs value={currentTab} onValueChange={setCurrentTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6 lg:w-[600px]">
-          <TabsTrigger value="design">
-            <Layout className="w-4 h-4 mr-2" />
-            Design
-          </TabsTrigger>
-          <TabsTrigger value="content">
-            <Type className="w-4 h-4 mr-2" />
-            Content
-          </TabsTrigger>
-          <TabsTrigger value="media">
-            <ImageIcon className="w-4 h-4 mr-2" />
-            Media
-          </TabsTrigger>
-          <TabsTrigger value="code">
-            <Code className="w-4 h-4 mr-2" />
-            Code
-          </TabsTrigger>
-          <TabsTrigger value="components">
-            <Layers className="w-4 h-4 mr-2" />
-            Components
-          </TabsTrigger>
-          <TabsTrigger value="settings">
-            <Settings className="w-4 h-4 mr-2" />
-            Settings
-          </TabsTrigger>
-        </TabsList>
+        <EditorTabs />
 
         <TabsContent value="design" className="space-y-6">
-          {templateId ? (
-            <div className="w-full min-h-[600px] border rounded-lg overflow-hidden">
-              {renderTemplate()}
-            </div>
-          ) : (
-            <div className="space-y-6">
-              <Card className="p-6">
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>Page Title</Label>
-                    <Input placeholder="Enter page title..." />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>URL Path</Label>
-                    <Input placeholder="Enter URL path..." />
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <Label>Meta Information</Label>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={() => setMetaExpanded(!metaExpanded)}
-                      >
-                        {metaExpanded ? 'Hide' : 'Show'} Meta Info
-                      </Button>
-                    </div>
-                    {metaExpanded && (
-                      <div className="space-y-4 animate-in slide-in-from-top-2">
-                        <div className="space-y-2">
-                          <Label>Meta Title</Label>
-                          <Input placeholder="Enter meta title..." />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Meta Description</Label>
-                          <Textarea placeholder="Enter meta description..." />
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </Card>
-
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Choose a Template</h3>
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {templates.map((template) => (
-                    <Card 
-                      key={template.id}
-                      className={cn(
-                        "group cursor-pointer overflow-hidden transition-all",
-                        selectedTemplate === template.id && 'ring-2 ring-primary'
-                      )}
-                      onClick={() => setSelectedTemplate(template.id)}
-                    >
-                      <div className="aspect-video relative overflow-hidden">
-                        <img 
-                          src={template.thumbnail} 
-                          alt={template.name}
-                          className="object-cover w-full h-full transition-transform group-hover:scale-105"
-                        />
-                        {selectedTemplate === template.id && (
-                          <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
-                            <span className="bg-white text-primary px-3 py-1 rounded-full text-sm font-medium">
-                              Selected
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                      <div className="p-4">
-                        <h4 className="font-semibold">{template.name}</h4>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {template.description}
-                        </p>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
+          <DesignTab 
+            templateId={templateId}
+            selectedTemplate={selectedTemplate}
+            setSelectedTemplate={setSelectedTemplate}
+            metaExpanded={metaExpanded}
+            setMetaExpanded={setMetaExpanded}
+            templates={templates}
+          />
         </TabsContent>
 
         <TabsContent value="content" className="space-y-6">
