@@ -1,4 +1,6 @@
+
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   ShoppingBag,
   Star,
@@ -112,7 +114,6 @@ export default function EcommerceLanding({ content, onContentChange, isEditing }
             value="Featured Products"
             onChange={(value) => onContentChange('products', { sectionTitle: value })}
             className="text-3xl font-bold text-center mb-12"
-            type="heading"
             identifier="products.sectionTitle"
             isEditing={isEditing}
           />
@@ -185,7 +186,6 @@ export default function EcommerceLanding({ content, onContentChange, isEditing }
               value={newsletter.title}
               onChange={(value) => onContentChange('newsletter', { title: value })}
               className="text-3xl font-bold mb-4 block"
-              type="heading"
               identifier="newsletter.title"
               isEditing={isEditing}
             />
