@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { TemplateContent, defaultContent } from "../types/editor";
@@ -18,19 +19,7 @@ export function useEditor() {
   const templateId = searchParams.get("template");
   const pageId = searchParams.get("pageId");
 
-  const isUrlUnique = (url: string, currentPageId: number | null) => {
-    const storedPages = JSON.parse(localStorage.getItem('pages') || '[]');
-    const normalizedUrl = url.startsWith('/') ? url : `/${url}`;
-    
-    return !storedPages.some((page: any) => {
-      // Skip checking against the current page
-      if (currentPageId && page.id === currentPageId) {
-        return false;
-      }
-      return page.url === normalizedUrl;
-    });
-  };
-
+  // Load existing content when editing a page
   useEffect(() => {
     if (pageId) {
       console.log('Loading content for pageId:', pageId);
@@ -84,13 +73,6 @@ export function useEditor() {
 
   const handleSave = async () => {
     try {
-      const currentPageId = pageId ? Number(pageId) : null;
-      
-      if (!isUrlUnique(pageUrl, currentPageId)) {
-        toast.error("This URL is already in use by another page. Please choose a different URL.");
-        return;
-      }
-
       // Simulate API delay
       await new Promise(resolve => setTimeout(resolve, 1000));
       
