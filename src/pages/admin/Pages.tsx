@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { 
   Table, 
   TableHeader, 
@@ -43,30 +44,6 @@ const mockPages = [
     url: "/contact",
     lastModified: "2024-02-18",
     views: 567
-  },
-  {
-    id: 4,
-    title: "About Us",
-    status: "published",
-    url: "/about",
-    lastModified: "2024-02-17",
-    views: 890
-  },
-  {
-    id: 5,
-    title: "Services",
-    status: "draft",
-    url: "/services",
-    lastModified: "2024-02-16",
-    views: 123
-  },
-  {
-    id: 6,
-    title: "Blog",
-    status: "published",
-    url: "/blog",
-    lastModified: "2024-02-15",
-    views: 2341
   }
 ];
 
@@ -85,12 +62,33 @@ export default function Pages() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageToDelete, setPageToDelete] = useState<number | null>(null);
 
+  // Load pages from localStorage on component mount
+  useEffect(() => {
+    const storedPages = localStorage.getItem('pages');
+    if (storedPages) {
+      setPages([...mockPages, ...JSON.parse(storedPages)]);
+    }
+  }, []);
+
   const handleSort = (field: SortField) => {
     if (sortField === field) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
     } else {
       setSortField(field);
       setSortDirection("asc");
+    }
+  };
+
+  const handleDeletePage = () => {
+    if (pageToDelete) {
+      const updatedPages = pages.filter(page => page.id !== pageToDelete);
+      setPages(updatedPages);
+      localStorage.setItem('pages', JSON.stringify(updatedPages.filter(page => !mockPages.find(mp => mp.id === page.id))));
+      toast({
+        title: "Page deleted",
+        description: "The page has been successfully deleted.",
+      });
+      setPageToDelete(null);
     }
   };
 
@@ -115,17 +113,6 @@ export default function Pages() {
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
-
-  const handleDeletePage = () => {
-    if (pageToDelete) {
-      setPages(prevPages => prevPages.filter(page => page.id !== pageToDelete));
-      toast({
-        title: "Page deleted",
-        description: "The page has been successfully deleted.",
-      });
-      setPageToDelete(null);
-    }
-  };
 
   return (
     <div className="space-y-8 animate-in fade-in">

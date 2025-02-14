@@ -39,6 +39,22 @@ export function EditorHeader({ lastSaved, onSave, isDirty }: EditorHeaderProps) 
       // For now, we'll simulate a publish action
       await new Promise(resolve => setTimeout(resolve, 1500));
       
+      // Get existing pages from localStorage or initialize empty array
+      const existingPages = JSON.parse(localStorage.getItem('pages') || '[]');
+      
+      // Add new page to the list
+      const newPage = {
+        id: existingPages.length + 1,
+        title: "New Published Page",
+        status: "published",
+        url: pageUrl.startsWith('/') ? pageUrl : `/${pageUrl}`,
+        lastModified: new Date().toISOString().split('T')[0],
+        views: 0
+      };
+      
+      // Update localStorage with new page
+      localStorage.setItem('pages', JSON.stringify([...existingPages, newPage]));
+      
       const publicUrl = `https://yoursite.com/${pageUrl.startsWith('/') ? pageUrl.slice(1) : pageUrl}`;
       toast.success("Page published successfully!", {
         description: (
