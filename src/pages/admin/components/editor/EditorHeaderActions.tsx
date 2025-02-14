@@ -1,7 +1,7 @@
+
 import { Button } from "@/components/ui/button";
 import { Clock, Eye, Save, Globe, Copy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
 import { toast } from "sonner";
 
 interface EditorHeaderActionsProps {
@@ -14,14 +14,19 @@ interface EditorHeaderActionsProps {
 
 export function EditorHeaderActions({ lastSaved, onSave, isDirty, pageUrl, onPublish }: EditorHeaderActionsProps) {
   const navigate = useNavigate();
+  
   const handlePreview = async () => {
     try {
+      // Save the page first
       await onSave();
-      const normalizedUrl = pageUrl.startsWith('/') ? pageUrl : `/${pageUrl}`;
+      
+      // Clean and normalize the URL
+      const cleanUrl = pageUrl.trim();
+      const normalizedUrl = cleanUrl.startsWith('/') ? cleanUrl : `/${cleanUrl}`;
       const previewUrl = `/preview${normalizedUrl}`;
-      setTimeout(() => {
-        window.open(previewUrl, '_blank');
-      }, 100);
+      
+      // Use navigate instead of window.open to stay within the app
+      navigate(previewUrl);
     } catch (error) {
       toast.error("Please save the page before previewing");
     }
