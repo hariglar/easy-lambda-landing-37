@@ -36,13 +36,13 @@ export default function EcommerceLanding({ content, onContentChange, isEditing }
     type?: "text" | "heading";
     identifier: string;
   }) => {
+    const isCurrentlyEditing = editingField === identifier;
+    
     if (!isEditing) {
       return <span className={className}>{value}</span>;
     }
 
-    const isEditing = editingField === identifier;
-    
-    return isEditing ? (
+    return isCurrentlyEditing ? (
       <Input
         value={value}
         onChange={(e) => onChange(e.target.value)}

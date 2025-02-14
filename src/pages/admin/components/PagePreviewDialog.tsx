@@ -1,4 +1,3 @@
-
 import {
   Dialog,
   DialogContent,
@@ -12,8 +11,6 @@ import EcommerceLanding from "../templates/EcommerceLanding";
 import { TemplateContent } from "../types/editor";
 
 interface PagePreviewDialogProps {
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
   page: {
     id: number;
     title: string;
@@ -22,62 +19,32 @@ interface PagePreviewDialogProps {
     lastModified: string;
     views: number;
   };
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
-export function PagePreviewDialog({ isOpen, onOpenChange, page }: PagePreviewDialogProps) {
-  const [content, setContent] = useState<TemplateContent | null>(null);
-
-  useEffect(() => {
-    if (isOpen) {
-      const storedPages = JSON.parse(localStorage.getItem('pages') || '[]');
-      const currentPage = storedPages.find((p: any) => p.id === page.id);
-      if (currentPage?.content) {
-        setContent(currentPage.content);
-      }
-    }
-  }, [isOpen, page.id]);
+export function PagePreviewDialog({
+  page,
+  open,
+  onOpenChange,
+}: PagePreviewDialogProps) {
+  const { ref, width } = useResizeObserver<HTMLDivElement>();
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[90vw] h-[90vh] scale-in">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-screen-xl h-[90vh]">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            {page.title}
-            {page.status === 'published' && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
-                <Globe className="w-3 h-3" />
-                Published
-              </span>
-            )}
-          </DialogTitle>
+          <DialogTitle>Page Preview</DialogTitle>
           <DialogDescription>
-            Preview of {page.url}
+            This is how your page will look when published
           </DialogDescription>
         </DialogHeader>
-        
-        <div className="space-y-6 h-full">
-          <div className="aspect-[16/9] rounded-lg border bg-background overflow-auto">
-            {content ? (
-              <div className="transform scale-[0.7] origin-top">
-                <EcommerceLanding content={content} />
-              </div>
-            ) : (
-              <div className="flex items-center justify-center h-full">
-                Loading preview...
-              </div>
-            )}
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4 text-sm animate-in fade-in duration-300">
-            <div>
-              <p className="text-muted-foreground">Last Modified</p>
-              <p className="font-medium">{page.lastModified}</p>
-            </div>
-            <div>
-              <p className="text-muted-foreground">Total Views</p>
-              <p className="font-medium">{page.views.toLocaleString()}</p>
-            </div>
-          </div>
+        <div ref={ref} className="relative flex-1 overflow-y-auto">
+          <EcommerceLanding 
+            content={page.content} 
+            onContentChange={() => {}} 
+            isEditing={false}
+          />
         </div>
       </DialogContent>
     </Dialog>
