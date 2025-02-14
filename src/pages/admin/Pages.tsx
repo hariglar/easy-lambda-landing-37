@@ -1,6 +1,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { 
   Table, 
   TableHeader, 
@@ -9,7 +10,7 @@ import {
   TableRow, 
   TableCell 
 } from "@/components/ui/table";
-import { Eye, FileEdit, Globe, Trash2 } from "lucide-react";
+import { Eye, FileEdit, Globe, Trash2, ArrowUp, ArrowDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 // This would typically come from an API
@@ -40,9 +41,41 @@ const mockPages = [
   }
 ];
 
+type SortField = "title" | "status" | "lastModified" | "views";
+type SortDirection = "asc" | "desc";
+
 export default function Pages() {
   const navigate = useNavigate();
-  const [pages] = useState(mockPages);
+  const [pages, setPages] = useState(mockPages);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortField, setSortField] = useState<SortField>("lastModified");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+  const [statusFilter, setStatusFilter] = useState<"all" | "published" | "draft">("all");
+
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+  };
+
+  const filteredAndSortedPages = pages
+    .filter(page => 
+      page.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
+      (statusFilter === "all" || page.status === statusFilter)
+    )
+    .sort((a, b) => {
+      const aValue = a[sortField];
+      const bValue = b[sortField];
+      const modifier = sortDirection === "asc" ? 1 : -1;
+      
+      if (typeof aValue === "string" && typeof bValue === "string") {
+        return aValue.localeCompare(bValue) * modifier;
+      }
+      return ((aValue as number) - (bValue as number)) * modifier;
+    });
 
   return (
     <div className="space-y-8 animate-in fade-in">
@@ -58,20 +91,81 @@ export default function Pages() {
         </Button>
       </div>
 
+      <div className="flex flex-col sm:flex-row gap-4">
+        <Input
+          placeholder="Search pages..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="max-w-sm"
+        />
+        <div className="flex gap-2">
+          <Button
+            variant={statusFilter === "all" ? "default" : "outline"}
+            onClick={() => setStatusFilter("all")}
+          >
+            All
+          </Button>
+          <Button
+            variant={statusFilter === "published" ? "default" : "outline"}
+            onClick={() => setStatusFilter("published")}
+          >
+            Published
+          </Button>
+          <Button
+            variant={statusFilter === "draft" ? "default" : "outline"}
+            onClick={() => setStatusFilter("draft")}
+          >
+            Drafts
+          </Button>
+        </div>
+      </div>
+
       <div className="rounded-lg border bg-card">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Title</TableHead>
+              <TableHead 
+                className="cursor-pointer hover:text-foreground"
+                onClick={() => handleSort("title")}
+              >
+                Title
+                {sortField === "title" && (
+                  sortDirection === "asc" ? <ArrowUp className="w-4 h-4 inline ml-2" /> : <ArrowDown className="w-4 h-4 inline ml-2" />
+                )}
+              </TableHead>
               <TableHead>URL</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Last Modified</TableHead>
-              <TableHead>Views</TableHead>
+              <TableHead 
+                className="cursor-pointer hover:text-foreground"
+                onClick={() => handleSort("status")}
+              >
+                Status
+                {sortField === "status" && (
+                  sortDirection === "asc" ? <ArrowUp className="w-4 h-4 inline ml-2" /> : <ArrowDown className="w-4 h-4 inline ml-2" />
+                )}
+              </TableHead>
+              <TableHead 
+                className="cursor-pointer hover:text-foreground"
+                onClick={() => handleSort("lastModified")}
+              >
+                Last Modified
+                {sortField === "lastModified" && (
+                  sortDirection === "asc" ? <ArrowUp className="w-4 h-4 inline ml-2" /> : <ArrowDown className="w-4 h-4 inline ml-2" />
+                )}
+              </TableHead>
+              <TableHead 
+                className="cursor-pointer hover:text-foreground"
+                onClick={() => handleSort("views")}
+              >
+                Views
+                {sortField === "views" && (
+                  sortDirection === "asc" ? <ArrowUp className="w-4 h-4 inline ml-2" /> : <ArrowDown className="w-4 h-4 inline ml-2" />
+                )}
+              </TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {pages.map((page) => (
+            {filteredAndSortedPages.map((page) => (
               <TableRow key={page.id} className="group">
                 <TableCell className="font-medium">{page.title}</TableCell>
                 <TableCell>{page.url}</TableCell>
@@ -92,7 +186,11 @@ export default function Pages() {
                     <Button variant="ghost" size="icon">
                       <Eye className="w-4 h-4" />
                     </Button>
-                    <Button variant="ghost" size="icon">
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      onClick={() => navigate(`/admin/pages/${page.id}/edit`)}
+                    >
                       <FileEdit className="w-4 h-4" />
                     </Button>
                     <Button variant="ghost" size="icon" className="text-destructive">
