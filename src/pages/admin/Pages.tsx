@@ -20,33 +20,6 @@ import { PagesFilter } from "./components/PagesFilter";
 import { PageRow } from "./components/PageRow";
 import { DeletePageDialog } from "./components/DeletePageDialog";
 
-const mockPages = [
-  {
-    id: 1,
-    title: "Homepage",
-    status: "published",
-    url: "/homepage",
-    lastModified: "2024-02-20",
-    views: 1234
-  },
-  {
-    id: 2,
-    title: "Product Launch",
-    status: "draft",
-    url: "/product-launch",
-    lastModified: "2024-02-19",
-    views: 0
-  },
-  {
-    id: 3,
-    title: "Contact Us",
-    status: "published",
-    url: "/contact",
-    lastModified: "2024-02-18",
-    views: 567
-  }
-];
-
 type SortField = "title" | "status" | "lastModified" | "views";
 type SortDirection = "asc" | "desc";
 
@@ -54,7 +27,7 @@ const ITEMS_PER_PAGE = 5;
 
 export default function Pages() {
   const { toast } = useToast();
-  const [pages, setPages] = useState(mockPages);
+  const [pages, setPages] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortField, setSortField] = useState<SortField>("lastModified");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
@@ -66,7 +39,7 @@ export default function Pages() {
   useEffect(() => {
     const storedPages = localStorage.getItem('pages');
     if (storedPages) {
-      setPages([...mockPages, ...JSON.parse(storedPages)]);
+      setPages(JSON.parse(storedPages));
     }
   }, []);
 
@@ -83,7 +56,7 @@ export default function Pages() {
     if (pageToDelete) {
       const updatedPages = pages.filter(page => page.id !== pageToDelete);
       setPages(updatedPages);
-      localStorage.setItem('pages', JSON.stringify(updatedPages.filter(page => !mockPages.find(mp => mp.id === page.id))));
+      localStorage.setItem('pages', JSON.stringify(updatedPages));
       toast({
         title: "Page deleted",
         description: "The page has been successfully deleted.",
