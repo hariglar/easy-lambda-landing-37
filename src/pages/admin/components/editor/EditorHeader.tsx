@@ -129,6 +129,16 @@ export function EditorHeader({ lastSaved, onSave, isDirty, pageUrl, pageTitle, s
         throw new Error("Page not found");
       }
 
+      // Check URL uniqueness before publishing
+      const otherPages = storedPages.filter((p: any) => p.id !== Number(currentPageId));
+      const isUrlTaken = otherPages.some((p: any) => p.url === formattedUrl);
+      
+      if (isUrlTaken) {
+        toast.error("This URL is already in use by another page. Please choose a different URL.");
+        setIsPublishing(false);
+        return;
+      }
+
       currentPage.url = formattedUrl;
       currentPage.status = "published";
       currentPage.publishedAt = new Date().toISOString();
