@@ -61,7 +61,15 @@ export function EditorHeader({ lastSaved, onSave, isDirty, pageUrl, pageTitle }:
         throw new Error("Page not found");
       }
 
-      // Update the page status to published
+      // Format the URL with hyphens between words
+      const formattedUrl = pageUrl
+        .toLowerCase()
+        .replace(/[^a-z0-9-]/g, '-') // Replace non-alphanumeric characters with hyphens
+        .replace(/^-+|-+$/g, '') // Remove leading and trailing hyphens
+        .replace(/-+/g, '-'); // Replace multiple consecutive hyphens with a single hyphen
+
+      // Update the page URL and status
+      currentPage.url = formattedUrl.startsWith('/') ? formattedUrl : `/${formattedUrl}`;
       currentPage.status = "published";
       currentPage.publishedAt = new Date().toISOString();
       
