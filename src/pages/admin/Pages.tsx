@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,10 +9,18 @@ import {
   TableRow, 
   TableCell 
 } from "@/components/ui/table";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import { Eye, FileEdit, Globe, Trash2, ArrowUp, ArrowDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-// This would typically come from an API
+// Mock data - expanded for pagination example
 const mockPages = [
   {
     id: 1,
@@ -38,11 +45,37 @@ const mockPages = [
     url: "/contact",
     lastModified: "2024-02-18",
     views: 567
+  },
+  {
+    id: 4,
+    title: "About Us",
+    status: "published",
+    url: "/about",
+    lastModified: "2024-02-17",
+    views: 890
+  },
+  {
+    id: 5,
+    title: "Services",
+    status: "draft",
+    url: "/services",
+    lastModified: "2024-02-16",
+    views: 123
+  },
+  {
+    id: 6,
+    title: "Blog",
+    status: "published",
+    url: "/blog",
+    lastModified: "2024-02-15",
+    views: 2341
   }
 ];
 
 type SortField = "title" | "status" | "lastModified" | "views";
 type SortDirection = "asc" | "desc";
+
+const ITEMS_PER_PAGE = 5;
 
 export default function Pages() {
   const navigate = useNavigate();
@@ -51,6 +84,7 @@ export default function Pages() {
   const [sortField, setSortField] = useState<SortField>("lastModified");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
   const [statusFilter, setStatusFilter] = useState<"all" | "published" | "draft">("all");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -76,6 +110,12 @@ export default function Pages() {
       }
       return ((aValue as number) - (bValue as number)) * modifier;
     });
+
+  const totalPages = Math.ceil(filteredAndSortedPages.length / ITEMS_PER_PAGE);
+  const paginatedPages = filteredAndSortedPages.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   return (
     <div className="space-y-8 animate-in fade-in">
@@ -165,7 +205,7 @@ export default function Pages() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredAndSortedPages.map((page) => (
+            {paginatedPages.map((page) => (
               <TableRow key={page.id} className="group">
                 <TableCell className="font-medium">{page.title}</TableCell>
                 <TableCell>{page.url}</TableCell>
@@ -202,6 +242,37 @@ export default function Pages() {
             ))}
           </TableBody>
         </Table>
+        
+        {totalPages > 1 && (
+          <div className="border-t p-4">
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious 
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                  />
+                </PaginationItem>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <PaginationItem key={page}>
+                    <PaginationLink
+                      onClick={() => setCurrentPage(page)}
+                      isActive={currentPage === page}
+                    >
+                      {page}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+                <PaginationItem>
+                  <PaginationNext 
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
+        )}
       </div>
     </div>
   );
