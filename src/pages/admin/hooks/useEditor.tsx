@@ -96,34 +96,40 @@ export function useEditor() {
     }
   }, [pageId, pageTitle, pageUrl, content]);
 
-  // Watch for content changes and trigger isDirty
-  useEffect(() => {
+  const handleContentChange = (
+    section: keyof TemplateContent,
+    value: any,
+    index?: number,
+    field?: string
+  ) => {
     setIsDirty(true);
-  }, [content, pageTitle, pageUrl]);
+    setContent(prev => {
+      const newContent = { ...prev };
+      if (index !== undefined && field && Array.isArray(newContent[section])) {
+        (newContent[section] as any[])[index] = {
+          ...(newContent[section] as any[])[index],
+          [field]: value
+        };
+      } else if (typeof value === "object") {
+        newContent[section] = { ...newContent[section], ...value };
+      } else {
+        newContent[section] = value;
+      }
+      return newContent;
+    });
 
-  // Auto-save effect
-  useEffect(() => {
-    if (!isDirty) return;
-
-    console.log('Auto-save timer started');
+    // Reset auto-save timer
     if (autoSaveTimer) {
       clearTimeout(autoSaveTimer);
     }
-    
     const timer = setTimeout(() => {
       console.log('Auto-saving...');
       handleSave();
     }, 3000);
-    
     setAutoSaveTimer(timer);
-    
-    return () => {
-      if (autoSaveTimer) {
-        clearTimeout(autoSaveTimer);
-      }
-    };
-  }, [isDirty, handleSave]);
+  };
 
+  // Load existing content when editing a page
   useEffect(() => {
     if (pageId) {
       console.log('Loading content for pageId:', pageId);
@@ -152,27 +158,14 @@ export function useEditor() {
     }
   }, [pageId]);
 
-  const handleContentChange = (
-    section: keyof TemplateContent,
-    value: any,
-    index?: number,
-    field?: string
-  ) => {
-    setContent(prev => {
-      const newContent = { ...prev };
-      if (index !== undefined && field && Array.isArray(newContent[section])) {
-        (newContent[section] as any[])[index] = {
-          ...(newContent[section] as any[])[index],
-          [field]: value
-        };
-      } else if (typeof value === "object") {
-        newContent[section] = { ...newContent[section], ...value };
-      } else {
-        newContent[section] = value;
+  // Cleanup auto-save timer on unmount
+  useEffect(() => {
+    return () => {
+      if (autoSaveTimer) {
+        clearTimeout(autoSaveTimer);
       }
-      return newContent;
-    });
-  };
+    };
+  }, [autoSaveTimer]);
 
   return {
     currentTab,
