@@ -4,6 +4,7 @@ export interface TemplateContent {
     title: string;
     subtitle: string;
     ctaText: string;
+    lookbookText: string;
     backgroundImage: string;
   };
   features: Array<{
@@ -19,6 +20,7 @@ export interface TemplateContent {
   newsletter: {
     title: string;
     description: string;
+    buttonText: string;
   };
 }
 
@@ -27,6 +29,7 @@ export const defaultContent: TemplateContent = {
     title: "Discover Luxury Fashion",
     subtitle: "Explore our curated collection of premium fashion and accessories",
     ctaText: "Shop Now",
+    lookbookText: "View Lookbook",
     backgroundImage: "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=1600&h=900&fit=crop"
   },
   features: [
@@ -56,6 +59,7 @@ export const defaultContent: TemplateContent = {
   ],
   newsletter: {
     title: "Subscribe to Our Newsletter",
-    description: "Get exclusive offers and be the first to know about new arrivals"
+    description: "Get exclusive offers and be the first to know about new arrivals",
+    buttonText: "Subscribe"
   }
 };

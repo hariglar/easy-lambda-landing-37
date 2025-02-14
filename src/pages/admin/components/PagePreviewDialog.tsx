@@ -1,3 +1,4 @@
+
 import {
   Dialog,
   DialogContent,
@@ -6,7 +7,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Globe } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import EcommerceLanding from "../templates/EcommerceLanding";
 import { TemplateContent } from "../types/editor";
 
@@ -18,6 +19,7 @@ interface PagePreviewDialogProps {
     url: string;
     lastModified: string;
     views: number;
+    content: TemplateContent;
   };
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -28,7 +30,7 @@ export function PagePreviewDialog({
   open,
   onOpenChange,
 }: PagePreviewDialogProps) {
-  const { ref, width } = useResizeObserver<HTMLDivElement>();
+  const ref = useRef<HTMLDivElement>(null);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

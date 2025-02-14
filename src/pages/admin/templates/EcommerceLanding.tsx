@@ -105,7 +105,12 @@ export default function EcommerceLanding({ content, onContentChange, isEditing }
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
             <Button size="lg" variant="outline" className="min-w-[200px] border-white text-white hover:bg-white/20">
-              View Lookbook
+              <EditableText
+                value={hero.lookbookText || "View Lookbook"}
+                onChange={(value) => onContentChange('hero', { lookbookText: value })}
+                className="inline-flex items-center"
+                identifier="hero.lookbookText"
+              />
             </Button>
           </div>
         </div>
@@ -167,7 +172,12 @@ export default function EcommerceLanding({ content, onContentChange, isEditing }
                 className="bg-white text-black"
               />
               <Button variant="secondary" className="whitespace-nowrap">
-                Subscribe
+                <EditableText
+                  value={newsletter.buttonText || "Subscribe"}
+                  onChange={(value) => onContentChange('newsletter', { buttonText: value })}
+                  className="inline-flex items-center"
+                  identifier="newsletter.buttonText"
+                />
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </div>
