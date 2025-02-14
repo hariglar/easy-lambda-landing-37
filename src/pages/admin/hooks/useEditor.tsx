@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useCallback } from "react";
-import { useSearchParams, useBeforeUnload } from "react-router-dom";
+import { useSearchParams, useBeforeUnload, useLocation, useNavigate } from "react-router-dom";
 import { TemplateContent, defaultContent } from "../types/editor";
 import { mockPages } from "../data/mockData";
 import { toast } from "sonner";
@@ -15,22 +15,42 @@ export function useEditor() {
   const [isDirty, setIsDirty] = useState(false);
   const [pageTitle, setPageTitle] = useState("New Page");
   const [pageUrl, setPageUrl] = useState("/new-page");
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const templateId = searchParams.get("template");
   const pageId = searchParams.get("pageId");
 
-  // Prevent leaving page with unsaved changes
-  useBeforeUnload(
-    useCallback(
-      (event) => {
-        if (isDirty) {
-          event.preventDefault();
-          return (event.returnValue = "You have unsaved changes. Are you sure you want to leave?");
+  // Handle beforeunload event for browser close/refresh
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (isDirty) {
+        event.preventDefault();
+        event.returnValue = "You have unsaved changes. Are you sure you want to leave?";
+        return event.returnValue;
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [isDirty]);
+
+  // Handle React Router navigation
+  useEffect(() => {
+    if (isDirty) {
+      const unblock = navigate((nextLocation) => {
+        if (nextLocation.pathname !== location.pathname) {
+          const answer = window.confirm("You have unsaved changes. Are you sure you want to leave?");
+          if (!answer) return false;
         }
-      },
-      [isDirty]
-    )
-  );
+        return true;
+      });
+
+      return unblock;
+    }
+  }, [isDirty, navigate, location]);
 
   const isUrlUnique = useCallback((url: string, currentPageId: number | null) => {
     const storedPages = JSON.parse(localStorage.getItem('pages') || '[]');
