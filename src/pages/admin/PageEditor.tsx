@@ -1,5 +1,4 @@
 
-import { useState, useEffect } from "react";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -7,184 +6,27 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Globe, ImageIcon, Layout, Layers, Type } from "lucide-react";
-import { useSearchParams, useNavigate } from "react-router-dom";
 import { EditorHeader } from "./components/editor/EditorHeader";
 import { EditorTabs } from "./components/editor/EditorTabs";
 import { DesignTab } from "./components/editor/DesignTab";
-import { Template } from "./types";
-import { toast } from "sonner";
-
-const mockPages = [
-  {
-    id: 1,
-    title: "Homepage",
-    status: "published",
-    url: "/homepage",
-    lastModified: "2024-02-20",
-    views: 1234
-  },
-  {
-    id: 2,
-    title: "Product Launch",
-    status: "draft",
-    url: "/product-launch",
-    lastModified: "2024-02-19",
-    views: 0
-  },
-  {
-    id: 3,
-    title: "Contact Us",
-    status: "published",
-    url: "/contact",
-    lastModified: "2024-02-18",
-    views: 567
-  }
-];
-
-const templates: Template[] = [
-  {
-    id: 1,
-    name: "Minimal Landing",
-    thumbnail: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=300&h=200&fit=crop",
-    description: "Clean and minimal design perfect for product launches."
-  },
-  {
-    id: 2,
-    name: "Business Pro",
-    thumbnail: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=300&h=200&fit=crop",
-    description: "Professional template for business websites."
-  },
-  {
-    id: 3,
-    name: "Creative Portfolio",
-    thumbnail: "https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?w=300&h=200&fit=crop",
-    description: "Showcase your work with this creative template."
-  }
-];
-
-export interface TemplateContent {
-  hero: {
-    title: string;
-    subtitle: string;
-    ctaText: string;
-    backgroundImage: string;
-  };
-  features: Array<{
-    title: string;
-    description: string;
-  }>;
-  products: Array<{
-    name: string;
-    price: string;
-    image: string;
-    rating: number;
-  }>;
-  newsletter: {
-    title: string;
-    description: string;
-  };
-}
-
-const defaultContent: TemplateContent = {
-  hero: {
-    title: "Discover Luxury Fashion",
-    subtitle: "Explore our curated collection of premium fashion and accessories",
-    ctaText: "Shop Now",
-    backgroundImage: "https://images.unsplash.com/photo-1441986338219-ce68d2c6f44d?w=1600&h=800&fit=crop"
-  },
-  features: [
-    { title: "Free Shipping", description: "On orders over $50" },
-    { title: "Easy Returns", description: "30-day return policy" },
-    { title: "Secure Payments", description: "100% secure checkout" }
-  ],
-  products: [
-    {
-      name: "Premium Watch",
-      price: "$299",
-      rating: 4.8,
-      image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=400&fit=crop"
-    },
-    {
-      name: "Designer Handbag",
-      price: "$199",
-      rating: 4.9,
-      image: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&h=400&fit=crop"
-    },
-    {
-      name: "Wireless Earbuds",
-      price: "$159",
-      rating: 4.7,
-      image: "https://images.unsplash.com/photo-1572569511254-d8f925fe2cbb?w=400&h=400&fit=crop"
-    }
-  ],
-  newsletter: {
-    title: "Subscribe to Our Newsletter",
-    description: "Get exclusive offers and be the first to know about new arrivals"
-  }
-};
+import { templates } from "./data/mockData";
+import { useEditor } from "./hooks/useEditor";
 
 export default function PageEditor() {
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const [currentTab, setCurrentTab] = useState("design");
-  const [selectedTemplate, setSelectedTemplate] = useState<number | null>(null);
-  const [metaExpanded, setMetaExpanded] = useState(false);
-  const [lastSaved, setLastSaved] = useState<Date | null>(new Date());
-  const [content, setContent] = useState<TemplateContent>(defaultContent);
-  const [isDirty, setIsDirty] = useState(false);
-
-  const templateId = searchParams.get("template");
-  const pageId = searchParams.get("pageId");
-
-  useEffect(() => {
-    if (pageId) {
-      const storedPages = JSON.parse(localStorage.getItem('pages') || '[]');
-      const mockAndStoredPages = [...mockPages, ...storedPages];
-      const pageToEdit = mockAndStoredPages.find(p => p.id === Number(pageId));
-      
-      if (pageToEdit) {
-        const headerElement = document.querySelector('h1');
-        if (headerElement) {
-          headerElement.textContent = `Editing: ${pageToEdit.title}`;
-        }
-      }
-    }
-  }, [pageId]);
-
-  const handleContentChange = (
-    section: keyof TemplateContent,
-    value: any,
-    index?: number,
-    field?: string
-  ) => {
-    setIsDirty(true);
-    setContent(prev => {
-      const newContent = { ...prev };
-      if (index !== undefined && field && Array.isArray(newContent[section])) {
-        (newContent[section] as any[])[index] = {
-          ...(newContent[section] as any[])[index],
-          [field]: value
-        };
-      } else if (typeof value === "object") {
-        newContent[section] = { ...newContent[section], ...value };
-      } else {
-        newContent[section] = value;
-      }
-      return newContent;
-    });
-  };
-
-  const handleSave = async () => {
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      setLastSaved(new Date());
-      setIsDirty(false);
-      toast.success("Changes saved successfully!");
-    } catch (error) {
-      toast.error("Failed to save changes. Please try again.");
-    }
-  };
+  const {
+    currentTab,
+    setCurrentTab,
+    selectedTemplate,
+    setSelectedTemplate,
+    metaExpanded,
+    setMetaExpanded,
+    lastSaved,
+    content,
+    isDirty,
+    templateId,
+    handleContentChange,
+    handleSave
+  } = useEditor();
 
   return (
     <div className="space-y-8 animate-in fade-in">
