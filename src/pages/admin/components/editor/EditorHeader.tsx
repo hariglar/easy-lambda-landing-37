@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Clock, Eye, Save, Share2, Globe } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   Dialog,
   DialogContent,
@@ -25,6 +25,16 @@ export function EditorHeader({ lastSaved, onSave, isDirty, pageUrl, pageTitle }:
   const navigate = useNavigate();
   const [publishDialogOpen, setPublishDialogOpen] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
+
+  const formattedUrl = useMemo(() => {
+    const formatted = pageUrl
+      .toLowerCase()
+      .replace(/[^a-z0-9-]/g, '-') // Replace non-alphanumeric characters with hyphens
+      .replace(/^-+|-+$/g, '') // Remove leading and trailing hyphens
+      .replace(/-+/g, '-'); // Replace multiple consecutive hyphens with a single hyphen
+
+    return formatted.startsWith('/') ? formatted : `/${formatted}`;
+  }, [pageUrl]);
 
   const handlePreview = async () => {
     try {
@@ -61,15 +71,8 @@ export function EditorHeader({ lastSaved, onSave, isDirty, pageUrl, pageTitle }:
         throw new Error("Page not found");
       }
 
-      // Format the URL with hyphens between words
-      const formattedUrl = pageUrl
-        .toLowerCase()
-        .replace(/[^a-z0-9-]/g, '-') // Replace non-alphanumeric characters with hyphens
-        .replace(/^-+|-+$/g, '') // Remove leading and trailing hyphens
-        .replace(/-+/g, '-'); // Replace multiple consecutive hyphens with a single hyphen
-
       // Update the page URL and status
-      currentPage.url = formattedUrl.startsWith('/') ? formattedUrl : `/${formattedUrl}`;
+      currentPage.url = formattedUrl;
       currentPage.status = "published";
       currentPage.publishedAt = new Date().toISOString();
       
@@ -137,9 +140,15 @@ export function EditorHeader({ lastSaved, onSave, isDirty, pageUrl, pageTitle }:
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            <div className="flex items-center space-x-2">
-              <span className="text-sm text-muted-foreground">yoursite.com</span>
-              <span className="font-medium">{pageUrl}</span>
+            <div className="flex flex-col space-y-2">
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-muted-foreground">Original URL:</span>
+                <span className="font-medium">{pageUrl}</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-muted-foreground">Published URL:</span>
+                <span className="font-medium text-green-600">{formattedUrl}</span>
+              </div>
             </div>
           </div>
           <DialogFooter>
