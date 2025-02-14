@@ -3,8 +3,6 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Clock, Eye, Save, Share2, Globe } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
@@ -27,6 +25,17 @@ export function EditorHeader({ lastSaved, onSave, isDirty, pageUrl, pageTitle }:
   const navigate = useNavigate();
   const [publishDialogOpen, setPublishDialogOpen] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
+
+  const handlePreview = async () => {
+    // First save any pending changes
+    if (isDirty) {
+      await onSave();
+    }
+    
+    // Open preview in new tab
+    const previewUrl = `/preview${pageUrl}`;
+    window.open(previewUrl, '_blank');
+  };
 
   const handlePublish = async () => {
     // First, save any pending changes
@@ -103,7 +112,7 @@ export function EditorHeader({ lastSaved, onSave, isDirty, pageUrl, pageTitle }:
             <Share2 className="w-4 h-4 mr-2" />
             Share
           </Button>
-          <Button variant="outline">
+          <Button variant="outline" onClick={handlePreview}>
             <Eye className="w-4 h-4 mr-2" />
             Preview
           </Button>

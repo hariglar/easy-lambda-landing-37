@@ -1,35 +1,26 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AdminLayout } from "./components/AdminLayout";
-import Dashboard from "./pages/admin/Dashboard";
-import Pages from "./pages/admin/Pages";
-import PageEditor from "./pages/admin/PageEditor";
-import NotFound from "./pages/NotFound";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Toaster } from "@/components/ui/sonner";
+import { AdminLayout } from "@/components/AdminLayout";
+import Dashboard from "@/pages/admin/Dashboard";
+import Pages from "@/pages/admin/Pages";
+import PageEditor from "@/pages/admin/PageEditor";
+import Preview from "@/pages/Preview";
+import NotFound from "@/pages/NotFound";
 
-const queryClient = new QueryClient();
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
+export default function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/preview/*" element={<Preview />} />
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="pages" element={<Pages />} />
+          <Route path="pages/:id/edit" element={<PageEditor />} />
+        </Route>
+        <Route path="*" element={<NotFound />} />
+      </Routes>
       <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Navigate to="/admin" replace />} />
-          <Route path="/admin" element={<AdminLayout><Dashboard /></AdminLayout>} />
-          <Route path="/admin/pages" element={<AdminLayout><Pages /></AdminLayout>} />
-          <Route path="/admin/pages/new" element={<AdminLayout><PageEditor /></AdminLayout>} />
-          <Route path="/admin/pages/:id/edit" element={<AdminLayout><PageEditor /></AdminLayout>} />
-          <Route path="/admin/*" element={<AdminLayout><NotFound /></AdminLayout>} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
-
-export default App;
+    </Router>
+  );
+}
