@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Globe, ImageIcon, Layout, Layers, Type } from "lucide-react";
+import { ImageIcon, Layout, Layers, Type } from "lucide-react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { EditorHeader } from "./components/editor/EditorHeader";
 import { EditorTabs } from "./components/editor/EditorTabs";

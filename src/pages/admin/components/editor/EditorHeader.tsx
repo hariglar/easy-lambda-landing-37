@@ -57,6 +57,8 @@ export function EditorHeader({ lastSaved, onSave, isDirty }: EditorHeaderProps) 
         duration: 5000,
       });
       setPublishDialogOpen(false);
+      // After successful publish, navigate back to pages list
+      navigate("/admin/pages");
     } catch (error) {
       toast.error("Failed to publish page. Please try again.");
     } finally {
