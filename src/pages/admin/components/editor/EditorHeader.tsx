@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Clock, Eye, Save, Share2, Globe, AlertTriangle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -75,8 +74,7 @@ export function EditorHeader({ lastSaved, onSave, isDirty, pageUrl, pageTitle }:
         currentPage.url = originalPublishedUrl;
         localStorage.setItem('pages', JSON.stringify(storedPages));
         toast.success("URL reverted to original");
-        setPublishDialogOpen(false);
-        navigate(`/admin/pages/edit?pageId=${currentPage.id}`);
+        window.location.reload(); // Reload the current page to reflect the changes
       }
     }
   };
