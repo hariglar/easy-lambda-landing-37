@@ -20,12 +20,12 @@ export function EditorHeaderActions({ lastSaved, onSave, isDirty, pageUrl, onPub
       // Save the page first
       await onSave();
       
-      // Clean and normalize the URL
+      // Clean and normalize the URL, ensuring proper encoding
       const cleanUrl = pageUrl.trim();
       const normalizedUrl = cleanUrl.startsWith('/') ? cleanUrl : `/${cleanUrl}`;
+      // Don't encode the URL here since navigate will handle it
       const previewUrl = `/preview${normalizedUrl}`;
       
-      // Use navigate instead of window.open to stay within the app
       navigate(previewUrl);
     } catch (error) {
       toast.error("Please save the page before previewing");

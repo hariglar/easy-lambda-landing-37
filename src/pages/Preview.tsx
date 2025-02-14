@@ -13,17 +13,16 @@ export default function Preview() {
 
   useEffect(() => {
     try {
-      // Remove /preview from the pathname to get the actual page URL
-      const pageUrl = location.pathname.replace('/preview', '');
+      // Remove /preview from the pathname and decode URL
+      const pageUrl = decodeURIComponent(location.pathname.replace('/preview', ''));
       console.log('Looking for page with URL:', pageUrl);
       
       // Load the page content from localStorage
       const storedPages = JSON.parse(localStorage.getItem('pages') || '[]');
       console.log('Stored pages:', storedPages);
       
-      // Find the page, ensuring URL comparison is normalized
+      // Find the page with decoded URL comparison
       const currentPage = storedPages.find((p: any) => {
-        // Normalize both URLs by ensuring they start with / and trimming any trailing spaces
         const storedUrl = p.url.trim();
         const normalizedStoredUrl = storedUrl.startsWith('/') ? storedUrl : `/${storedUrl}`;
         const normalizedPageUrl = pageUrl.trim();
