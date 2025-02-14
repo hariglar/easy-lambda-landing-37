@@ -24,21 +24,20 @@ export function useNavigationProtection(isDirty: boolean) {
   }, [isDirty]);
 
   // Handle in-app navigation
-  const blocker = useCallback(
-    ({ currentLocation, nextLocation, historyAction }) => {
-      if (isDirty && currentLocation.pathname !== nextLocation.pathname) {
-        const userResponse = window.confirm(
-          "You have unsaved changes. Are you sure you want to leave?"
-        );
-        
-        if (!userResponse) {
-          return;
-        }
+  const shouldBlock = useCallback(
+    ({ currentLocation, nextLocation }) => {
+      const shouldBlockNavigation = isDirty && currentLocation.pathname !== nextLocation.pathname;
+      
+      if (shouldBlockNavigation) {
+        return window.confirm("You have unsaved changes. Are you sure you want to leave?");
       }
+      
       return true;
     },
     [isDirty]
   );
 
-  useBlocker(blocker);
+  const blocker = useBlocker(shouldBlock);
+
+  return blocker;
 }
