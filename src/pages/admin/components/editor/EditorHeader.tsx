@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Clock, Eye, Save, Share2, Globe, AlertTriangle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -52,7 +53,8 @@ export function EditorHeader({ lastSaved, onSave, isDirty, pageUrl, pageTitle }:
 
   const handlePublishClick = () => {
     const storedPages = JSON.parse(localStorage.getItem('pages') || '[]');
-    const currentPage = storedPages.find((p: any) => p.url === pageUrl);
+    const currentPageId = new URLSearchParams(window.location.search).get('pageId');
+    const currentPage = storedPages.find((p: any) => p.id === Number(currentPageId));
     
     if (currentPage?.status === 'published') {
       setOriginalPublishedUrl(currentPage.url);
@@ -66,7 +68,9 @@ export function EditorHeader({ lastSaved, onSave, isDirty, pageUrl, pageTitle }:
   const handleRevertUrl = () => {
     if (originalPublishedUrl) {
       const storedPages = JSON.parse(localStorage.getItem('pages') || '[]');
-      const currentPage = storedPages.find((p: any) => p.url === pageUrl);
+      const currentPageId = new URLSearchParams(window.location.search).get('pageId');
+      const currentPage = storedPages.find((p: any) => p.id === Number(currentPageId));
+      
       if (currentPage) {
         currentPage.url = originalPublishedUrl;
         localStorage.setItem('pages', JSON.stringify(storedPages));
@@ -83,7 +87,8 @@ export function EditorHeader({ lastSaved, onSave, isDirty, pageUrl, pageTitle }:
     setIsPublishing(true);
     try {
       const storedPages = JSON.parse(localStorage.getItem('pages') || '[]');
-      const currentPage = storedPages.find((p: any) => p.url === pageUrl);
+      const currentPageId = new URLSearchParams(window.location.search).get('pageId');
+      const currentPage = storedPages.find((p: any) => p.id === Number(currentPageId));
       
       if (!currentPage) {
         throw new Error("Page not found");
