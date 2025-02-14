@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { TemplateContent } from "../types/editor";
 import { useState } from "react";
+import { RichTextEditor } from '../components/editor/RichTextEditor';
 
 interface EcommerceLandingProps {
   content: TemplateContent;
@@ -22,48 +23,27 @@ export default function EcommerceLanding({ content, onContentChange, isEditing }
   const { hero, features, products, newsletter } = content;
   const [editingField, setEditingField] = useState<string | null>(null);
 
-  const EditableText = ({ 
+  const EditableContent = ({ 
     value, 
-    onChange, 
-    className = "", 
-    type = "text",
+    onChange,
+    className = "",
     identifier
   }: { 
-    value: string; 
-    onChange: (value: string) => void; 
+    value: string;
+    onChange: (value: string) => void;
     className?: string;
-    type?: "text" | "heading";
     identifier: string;
   }) => {
-    const isCurrentlyEditing = editingField === identifier;
-    
     if (!isEditing) {
-      return <span className={className}>{value}</span>;
+      return <div className={className} dangerouslySetInnerHTML={{ __html: value }} />;
     }
 
-    return isCurrentlyEditing ? (
-      <Input
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className={`${className} !bg-white/90 !border-primary`}
-        autoFocus
-        onBlur={() => setEditingField(null)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            setEditingField(null);
-          }
-        }}
+    return (
+      <RichTextEditor
+        content={value}
+        onChange={onChange}
+        className={className}
       />
-    ) : (
-      <div
-        className={`${className} cursor-pointer relative group`}
-        onClick={() => setEditingField(identifier)}
-      >
-        <span>{value}</span>
-        {isEditing && (
-          <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-        )}
-      </div>
     );
   };
 
@@ -80,22 +60,21 @@ export default function EcommerceLanding({ content, onContentChange, isEditing }
         />
         <div className="absolute inset-0 bg-black/40" />
         <div className="relative z-10 container mx-auto px-4 text-center text-white">
-          <EditableText
+          <EditableContent
             value={hero.title}
             onChange={(value) => onContentChange('hero', { title: value })}
-            className="text-5xl md:text-6xl font-bold mb-6 animate-in fade-in slide-in-from-bottom-4 duration-700 block"
-            type="heading"
+            className="text-5xl md:text-6xl font-bold mb-6 animate-in fade-in slide-in-from-bottom-4 duration-700"
             identifier="hero.title"
           />
-          <EditableText
+          <EditableContent
             value={hero.subtitle}
             onChange={(value) => onContentChange('hero', { subtitle: value })}
-            className="text-xl md:text-2xl mb-8 max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200 block"
+            className="text-xl md:text-2xl mb-8 max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200"
             identifier="hero.subtitle"
           />
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
             <Button size="lg" className="min-w-[200px] bg-white text-black hover:bg-white/90">
-              <EditableText
+              <EditableContent
                 value={hero.ctaText}
                 onChange={(value) => onContentChange('hero', { ctaText: value })}
                 className="inline-flex items-center"
@@ -104,7 +83,7 @@ export default function EcommerceLanding({ content, onContentChange, isEditing }
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
             <Button size="lg" variant="outline" className="min-w-[200px] border-white text-white hover:bg-white/20">
-              <EditableText
+              <EditableContent
                 value={hero.lookbookText || "View Lookbook"}
                 onChange={(value) => onContentChange('hero', { lookbookText: value })}
                 className="inline-flex items-center"
@@ -128,13 +107,13 @@ export default function EcommerceLanding({ content, onContentChange, isEditing }
                   style={{ animationDelay: `${index * 200}ms` }}
                 >
                   <Icon className="h-12 w-12 text-primary mb-4" />
-                  <EditableText
+                  <EditableContent
                     value={feature.title}
                     onChange={(value) => onContentChange('features', value, index, 'title')}
                     className="text-lg font-semibold mb-2"
                     identifier={`feature.${index}.title`}
                   />
-                  <EditableText
+                  <EditableContent
                     value={feature.description}
                     onChange={(value) => onContentChange('features', value, index, 'description')}
                     className="text-muted-foreground"
@@ -150,7 +129,7 @@ export default function EcommerceLanding({ content, onContentChange, isEditing }
       {/* Products Section */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
-          <EditableText
+          <EditableContent
             value="Featured Products"
             onChange={(value) => onContentChange('products', { sectionTitle: value })}
             className="text-3xl font-bold text-center mb-12"
@@ -179,14 +158,14 @@ export default function EcommerceLanding({ content, onContentChange, isEditing }
                   </Button>
                 </div>
                 <div className="p-4">
-                  <EditableText
+                  <EditableContent
                     value={product.name}
                     onChange={(value) => onContentChange('products', value, index, 'name')}
                     className="text-lg font-semibold mb-2 block"
                     identifier={`product.${index}.name`}
                   />
                   <div className="flex items-center justify-between mb-4">
-                    <EditableText
+                    <EditableContent
                       value={product.price}
                       onChange={(value) => onContentChange('products', value, index, 'price')}
                       className="text-primary font-bold"
@@ -201,7 +180,7 @@ export default function EcommerceLanding({ content, onContentChange, isEditing }
                   </div>
                   <Button className="w-full">
                     <ShoppingBag className="mr-2 h-4 w-4" />
-                    <EditableText
+                    <EditableContent
                       value="Add to Cart"
                       onChange={(value) => onContentChange('products', value, index, 'buttonText')}
                       className="inline-flex items-center"
@@ -219,14 +198,14 @@ export default function EcommerceLanding({ content, onContentChange, isEditing }
       <section className="py-16 bg-primary text-white">
         <div className="container mx-auto px-4">
           <div className="max-w-2xl mx-auto text-center">
-            <EditableText
+            <EditableContent
               value={newsletter.title}
               onChange={(value) => onContentChange('newsletter', { title: value })}
               className="text-3xl font-bold mb-4 block"
               type="heading"
               identifier="newsletter.title"
             />
-            <EditableText
+            <EditableContent
               value={newsletter.description}
               onChange={(value) => onContentChange('newsletter', { description: value })}
               className="mb-8 text-primary-foreground/80 block"
@@ -241,7 +220,7 @@ export default function EcommerceLanding({ content, onContentChange, isEditing }
                     className="bg-white text-black"
                   />
                   <div className="absolute inset-0 flex items-center">
-                    <EditableText
+                    <EditableContent
                       value={newsletter.placeholderText}
                       onChange={(value) => onContentChange('newsletter', { placeholderText: value })}
                       className="text-black px-3 w-full"
@@ -257,7 +236,7 @@ export default function EcommerceLanding({ content, onContentChange, isEditing }
                 />
               )}
               <Button variant="secondary" className="whitespace-nowrap">
-                <EditableText
+                <EditableContent
                   value={newsletter.buttonText || "Subscribe"}
                   onChange={(value) => onContentChange('newsletter', { buttonText: value })}
                   className="inline-flex items-center"
