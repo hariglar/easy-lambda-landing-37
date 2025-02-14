@@ -13,6 +13,7 @@ export function useEditor() {
   const [lastSaved, setLastSaved] = useState<Date | null>(new Date());
   const [content, setContent] = useState<TemplateContent>(defaultContent);
   const [isDirty, setIsDirty] = useState(false);
+  const [pageTitle, setPageTitle] = useState("New Page");
 
   const templateId = searchParams.get("template");
   const pageId = searchParams.get("pageId");
@@ -25,15 +26,19 @@ export function useEditor() {
       
       // First check stored pages
       const storedPage = storedPages.find(p => p.id === Number(pageId));
-      if (storedPage?.content) {
-        console.log('Found stored page content:', storedPage.content);
-        setContent(storedPage.content);
+      if (storedPage) {
+        console.log('Found stored page:', storedPage);
+        if (storedPage.content) {
+          setContent(storedPage.content);
+        }
+        setPageTitle(storedPage.title);
         return;
       }
       
       // If not found in stored pages, check mock pages
       const mockPage = mockPages.find(p => p.id === Number(pageId));
       if (mockPage) {
+        setPageTitle(mockPage.title);
         // For mock pages, we might need to initialize their content
         const mockPageContent = mockPage.content || defaultContent;
         console.log('Using mock page content:', mockPageContent);
@@ -82,6 +87,7 @@ export function useEditor() {
           console.log('Updating existing stored page:', pageId);
           storedPages[pageIndex] = {
             ...storedPages[pageIndex],
+            title: pageTitle,
             content,
             lastModified: currentDate
           };
@@ -92,11 +98,11 @@ export function useEditor() {
           storedPages.push({
             ...(mockPage || {
               id: Number(pageId),
-              title: "New Page",
               status: "draft",
               url: `/page-${pageId}`,
               views: 0
             }),
+            title: pageTitle,
             content,
             lastModified: currentDate
           });
@@ -111,7 +117,7 @@ export function useEditor() {
         console.log('Creating completely new page:', newPageId);
         storedPages.push({
           id: newPageId,
-          title: "New Page",
+          title: pageTitle,
           status: "draft",
           url: `/page-${newPageId}`,
           content,
@@ -143,6 +149,8 @@ export function useEditor() {
     content,
     isDirty,
     templateId,
+    pageTitle,
+    setPageTitle,
     handleContentChange,
     handleSave
   };

@@ -24,6 +24,8 @@ export default function PageEditor() {
     content,
     isDirty,
     templateId,
+    pageTitle,
+    setPageTitle,
     handleContentChange,
     handleSave
   } = useEditor();
@@ -35,6 +37,22 @@ export default function PageEditor() {
         onSave={handleSave}
         isDirty={isDirty}
       />
+
+      <Card className="p-6">
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label>Page Title</Label>
+            <Input
+              value={pageTitle}
+              onChange={(e) => {
+                setPageTitle(e.target.value);
+                if (!isDirty) setIsDirty(true);
+              }}
+              placeholder="Enter page title..."
+            />
+          </div>
+        </div>
+      </Card>
 
       <Tabs value={currentTab} onValueChange={setCurrentTab} className="space-y-6">
         <EditorTabs />
