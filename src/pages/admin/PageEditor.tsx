@@ -39,6 +39,8 @@ export default function PageEditor() {
         lastSaved={lastSaved}
         onSave={handleSave}
         isDirty={isDirty}
+        pageUrl={pageUrl}
+        pageTitle={pageTitle}
       />
 
       <Card className="p-6">

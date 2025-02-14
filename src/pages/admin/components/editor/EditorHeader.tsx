@@ -19,43 +19,39 @@ interface EditorHeaderProps {
   lastSaved: Date | null;
   onSave: () => void;
   isDirty: boolean;
+  pageUrl: string;
+  pageTitle: string;
 }
 
-export function EditorHeader({ lastSaved, onSave, isDirty }: EditorHeaderProps) {
+export function EditorHeader({ lastSaved, onSave, isDirty, pageUrl, pageTitle }: EditorHeaderProps) {
   const navigate = useNavigate();
   const [publishDialogOpen, setPublishDialogOpen] = useState(false);
-  const [pageUrl, setPageUrl] = useState("");
   const [isPublishing, setIsPublishing] = useState(false);
 
   const handlePublish = async () => {
-    if (!pageUrl) {
-      toast.error("Please enter a URL for your page");
-      return;
-    }
+    // First, save any pending changes
+    await onSave();
 
     setIsPublishing(true);
     try {
-      // Here you would typically make an API call to publish the page
-      // For now, we'll simulate a publish action
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Get existing pages from localStorage
+      const storedPages = JSON.parse(localStorage.getItem('pages') || '[]');
       
-      // Get existing pages from localStorage or initialize empty array
-      const existingPages = JSON.parse(localStorage.getItem('pages') || '[]');
+      // Find the page we're currently editing
+      const currentPage = storedPages.find((p: any) => p.url === pageUrl);
       
-      // Add new page to the list
-      const newPage = {
-        id: existingPages.length + 1,
-        title: "New Published Page",
-        status: "published",
-        url: pageUrl.startsWith('/') ? pageUrl : `/${pageUrl}`,
-        lastModified: new Date().toISOString().split('T')[0],
-        views: 0
-      };
+      if (!currentPage) {
+        throw new Error("Page not found");
+      }
+
+      // Update the page status to published
+      currentPage.status = "published";
+      currentPage.publishedAt = new Date().toISOString();
       
-      // Update localStorage with new page
-      localStorage.setItem('pages', JSON.stringify([...existingPages, newPage]));
+      // Save back to localStorage
+      localStorage.setItem('pages', JSON.stringify(storedPages));
       
-      const publicUrl = `https://yoursite.com/${pageUrl.startsWith('/') ? pageUrl.slice(1) : pageUrl}`;
+      const publicUrl = `https://yoursite.com${pageUrl.startsWith('/') ? pageUrl : `/${pageUrl}`}`;
       toast.success("Page published successfully!", {
         description: (
           <div className="mt-2">
@@ -90,7 +86,7 @@ export function EditorHeader({ lastSaved, onSave, isDirty }: EditorHeaderProps) 
             <ArrowLeft className="w-4 h-4" />
           </Button>
           <div>
-            <h1 className="text-4xl font-bold tracking-tight">Create New Page</h1>
+            <h1 className="text-4xl font-bold tracking-tight">{pageTitle || "Create New Page"}</h1>
             <p className="text-muted-foreground mt-2">
               Design and publish your landing page.
             </p>
@@ -113,7 +109,7 @@ export function EditorHeader({ lastSaved, onSave, isDirty }: EditorHeaderProps) 
           </Button>
           <Button onClick={onSave} disabled={!isDirty}>
             <Save className="w-4 h-4 mr-2" />
-            {isDirty ? "Save Changes" : "Saved"}
+            {isDirty ? "Save Draft" : "Saved"}
           </Button>
           <Button onClick={() => setPublishDialogOpen(true)} variant="default">
             <Globe className="w-4 h-4 mr-2" />
@@ -127,21 +123,13 @@ export function EditorHeader({ lastSaved, onSave, isDirty }: EditorHeaderProps) 
           <DialogHeader>
             <DialogTitle>Publish Page</DialogTitle>
             <DialogDescription>
-              Choose a URL for your page. This will be the public address where your page can be accessed.
+              Are you sure you want to publish this page? It will be accessible at the following URL:
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="pageUrl">Page URL</Label>
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-muted-foreground">yoursite.com/</span>
-                <Input
-                  id="pageUrl"
-                  placeholder="my-awesome-page"
-                  value={pageUrl}
-                  onChange={(e) => setPageUrl(e.target.value)}
-                />
-              </div>
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-muted-foreground">yoursite.com</span>
+              <span className="font-medium">{pageUrl}</span>
             </div>
           </div>
           <DialogFooter>
