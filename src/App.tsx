@@ -37,10 +37,9 @@ const App = () => (
           <Route path="/admin" element={<AdminLayout><Dashboard /></AdminLayout>} />
           <Route path="/admin/pages" element={<AdminLayout><Pages /></AdminLayout>} />
           <Route path="/admin/pages/new" element={<AdminLayout><PageEditor /></AdminLayout>} />
-          <Route path="/admin/pages/:id/edit" element={<AdminLayout><PageEditor /></AdminLayout>} />
           <Route path="/preview/*" element={<Preview />} />
           <Route path="/admin/*" element={<AdminLayout><NotFound /></AdminLayout>} />
-          <Route path="/*" element={<PublishedPage />} /> {/* This will catch all other routes */}
+          <Route path="/*" element={<PublishedPage />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
