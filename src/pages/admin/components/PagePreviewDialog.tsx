@@ -9,6 +9,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Globe } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import EcommerceLanding from "../templates/EcommerceLanding";
+import { TemplateContent } from "../types/editor";
 
 interface PagePreviewDialogProps {
   isOpen: boolean;
@@ -25,6 +28,17 @@ interface PagePreviewDialogProps {
 
 export function PagePreviewDialog({ isOpen, onOpenChange, page }: PagePreviewDialogProps) {
   const navigate = useNavigate();
+  const [content, setContent] = useState<TemplateContent | null>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      const storedPages = JSON.parse(localStorage.getItem('pages') || '[]');
+      const currentPage = storedPages.find((p: any) => p.id === page.id);
+      if (currentPage?.content) {
+        setContent(currentPage.content);
+      }
+    }
+  }, [isOpen, page.id]);
 
   const handleViewFullPage = () => {
     onOpenChange(false); // Close the dialog
@@ -33,7 +47,7 @@ export function PagePreviewDialog({ isOpen, onOpenChange, page }: PagePreviewDia
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl scale-in">
+      <DialogContent className="max-w-[90vw] h-[90vh] scale-in">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             {page.title}
@@ -49,9 +63,17 @@ export function PagePreviewDialog({ isOpen, onOpenChange, page }: PagePreviewDia
           </DialogDescription>
         </DialogHeader>
         
-        <div className="space-y-6">
-          <div className="aspect-[16/9] rounded-lg border bg-muted/50 flex items-center justify-center animate-in fade-in">
-            Page preview coming soon...
+        <div className="space-y-6 h-full">
+          <div className="aspect-[16/9] rounded-lg border bg-background overflow-auto">
+            {content ? (
+              <div className="transform scale-[0.7] origin-top">
+                <EcommerceLanding content={content} />
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-full">
+                Loading preview...
+              </div>
+            )}
           </div>
           
           <div className="grid grid-cols-2 gap-4 text-sm animate-in fade-in duration-300">
