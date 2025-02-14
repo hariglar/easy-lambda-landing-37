@@ -27,6 +27,8 @@ export default function PageEditor() {
     templateId,
     pageTitle,
     setPageTitle,
+    pageUrl,
+    setPageUrl,
     handleContentChange,
     handleSave
   } = useEditor();
@@ -51,6 +53,23 @@ export default function PageEditor() {
               }}
               placeholder="Enter page title..."
             />
+          </div>
+          <div className="space-y-2">
+            <Label>Page URL</Label>
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-muted-foreground">/</span>
+              <Input
+                value={pageUrl.startsWith('/') ? pageUrl.slice(1) : pageUrl}
+                onChange={(e) => {
+                  setPageUrl('/' + e.target.value.replace(/^\/*/, ''));
+                  setIsDirty(true);
+                }}
+                placeholder="page-url"
+              />
+            </div>
+            <p className="text-sm text-muted-foreground">
+              The URL should be unique and contain only letters, numbers, and hyphens
+            </p>
           </div>
         </div>
       </Card>

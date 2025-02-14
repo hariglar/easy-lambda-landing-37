@@ -14,6 +14,7 @@ export function useEditor() {
   const [content, setContent] = useState<TemplateContent>(defaultContent);
   const [isDirty, setIsDirty] = useState(false);
   const [pageTitle, setPageTitle] = useState("New Page");
+  const [pageUrl, setPageUrl] = useState("/new-page");
 
   const templateId = searchParams.get("template");
   const pageId = searchParams.get("pageId");
@@ -32,6 +33,7 @@ export function useEditor() {
           setContent(storedPage.content);
         }
         setPageTitle(storedPage.title);
+        setPageUrl(storedPage.url);
         return;
       }
       
@@ -39,6 +41,7 @@ export function useEditor() {
       const mockPage = mockPages.find(p => p.id === Number(pageId));
       if (mockPage) {
         setPageTitle(mockPage.title);
+        setPageUrl(mockPage.url);
         // For mock pages, initialize with default content
         setContent(defaultContent);
       }
@@ -86,6 +89,7 @@ export function useEditor() {
           storedPages[pageIndex] = {
             ...storedPages[pageIndex],
             title: pageTitle,
+            url: pageUrl,
             content,
             lastModified: currentDate
           };
@@ -97,10 +101,10 @@ export function useEditor() {
             ...(mockPage || {
               id: Number(pageId),
               status: "draft",
-              url: `/page-${pageId}`,
               views: 0
             }),
             title: pageTitle,
+            url: pageUrl,
             content,
             lastModified: currentDate
           });
@@ -117,7 +121,7 @@ export function useEditor() {
           id: newPageId,
           title: pageTitle,
           status: "draft",
-          url: `/page-${newPageId}`,
+          url: pageUrl,
           content,
           lastModified: currentDate,
           views: 0
@@ -146,10 +150,12 @@ export function useEditor() {
     lastSaved,
     content,
     isDirty,
-    setIsDirty, // Added this to fix the missing setIsDirty error
+    setIsDirty,
     templateId,
     pageTitle,
     setPageTitle,
+    pageUrl,
+    setPageUrl,
     handleContentChange,
     handleSave
   };
