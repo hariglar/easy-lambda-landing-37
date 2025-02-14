@@ -10,8 +10,21 @@ import Pages from "./pages/admin/Pages";
 import PageEditor from "./pages/admin/PageEditor";
 import Preview from "./pages/Preview";
 import NotFound from "./pages/NotFound";
+import EcommerceLanding from "./pages/admin/templates/EcommerceLanding";
 
 const queryClient = new QueryClient();
+
+const PublishedPage = () => {
+  const path = window.location.pathname;
+  const storedPages = JSON.parse(localStorage.getItem('pages') || '[]');
+  const page = storedPages.find((p: any) => p.url === path && p.status === 'published');
+  
+  if (!page) {
+    return <NotFound />;
+  }
+  
+  return <EcommerceLanding content={page.content} />;
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -27,7 +40,7 @@ const App = () => (
           <Route path="/admin/pages/:id/edit" element={<AdminLayout><PageEditor /></AdminLayout>} />
           <Route path="/preview/*" element={<Preview />} />
           <Route path="/admin/*" element={<AdminLayout><NotFound /></AdminLayout>} />
-          <Route path="*" element={<NotFound />} />
+          <Route path="/*" element={<PublishedPage />} /> {/* This will catch all other routes */}
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
