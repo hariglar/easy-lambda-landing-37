@@ -31,80 +31,7 @@ export function useEditor() {
     });
   }, []);
 
-  // Auto-save functionality
-  useEffect(() => {
-    if (isDirty) {
-      if (autoSaveTimer) {
-        clearTimeout(autoSaveTimer);
-      }
-      
-      const timer = setTimeout(() => {
-        handleSave();
-      }, 3000); // Auto-save after 3 seconds of inactivity
-      
-      setAutoSaveTimer(timer);
-    }
-    
-    return () => {
-      if (autoSaveTimer) {
-        clearTimeout(autoSaveTimer);
-      }
-    };
-  }, [isDirty, content, pageTitle, pageUrl]);
-
-  // Load existing content when editing a page
-  useEffect(() => {
-    if (pageId) {
-      console.log('Loading content for pageId:', pageId);
-      const storedPages = JSON.parse(localStorage.getItem('pages') || '[]');
-      
-      // First check stored pages
-      const storedPage = storedPages.find(p => p.id === Number(pageId));
-      if (storedPage) {
-        console.log('Found stored page:', storedPage);
-        if (storedPage.content) {
-          setContent(storedPage.content);
-        }
-        setPageTitle(storedPage.title);
-        setPageUrl(storedPage.url);
-        return;
-      }
-      
-      // If not found in stored pages, check mock pages
-      const mockPage = mockPages.find(p => p.id === Number(pageId));
-      if (mockPage) {
-        setPageTitle(mockPage.title);
-        setPageUrl(mockPage.url);
-        // For mock pages, initialize with default content
-        setContent(defaultContent);
-      }
-    }
-  }, [pageId]);
-
-  const handleContentChange = (
-    section: keyof TemplateContent,
-    value: any,
-    index?: number,
-    field?: string
-  ) => {
-    setIsDirty(true);
-    setContent(prev => {
-      const newContent = { ...prev };
-      if (index !== undefined && field && Array.isArray(newContent[section])) {
-        (newContent[section] as any[])[index] = {
-          ...(newContent[section] as any[])[index],
-          [field]: value
-        };
-      } else if (typeof value === "object") {
-        newContent[section] = { ...newContent[section], ...value };
-      } else {
-        newContent[section] = value;
-      }
-      return newContent;
-    });
-  };
-
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     try {
       await new Promise(resolve => setTimeout(resolve, 1000));
       
@@ -166,6 +93,77 @@ export function useEditor() {
       console.error('Save error:', error);
       toast.error("Failed to save changes. Please try again.");
     }
+  }, [pageId, pageTitle, pageUrl, content]);
+
+  useEffect(() => {
+    if (isDirty) {
+      if (autoSaveTimer) {
+        clearTimeout(autoSaveTimer);
+      }
+      
+      const timer = setTimeout(() => {
+        handleSave();
+      }, 3000);
+      
+      setAutoSaveTimer(timer);
+    }
+    
+    return () => {
+      if (autoSaveTimer) {
+        clearTimeout(autoSaveTimer);
+      }
+    };
+  }, [isDirty, content, pageTitle, pageUrl, handleSave]);
+
+  useEffect(() => {
+    if (pageId) {
+      console.log('Loading content for pageId:', pageId);
+      const storedPages = JSON.parse(localStorage.getItem('pages') || '[]');
+      
+      // First check stored pages
+      const storedPage = storedPages.find(p => p.id === Number(pageId));
+      if (storedPage) {
+        console.log('Found stored page:', storedPage);
+        if (storedPage.content) {
+          setContent(storedPage.content);
+        }
+        setPageTitle(storedPage.title);
+        setPageUrl(storedPage.url);
+        return;
+      }
+      
+      // If not found in stored pages, check mock pages
+      const mockPage = mockPages.find(p => p.id === Number(pageId));
+      if (mockPage) {
+        setPageTitle(mockPage.title);
+        setPageUrl(mockPage.url);
+        // For mock pages, initialize with default content
+        setContent(defaultContent);
+      }
+    }
+  }, [pageId]);
+
+  const handleContentChange = (
+    section: keyof TemplateContent,
+    value: any,
+    index?: number,
+    field?: string
+  ) => {
+    setIsDirty(true);
+    setContent(prev => {
+      const newContent = { ...prev };
+      if (index !== undefined && field && Array.isArray(newContent[section])) {
+        (newContent[section] as any[])[index] = {
+          ...(newContent[section] as any[])[index],
+          [field]: value
+        };
+      } else if (typeof value === "object") {
+        newContent[section] = { ...newContent[section], ...value };
+      } else {
+        newContent[section] = value;
+      }
+      return newContent;
+    });
   };
 
   return {
