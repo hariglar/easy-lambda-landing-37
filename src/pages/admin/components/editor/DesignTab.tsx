@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Template } from "../../types";
 import EcommerceLanding from "../../templates/EcommerceLanding";
+import { TemplateContent } from "../../PageEditor";
 
 interface DesignTabProps {
   templateId: string | null;
@@ -15,6 +16,7 @@ interface DesignTabProps {
   metaExpanded: boolean;
   setMetaExpanded: (expanded: boolean) => void;
   templates: Template[];
+  content: TemplateContent;
 }
 
 export function DesignTab({
@@ -24,11 +26,12 @@ export function DesignTab({
   metaExpanded,
   setMetaExpanded,
   templates,
+  content
 }: DesignTabProps) {
   const renderTemplate = () => {
     switch (templateId) {
       case "ecommerce":
-        return <EcommerceLanding />;
+        return <EcommerceLanding content={content} />;
       default:
         return null;
     }

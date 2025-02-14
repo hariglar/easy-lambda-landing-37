@@ -5,9 +5,11 @@ import { useNavigate } from "react-router-dom";
 
 interface EditorHeaderProps {
   lastSaved: Date | null;
+  onSave: () => void;
+  isDirty: boolean;
 }
 
-export function EditorHeader({ lastSaved }: EditorHeaderProps) {
+export function EditorHeader({ lastSaved, onSave, isDirty }: EditorHeaderProps) {
   const navigate = useNavigate();
 
   return (
@@ -38,9 +40,9 @@ export function EditorHeader({ lastSaved }: EditorHeaderProps) {
           <Eye className="w-4 h-4 mr-2" />
           Preview
         </Button>
-        <Button>
+        <Button onClick={onSave} disabled={!isDirty}>
           <Save className="w-4 h-4 mr-2" />
-          Save Changes
+          {isDirty ? "Save Changes" : "Saved"}
         </Button>
       </div>
     </div>
