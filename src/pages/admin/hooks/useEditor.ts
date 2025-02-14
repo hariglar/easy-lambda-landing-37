@@ -65,9 +65,11 @@ export function useEditor() {
       // Simulate API delay
       await new Promise(resolve => setTimeout(resolve, 1000));
       
+      const storedPages = JSON.parse(localStorage.getItem('pages') || '[]');
+      const currentDate = new Date().toISOString().split('T')[0];
+
       if (pageId) {
         // Update existing page
-        const storedPages = JSON.parse(localStorage.getItem('pages') || '[]');
         const pageIndex = storedPages.findIndex((p: any) => p.id === Number(pageId));
         
         if (pageIndex !== -1) {
@@ -75,7 +77,7 @@ export function useEditor() {
           storedPages[pageIndex] = {
             ...storedPages[pageIndex],
             content,
-            lastModified: new Date().toISOString().split('T')[0]
+            lastModified: currentDate
           };
         } else {
           // If not found in stored pages, check mock pages
@@ -86,18 +88,30 @@ export function useEditor() {
               ...mockPages[mockPageIndex],
               id: Number(pageId),
               content,
-              lastModified: new Date().toISOString().split('T')[0]
+              lastModified: currentDate
             });
           }
         }
-        
-        localStorage.setItem('pages', JSON.stringify(storedPages));
+      } else {
+        // Create new page
+        const newPageId = Math.max(...storedPages.map((p: any) => p.id), 0) + 1;
+        storedPages.push({
+          id: newPageId,
+          title: "New Page",
+          status: "draft",
+          url: `/page-${newPageId}`,
+          content,
+          lastModified: currentDate,
+          views: 0
+        });
       }
-
+      
+      localStorage.setItem('pages', JSON.stringify(storedPages));
       setLastSaved(new Date());
       setIsDirty(false);
       toast.success("Changes saved successfully!");
     } catch (error) {
+      console.error('Save error:', error);
       toast.error("Failed to save changes. Please try again.");
     }
   };
