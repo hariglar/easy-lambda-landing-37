@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Clock, Eye, Save, Globe, Copy } from "lucide-react";
+import { Clock, Save, Globe, Copy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -15,23 +15,6 @@ interface EditorHeaderActionsProps {
 export function EditorHeaderActions({ lastSaved, onSave, isDirty, pageUrl, onPublish }: EditorHeaderActionsProps) {
   const navigate = useNavigate();
   
-  const handlePreview = async () => {
-    try {
-      // Save the page first
-      await onSave();
-      
-      // Clean and normalize the URL, ensuring proper encoding
-      const cleanUrl = pageUrl.trim();
-      const normalizedUrl = cleanUrl.startsWith('/') ? cleanUrl : `/${cleanUrl}`;
-      const previewUrl = `${window.location.origin}/preview${normalizedUrl}`;
-      
-      // Open in new tab
-      window.open(previewUrl, '_blank');
-    } catch (error) {
-      toast.error("Please save the page before previewing");
-    }
-  };
-
   const handleDuplicate = async () => {
     try {
       await onSave();
@@ -77,10 +60,6 @@ export function EditorHeaderActions({ lastSaved, onSave, isDirty, pageUrl, onPub
       <Button variant="outline" onClick={handleDuplicate}>
         <Copy className="w-4 h-4 mr-2" />
         Duplicate
-      </Button>
-      <Button variant="outline" onClick={handlePreview}>
-        <Eye className="w-4 h-4 mr-2" />
-        Preview
       </Button>
       <Button onClick={onSave} disabled={!isDirty}>
         <Save className="w-4 h-4 mr-2" />
