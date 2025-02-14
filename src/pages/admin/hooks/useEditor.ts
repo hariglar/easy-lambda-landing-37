@@ -3,7 +3,6 @@ import { useSearchParams } from "react-router-dom";
 import { TemplateContent, defaultContent } from "../types/editor";
 import { mockPages } from "../data/mockData";
 import { toast } from "sonner";
-import { X } from "lucide-react";
 
 export function useEditor() {
   const [searchParams] = useSearchParams();
@@ -88,13 +87,7 @@ export function useEditor() {
       const currentPageId = pageId ? Number(pageId) : null;
       
       if (!isUrlUnique(pageUrl, currentPageId)) {
-        toast.error("This URL is already in use by another page.", {
-          description: "Please choose a different URL.",
-          action: {
-            label: <X className="h-4 w-4" />,
-            onClick: () => toast.dismiss()
-          }
-        });
+        toast.error("This URL is already in use by another page. Please choose a different URL.");
         return;
       }
 
@@ -161,13 +154,7 @@ export function useEditor() {
       console.log('Saved pages:', storedPages);
     } catch (error) {
       console.error('Save error:', error);
-      toast.error("Failed to save changes.", {
-        description: "Please try again.",
-        action: {
-          label: <X className="h-4 w-4" />,
-          onClick: () => toast.dismiss()
-        }
-      });
+      toast.error("Failed to save changes. Please try again.");
     }
   };
 
