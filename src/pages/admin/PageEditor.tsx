@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,6 +13,33 @@ import { EditorTabs } from "./components/editor/EditorTabs";
 import { DesignTab } from "./components/editor/DesignTab";
 import { Template } from "./types";
 import { toast } from "sonner";
+
+const mockPages = [
+  {
+    id: 1,
+    title: "Homepage",
+    status: "published",
+    url: "/homepage",
+    lastModified: "2024-02-20",
+    views: 1234
+  },
+  {
+    id: 2,
+    title: "Product Launch",
+    status: "draft",
+    url: "/product-launch",
+    lastModified: "2024-02-19",
+    views: 0
+  },
+  {
+    id: 3,
+    title: "Contact Us",
+    status: "published",
+    url: "/contact",
+    lastModified: "2024-02-18",
+    views: 567
+  }
+];
 
 const templates: Template[] = [
   {
