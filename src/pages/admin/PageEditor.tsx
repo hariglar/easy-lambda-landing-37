@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -20,8 +19,9 @@ import {
   Share2,
   Clock
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import EcommerceLanding from "./templates/EcommerceLanding";
 
 const templates = [
   {
@@ -46,10 +46,22 @@ const templates = [
 
 export default function PageEditor() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [currentTab, setCurrentTab] = useState("design");
   const [selectedTemplate, setSelectedTemplate] = useState<number | null>(null);
   const [metaExpanded, setMetaExpanded] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(new Date());
+
+  const templateId = searchParams.get("template");
+
+  const renderTemplate = () => {
+    switch (templateId) {
+      case "ecommerce":
+        return <EcommerceLanding />;
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className="space-y-8 animate-in fade-in">
@@ -116,79 +128,85 @@ export default function PageEditor() {
         </TabsList>
 
         <TabsContent value="design" className="space-y-6">
-          <Card className="p-6">
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label>Page Title</Label>
-                <Input placeholder="Enter page title..." />
-              </div>
-              <div className="space-y-2">
-                <Label>URL Path</Label>
-                <Input placeholder="Enter URL path..." />
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label>Meta Information</Label>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={() => setMetaExpanded(!metaExpanded)}
-                  >
-                    {metaExpanded ? 'Hide' : 'Show'} Meta Info
-                  </Button>
+          {templateId ? (
+            <div className="w-full min-h-[600px] border rounded-lg overflow-hidden">
+              {renderTemplate()}
+            </div>
+          ) : (
+            <Card className="p-6">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Page Title</Label>
+                  <Input placeholder="Enter page title..." />
                 </div>
-                {metaExpanded && (
-                  <div className="space-y-4 animate-in slide-in-from-top-2">
-                    <div className="space-y-2">
-                      <Label>Meta Title</Label>
-                      <Input placeholder="Enter meta title..." />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Meta Description</Label>
-                      <Textarea placeholder="Enter meta description..." />
-                    </div>
+                <div className="space-y-2">
+                  <Label>URL Path</Label>
+                  <Input placeholder="Enter URL path..." />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label>Meta Information</Label>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => setMetaExpanded(!metaExpanded)}
+                    >
+                      {metaExpanded ? 'Hide' : 'Show'} Meta Info
+                    </Button>
                   </div>
-                )}
+                  {metaExpanded && (
+                    <div className="space-y-4 animate-in slide-in-from-top-2">
+                      <div className="space-y-2">
+                        <Label>Meta Title</Label>
+                        <Input placeholder="Enter meta title..." />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Meta Description</Label>
+                        <Textarea placeholder="Enter meta description..." />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </Card>
+
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Choose a Template</h3>
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {templates.map((template) => (
+                  <Card 
+                    key={template.id}
+                    className={cn(
+                      "group cursor-pointer overflow-hidden transition-all",
+                      selectedTemplate === template.id && 'ring-2 ring-primary'
+                    )}
+                    onClick={() => setSelectedTemplate(template.id)}
+                  >
+                    <div className="aspect-video relative overflow-hidden">
+                      <img 
+                        src={template.thumbnail} 
+                        alt={template.name}
+                        className="object-cover w-full h-full transition-transform group-hover:scale-105"
+                      />
+                      {selectedTemplate === template.id && (
+                        <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
+                          <span className="bg-white text-primary px-3 py-1 rounded-full text-sm font-medium">
+                            Selected
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-4">
+                      <h4 className="font-semibold">{template.name}</h4>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {template.description}
+                      </p>
+                    </div>
+                  </Card>
+                ))}
               </div>
             </div>
-          </Card>
-
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Choose a Template</h3>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {templates.map((template) => (
-                <Card 
-                  key={template.id}
-                  className={cn(
-                    "group cursor-pointer overflow-hidden transition-all",
-                    selectedTemplate === template.id && 'ring-2 ring-primary'
-                  )}
-                  onClick={() => setSelectedTemplate(template.id)}
-                >
-                  <div className="aspect-video relative overflow-hidden">
-                    <img 
-                      src={template.thumbnail} 
-                      alt={template.name}
-                      className="object-cover w-full h-full transition-transform group-hover:scale-105"
-                    />
-                    {selectedTemplate === template.id && (
-                      <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
-                        <span className="bg-white text-primary px-3 py-1 rounded-full text-sm font-medium">
-                          Selected
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-4">
-                    <h4 className="font-semibold">{template.name}</h4>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {template.description}
-                    </p>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          </div>
+          )}
         </TabsContent>
 
         <TabsContent value="content" className="space-y-6">
