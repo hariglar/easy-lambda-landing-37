@@ -1,6 +1,5 @@
-
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Clock, Eye, Save, Share2, Globe } from "lucide-react";
+import { ArrowLeft, Clock, Eye, Save, Share2, Globe, AlertTriangle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useMemo } from "react";
 import {
@@ -12,6 +11,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface EditorHeaderProps {
   lastSaved: Date | null;
@@ -25,64 +25,79 @@ export function EditorHeader({ lastSaved, onSave, isDirty, pageUrl, pageTitle }:
   const navigate = useNavigate();
   const [publishDialogOpen, setPublishDialogOpen] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
+  const [originalPublishedUrl, setOriginalPublishedUrl] = useState<string | null>(null);
 
   const formattedUrl = useMemo(() => {
     const formatted = pageUrl
       .toLowerCase()
-      .replace(/[^a-z0-9-]/g, '-') // Replace non-alphanumeric characters with hyphens
-      .replace(/^-+|-+$/g, '') // Remove leading and trailing hyphens
-      .replace(/-+/g, '-'); // Replace multiple consecutive hyphens with a single hyphen
+      .replace(/[^a-z0-9-]/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .replace(/-+/g, '-');
 
     return formatted.startsWith('/') ? formatted : `/${formatted}`;
   }, [pageUrl]);
 
   const handlePreview = async () => {
     try {
-      // Always save before preview when creating a new page
       await onSave();
-      
-      // Ensure the pageUrl starts with a slash
       const normalizedUrl = pageUrl.startsWith('/') ? pageUrl : `/${pageUrl}`;
       const previewUrl = `/preview${normalizedUrl}`;
-      
-      // Add a small delay to ensure the save completes
       setTimeout(() => {
         window.open(previewUrl, '_blank');
       }, 100);
-      
     } catch (error) {
       toast.error("Please save the page before previewing");
     }
   };
 
+  const handlePublishClick = () => {
+    const storedPages = JSON.parse(localStorage.getItem('pages') || '[]');
+    const currentPage = storedPages.find((p: any) => p.url === pageUrl);
+    
+    if (currentPage?.status === 'published') {
+      setOriginalPublishedUrl(currentPage.url);
+    } else {
+      setOriginalPublishedUrl(null);
+    }
+    
+    setPublishDialogOpen(true);
+  };
+
+  const handleRevertUrl = () => {
+    if (originalPublishedUrl) {
+      const storedPages = JSON.parse(localStorage.getItem('pages') || '[]');
+      const currentPage = storedPages.find((p: any) => p.url === pageUrl);
+      if (currentPage) {
+        currentPage.url = originalPublishedUrl;
+        localStorage.setItem('pages', JSON.stringify(storedPages));
+        toast.success("URL reverted to original");
+        setPublishDialogOpen(false);
+        navigate(`/admin/pages/edit?pageId=${currentPage.id}`);
+      }
+    }
+  };
+
   const handlePublish = async () => {
-    // First, save any pending changes
     await onSave();
 
     setIsPublishing(true);
     try {
-      // Get existing pages from localStorage
       const storedPages = JSON.parse(localStorage.getItem('pages') || '[]');
-      
-      // Find the page we're currently editing
       const currentPage = storedPages.find((p: any) => p.url === pageUrl);
       
       if (!currentPage) {
         throw new Error("Page not found");
       }
 
-      // Update the page URL and status
       currentPage.url = formattedUrl;
       currentPage.status = "published";
       currentPage.publishedAt = new Date().toISOString();
       
-      // Save back to localStorage
       localStorage.setItem('pages', JSON.stringify(storedPages));
       
       toast.success("Page published successfully!");
       setPublishDialogOpen(false);
       
-      // After successful publish, navigate back to pages list
       navigate("/admin/pages");
     } catch (error) {
       toast.error("Failed to publish page. Please try again.");
@@ -90,6 +105,8 @@ export function EditorHeader({ lastSaved, onSave, isDirty, pageUrl, pageTitle }:
       setIsPublishing(false);
     }
   };
+
+  const hasUrlChanged = originalPublishedUrl && originalPublishedUrl !== formattedUrl;
 
   return (
     <>
@@ -124,7 +141,7 @@ export function EditorHeader({ lastSaved, onSave, isDirty, pageUrl, pageTitle }:
             <Save className="w-4 h-4 mr-2" />
             {isDirty ? "Save Draft" : "Saved"}
           </Button>
-          <Button onClick={() => setPublishDialogOpen(true)} variant="default">
+          <Button onClick={handlePublishClick} variant="default">
             <Globe className="w-4 h-4 mr-2" />
             Publish
           </Button>
@@ -136,28 +153,54 @@ export function EditorHeader({ lastSaved, onSave, isDirty, pageUrl, pageTitle }:
           <DialogHeader>
             <DialogTitle>Publish Page</DialogTitle>
             <DialogDescription>
-              Are you sure you want to publish this page? It will be accessible at the following URL:
+              {originalPublishedUrl 
+                ? "Update your published page with the following changes:"
+                : "Are you sure you want to publish this page? It will be accessible at the following URL:"}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
+            {hasUrlChanged && (
+              <Alert variant="warning" className="mb-4">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>
+                  Warning: You're about to change the URL of a published page. This may break existing links to your page.
+                </AlertDescription>
+              </Alert>
+            )}
+            
             <div className="flex flex-col space-y-2">
+              {originalPublishedUrl && (
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm text-muted-foreground">Current Published URL:</span>
+                  <span className="font-medium">{originalPublishedUrl}</span>
+                </div>
+              )}
               <div className="flex items-center space-x-2">
-                <span className="text-sm text-muted-foreground">Original URL:</span>
-                <span className="font-medium">{pageUrl}</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-muted-foreground">Published URL:</span>
-                <span className="font-medium text-green-600">{formattedUrl}</span>
+                <span className="text-sm text-muted-foreground">
+                  {originalPublishedUrl ? 'New URL:' : 'Published URL:'}
+                </span>
+                <span className={`font-medium ${hasUrlChanged ? 'text-yellow-600' : 'text-green-600'}`}>
+                  {formattedUrl}
+                </span>
               </div>
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="space-x-2">
             <Button variant="outline" onClick={() => setPublishDialogOpen(false)}>
               Cancel
             </Button>
+            {hasUrlChanged && (
+              <Button
+                variant="secondary"
+                onClick={handleRevertUrl}
+                className="mr-2"
+              >
+                Revert URL Changes
+              </Button>
+            )}
             <Button onClick={handlePublish} disabled={isPublishing}>
               <Globe className="w-4 h-4 mr-2" />
-              {isPublishing ? "Publishing..." : "Publish Page"}
+              {isPublishing ? "Publishing..." : originalPublishedUrl ? "Update Page" : "Publish Page"}
             </Button>
           </DialogFooter>
         </DialogContent>
