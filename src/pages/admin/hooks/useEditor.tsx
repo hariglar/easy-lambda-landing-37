@@ -1,6 +1,5 @@
-
 import { useState, useEffect, useCallback } from "react";
-import { useSearchParams, useBeforeUnload, useLocation, useNavigate } from "react-router-dom";
+import { useSearchParams, useLocation, useNavigate } from "react-router-dom";
 import { TemplateContent, defaultContent } from "../types/editor";
 import { mockPages } from "../data/mockData";
 import { toast } from "sonner";
@@ -21,36 +20,39 @@ export function useEditor() {
   const templateId = searchParams.get("template");
   const pageId = searchParams.get("pageId");
 
-  // Handle beforeunload event for browser close/refresh
+  // Handle browser tab/window close
   useEffect(() => {
-    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (isDirty) {
-        event.preventDefault();
-        event.returnValue = "You have unsaved changes. Are you sure you want to leave?";
-        return event.returnValue;
+        const message = "You have unsaved changes. Are you sure you want to leave?";
+        e.preventDefault();
+        e.returnValue = message;
+        return message;
       }
     };
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener("beforeunload", handleBeforeUnload);
     return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, [isDirty]);
 
-  // Handle React Router navigation
+  // Handle in-app navigation
   useEffect(() => {
-    if (isDirty) {
-      const unblock = navigate((nextLocation) => {
-        if (nextLocation.pathname !== location.pathname) {
-          const answer = window.confirm("You have unsaved changes. Are you sure you want to leave?");
-          if (!answer) return false;
-        }
-        return true;
-      });
+    const unblock = navigate((to) => {
+      if (isDirty && to.pathname !== location.pathname) {
+        const userChoice = window.confirm(
+          "You have unsaved changes. Are you sure you want to leave?"
+        );
+        return userChoice;
+      }
+      return true;
+    });
 
-      return unblock;
-    }
-  }, [isDirty, navigate, location]);
+    return () => {
+      if (unblock) unblock();
+    };
+  }, [isDirty, navigate, location.pathname]);
 
   const isUrlUnique = useCallback((url: string, currentPageId: number | null) => {
     const storedPages = JSON.parse(localStorage.getItem('pages') || '[]');
@@ -134,6 +136,7 @@ export function useEditor() {
     index?: number,
     field?: string
   ) => {
+    console.log('Content changed, setting isDirty to true');
     setIsDirty(true);
     setContent(prev => {
       const newContent = { ...prev };
