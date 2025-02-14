@@ -1,35 +1,23 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { 
   Table, 
   TableHeader, 
   TableBody, 
   TableHead,
-  TableRow, 
-  TableCell 
+  TableRow,
 } from "@/components/ui/table";
 import {
   Pagination,
   PaginationContent,
   PaginationItem,
   PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
 } from "@/components/ui/pagination";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Eye, FileEdit, Globe, Trash2, ArrowUp, ArrowDown } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { ArrowUp, ArrowDown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { PagesHeader } from "./components/PagesHeader";
+import { PagesFilter } from "./components/PagesFilter";
+import { PageRow } from "./components/PageRow";
+import { DeletePageDialog } from "./components/DeletePageDialog";
 
 const mockPages = [
   {
@@ -88,7 +76,6 @@ type SortDirection = "asc" | "desc";
 const ITEMS_PER_PAGE = 5;
 
 export default function Pages() {
-  const navigate = useNavigate();
   const { toast } = useToast();
   const [pages, setPages] = useState(mockPages);
   const [searchQuery, setSearchQuery] = useState("");
@@ -129,57 +116,27 @@ export default function Pages() {
     currentPage * ITEMS_PER_PAGE
   );
 
-  const handleDeletePage = (pageId: number) => {
-    setPages(prevPages => prevPages.filter(page => page.id !== pageId));
-    toast({
-      title: "Page deleted",
-      description: "The page has been successfully deleted.",
-    });
-    setPageToDelete(null);
+  const handleDeletePage = () => {
+    if (pageToDelete) {
+      setPages(prevPages => prevPages.filter(page => page.id !== pageToDelete));
+      toast({
+        title: "Page deleted",
+        description: "The page has been successfully deleted.",
+      });
+      setPageToDelete(null);
+    }
   };
 
   return (
     <div className="space-y-8 animate-in fade-in">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-4xl font-bold tracking-tight">Pages</h1>
-          <p className="text-muted-foreground mt-2">
-            Create and manage your landing pages.
-          </p>
-        </div>
-        <Button onClick={() => navigate("/admin/pages/new")} size="lg">
-          Create Page
-        </Button>
-      </div>
-
-      <div className="flex flex-col sm:flex-row gap-4">
-        <Input
-          placeholder="Search pages..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="max-w-sm"
-        />
-        <div className="flex gap-2">
-          <Button
-            variant={statusFilter === "all" ? "default" : "outline"}
-            onClick={() => setStatusFilter("all")}
-          >
-            All
-          </Button>
-          <Button
-            variant={statusFilter === "published" ? "default" : "outline"}
-            onClick={() => setStatusFilter("published")}
-          >
-            Published
-          </Button>
-          <Button
-            variant={statusFilter === "draft" ? "default" : "outline"}
-            onClick={() => setStatusFilter("draft")}
-          >
-            Drafts
-          </Button>
-        </div>
-      </div>
+      <PagesHeader />
+      
+      <PagesFilter
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        statusFilter={statusFilter}
+        onStatusChange={setStatusFilter}
+      />
 
       <div className="rounded-lg border bg-card">
         <Table>
@@ -227,44 +184,11 @@ export default function Pages() {
           </TableHeader>
           <TableBody>
             {paginatedPages.map((page) => (
-              <TableRow key={page.id} className="group">
-                <TableCell className="font-medium">{page.title}</TableCell>
-                <TableCell>{page.url}</TableCell>
-                <TableCell>
-                  <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
-                    page.status === 'published' 
-                      ? 'bg-green-100 text-green-700' 
-                      : 'bg-yellow-100 text-yellow-700'
-                  }`}>
-                    {page.status === 'published' ? <Globe className="w-3 h-3" /> : null}
-                    {page.status}
-                  </span>
-                </TableCell>
-                <TableCell>{page.lastModified}</TableCell>
-                <TableCell>{page.views.toLocaleString()}</TableCell>
-                <TableCell className="text-right">
-                  <div className="flex items-center justify-end gap-2">
-                    <Button variant="ghost" size="icon">
-                      <Eye className="w-4 h-4" />
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="icon"
-                      onClick={() => navigate(`/admin/pages/${page.id}/edit`)}
-                    >
-                      <FileEdit className="w-4 h-4" />
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="text-destructive"
-                      onClick={() => setPageToDelete(page.id)}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
+              <PageRow 
+                key={page.id} 
+                page={page} 
+                onDeleteClick={setPageToDelete}
+              />
             ))}
           </TableBody>
         </Table>
@@ -305,26 +229,11 @@ export default function Pages() {
         )}
       </div>
 
-      <AlertDialog open={pageToDelete !== null} onOpenChange={() => setPageToDelete(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the page
-              and remove all of its data from our servers.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              onClick={() => pageToDelete && handleDeletePage(pageToDelete)}
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeletePageDialog
+        isOpen={pageToDelete !== null}
+        onOpenChange={(open) => !open && setPageToDelete(null)}
+        onConfirm={handleDeletePage}
+      />
     </div>
   );
 }
