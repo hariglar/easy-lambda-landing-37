@@ -41,10 +41,6 @@ export default function PageEditor() {
         pageUrl={pageUrl}
         pageTitle={pageTitle}
         setPageUrl={setPageUrl}
-        isEditing={false}
-        setIsEditing={() => {}}
-        viewMode="desktop"
-        setViewMode={() => {}}
       />
 
       <Card className="p-6">
@@ -86,8 +82,8 @@ export default function PageEditor() {
         <TabsContent value="design" className="space-y-6">
           <DesignTab 
             templateId={templateId}
-            selectedTemplate={String(selectedTemplate)}
-            setSelectedTemplate={(template: string) => setSelectedTemplate(Number(template))}
+            selectedTemplate={selectedTemplate}
+            setSelectedTemplate={setSelectedTemplate}
             metaExpanded={metaExpanded}
             setMetaExpanded={setMetaExpanded}
             templates={templates}

@@ -1,121 +1,156 @@
 
-import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { Laptop, Smartphone, Tablet, Eye, Pencil } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { cn } from "@/lib/utils";
+import { ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useState, useMemo } from "react";
+import { EditorHeaderActions } from "./EditorHeaderActions";
+import { PublishDialog } from "./PublishDialog";
+import { toast } from "sonner";
 
 interface EditorHeaderProps {
-  isEditing: boolean;
-  setIsEditing: (value: boolean) => void;
-  viewMode: 'desktop' | 'tablet' | 'mobile';
-  setViewMode: (mode: 'desktop' | 'tablet' | 'mobile') => void;
-  lastSaved?: Date | null;
-  onSave?: () => Promise<void>;
-  isDirty?: boolean;
-  pageUrl?: string;
-  pageTitle?: string;
-  setPageUrl?: (url: string) => void;
+  lastSaved: Date | null;
+  onSave: () => Promise<void>;
+  isDirty: boolean;
+  pageUrl: string;
+  pageTitle: string;
+  setPageUrl: (url: string) => void;
 }
 
-export function EditorHeader({
-  isEditing,
-  setIsEditing,
-  viewMode,
-  setViewMode,
-  lastSaved,
-  onSave,
-  isDirty,
-  pageUrl,
-  pageTitle,
-  setPageUrl
-}: EditorHeaderProps) {
+export function EditorHeader({ lastSaved, onSave, isDirty, pageUrl, pageTitle, setPageUrl }: EditorHeaderProps) {
+  const navigate = useNavigate();
+  const [publishDialogOpen, setPublishDialogOpen] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [originalPublishedUrl, setOriginalPublishedUrl] = useState<string | null>(null);
+
+  const formattedUrl = useMemo(() => {
+    const formatted = pageUrl
+      .toLowerCase()
+      .replace(/[^a-z0-9-]/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .replace(/-+/g, '-');
+
+    return formatted.startsWith('/') ? formatted : `/${formatted}`;
+  }, [pageUrl]);
+
+  const handlePublishClick = () => {
+    const storedPages = JSON.parse(localStorage.getItem('pages') || '[]');
+    const currentPageId = new URLSearchParams(window.location.search).get('pageId');
+    const currentPage = storedPages.find((p: any) => p.id === Number(currentPageId));
+    
+    if (currentPage?.status === 'published') {
+      setOriginalPublishedUrl(currentPage.url);
+    } else {
+      setOriginalPublishedUrl(null);
+    }
+    
+    setPublishDialogOpen(true);
+  };
+
+  const handlePublish = async () => {
+    if (isDirty) {
+      try {
+        await onSave();
+      } catch (error) {
+        toast.error("Failed to save changes before publishing. Please try again.");
+        return;
+      }
+    }
+
+    setIsPublishing(true);
+    try {
+      const storedPages = JSON.parse(localStorage.getItem('pages') || '[]');
+      const currentPageId = new URLSearchParams(window.location.search).get('pageId');
+      
+      if (!currentPageId) {
+        throw new Error("No page ID found");
+      }
+
+      const currentPage = storedPages.find((p: any) => p.id === Number(currentPageId));
+      
+      if (!currentPage) {
+        throw new Error("Page not found");
+      }
+
+      // Check URL uniqueness before publishing
+      const otherPages = storedPages.filter((p: any) => p.id !== Number(currentPageId));
+      const isUrlTaken = otherPages.some((p: any) => p.url === formattedUrl);
+      
+      if (isUrlTaken) {
+        toast.error("This URL is already in use by another page. Please choose a different URL.");
+        return;
+      }
+
+      currentPage.url = formattedUrl;
+      currentPage.status = "published";
+      currentPage.publishedAt = new Date().toISOString();
+      
+      localStorage.setItem('pages', JSON.stringify(storedPages));
+      
+      toast.success("Page published successfully!");
+      setPublishDialogOpen(false);
+      
+      // Navigate back to pages list after successful publish
+      setTimeout(() => {
+        navigate("/admin/pages");
+      }, 1500);
+    } catch (error) {
+      console.error('Publishing error:', error);
+      toast.error("Failed to publish page. Please try again.");
+    } finally {
+      setIsPublishing(false);
+    }
+  };
+
+  const handleRevertUrl = () => {
+    if (originalPublishedUrl) {
+      const storedPages = JSON.parse(localStorage.getItem('pages') || '[]');
+      const currentPageId = new URLSearchParams(window.location.search).get('pageId');
+      const currentPage = storedPages.find((p: any) => p.id === Number(currentPageId));
+      
+      if (currentPage) {
+        currentPage.url = originalPublishedUrl;
+        localStorage.setItem('pages', JSON.stringify(storedPages));
+        setPageUrl(originalPublishedUrl);
+        setPublishDialogOpen(false);
+      }
+    }
+  };
+
+  const hasUrlChanged = originalPublishedUrl && originalPublishedUrl !== formattedUrl;
+
   return (
-    <div className="border-b">
-      <div className="flex h-16 items-center px-4 gap-4">
-        <div className="flex items-center gap-2 flex-1">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="flex items-center gap-2">
-                  {isEditing ? (
-                    <Pencil className="h-4 w-4 text-primary" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-muted-foreground" />
-                  )}
-                  <Switch
-                    checked={isEditing}
-                    onCheckedChange={setIsEditing}
-                  />
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{isEditing ? "Switch to preview mode" : "Switch to editing mode"}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          <span className="text-sm font-medium">
-            {isEditing ? "Editing Mode" : "Preview Mode"}
-          </span>
+    <>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" onClick={() => navigate("/admin/pages")}>
+            <ArrowLeft className="w-4 h-4" />
+          </Button>
+          <div>
+            <h1 className="text-4xl font-bold tracking-tight">{pageTitle || "Create New Page"}</h1>
+            <p className="text-muted-foreground mt-2">
+              Design and publish your landing page.
+            </p>
+          </div>
         </div>
-        
-        <div className="flex items-center gap-2 border-l pl-4">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant={viewMode === 'desktop' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setViewMode('desktop')}
-                  className="transition-all"
-                >
-                  <Laptop className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Desktop view</p>
-              </TooltipContent>
-            </Tooltip>
-
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant={viewMode === 'tablet' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setViewMode('tablet')}
-                  className="transition-all"
-                >
-                  <Tablet className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Tablet view</p>
-              </TooltipContent>
-            </Tooltip>
-
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant={viewMode === 'mobile' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setViewMode('mobile')}
-                  className="transition-all"
-                >
-                  <Smartphone className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Mobile view</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
+        <EditorHeaderActions
+          lastSaved={lastSaved}
+          onSave={onSave}
+          isDirty={isDirty}
+          pageUrl={pageUrl}
+          onPublish={handlePublishClick}
+        />
       </div>
-    </div>
+
+      <PublishDialog
+        open={publishDialogOpen}
+        onOpenChange={setPublishDialogOpen}
+        originalPublishedUrl={originalPublishedUrl}
+        formattedUrl={formattedUrl}
+        hasUrlChanged={hasUrlChanged}
+        onRevertUrl={handleRevertUrl}
+        onPublish={handlePublish}
+        isPublishing={isPublishing}
+      />
+    </>
   );
 }
