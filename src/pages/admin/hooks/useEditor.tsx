@@ -1,3 +1,4 @@
+
 import { useState, useEffect, Dispatch, SetStateAction } from "react";
 import { useSearchParams } from "react-router-dom";
 import { mockPages } from "../data/mockData";
@@ -75,6 +76,8 @@ export function useEditor(): EditorReturn {
       const storedPages = JSON.parse(localStorage.getItem('pages') || '[]');
       const currentDate = new Date().toISOString().split('T')[0];
 
+      console.log('Saving with template type:', templateType);
+
       if (pageId) {
         const pageIndex = storedPages.findIndex((p: any) => p.id === Number(pageId));
         
@@ -85,7 +88,7 @@ export function useEditor(): EditorReturn {
             title: pageTitle,
             url: pageUrl,
             content,
-            templateType,
+            templateType, // Ensure templateType is saved
             lastModified: currentDate
           };
         } else {
@@ -100,7 +103,7 @@ export function useEditor(): EditorReturn {
             title: pageTitle,
             url: pageUrl,
             content,
-            templateType,
+            templateType, // Ensure templateType is saved
             lastModified: currentDate
           });
         }
@@ -110,14 +113,14 @@ export function useEditor(): EditorReturn {
           ...mockPages.map(p => p.id),
           0
         ) + 1;
-        console.log('Creating completely new page with template:', templateType);
+        console.log('Creating completely new page:', newPageId);
         storedPages.push({
           id: newPageId,
           title: pageTitle,
           status: "draft",
           url: pageUrl,
           content,
-          templateType,
+          templateType, // Ensure templateType is saved
           lastModified: currentDate,
           views: 0
         });
