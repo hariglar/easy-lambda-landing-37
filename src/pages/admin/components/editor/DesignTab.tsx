@@ -69,33 +69,83 @@ export function DesignTab({
   const [isEditing, setIsEditing] = useState(false);
   const [viewMode, setViewMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [enabledSections, setEnabledSections] = useState(
-    AVAILABLE_SECTIONS.map(section => section.enabled)
+    AVAILABLE_SECTIONS.map(section => ({
+      ...section,
+      enabled: true
+    }))
   );
   const [selectedTheme, setSelectedTheme] = useState('primary');
 
+  // Enhanced section toggle with content visibility
   const handleSectionToggle = useCallback((index: number) => {
     setEnabledSections(prev => {
-      const newEnabled = [...prev];
-      newEnabled[index] = !newEnabled[index];
+      const newSections = [...prev];
+      newSections[index] = {
+        ...newSections[index],
+        enabled: !newSections[index].enabled
+      };
       
       // Ensure at least one section is enabled
-      if (newEnabled.filter(Boolean).length === 0) {
+      if (!newSections.some(section => section.enabled)) {
         toast.error("At least one section must be enabled");
         return prev;
       }
-      
-      return newEnabled;
-    });
-  }, []);
 
+      // Update the content visibility
+      const sectionId = newSections[index].id as keyof TemplateContent;
+      if (content[sectionId]) {
+        handleContentChange(sectionId, {
+          ...content[sectionId],
+          visible: newSections[index].enabled
+        });
+      }
+      
+      return newSections;
+    });
+  }, [content, handleContentChange]);
+
+  // Enhanced theme change with validation
   const handleThemeChange = useCallback((themeId: string) => {
-    setSelectedTheme(themeId);
-    const themeColor = THEME_COLORS.find(t => t.id === themeId)?.color;
-    if (themeColor) {
+    try {
+      const themeColor = THEME_COLORS.find(t => t.id === themeId)?.color;
+      if (!themeColor) {
+        throw new Error("Invalid theme color");
+      }
+
+      setSelectedTheme(themeId);
       document.documentElement.style.setProperty('--primary', themeColor);
+      
+      // Store theme preference
+      localStorage.setItem('selected-theme', themeId);
+      
       toast.success(`Theme updated to ${THEME_COLORS.find(t => t.id === themeId)?.name}`);
+    } catch (error) {
+      toast.error("Failed to update theme. Please try again.");
     }
   }, []);
+
+  // Load saved theme on mount
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('selected-theme');
+    if (savedTheme) {
+      handleThemeChange(savedTheme);
+    }
+  }, [handleThemeChange]);
+
+  // Improved meta information handling
+  const handleMetaChange = useCallback((field: 'title' | 'description', value: string) => {
+    handleContentChange('meta', {
+      ...content.meta,
+      [field]: value
+    });
+    
+    // Validate meta information
+    if (field === 'title' && value.length > 60) {
+      toast.warning("Meta title should be less than 60 characters for SEO optimization");
+    } else if (field === 'description' && value.length > 160) {
+      toast.warning("Meta description should be less than 160 characters for SEO optimization");
+    }
+  }, [content.meta, handleContentChange]);
 
   const renderTemplate = () => {
     switch (templateId) {
@@ -126,6 +176,7 @@ export function DesignTab({
                       size="sm"
                       onClick={() => setViewMode('desktop')}
                       className="transition-all"
+                      title="Desktop view"
                     >
                       <Laptop className="h-4 w-4" />
                     </Button>
@@ -134,6 +185,7 @@ export function DesignTab({
                       size="sm"
                       onClick={() => setViewMode('tablet')}
                       className="transition-all"
+                      title="Tablet view"
                     >
                       <Tablet className="h-4 w-4" />
                     </Button>
@@ -142,6 +194,7 @@ export function DesignTab({
                       size="sm"
                       onClick={() => setViewMode('mobile')}
                       className="transition-all"
+                      title="Mobile view"
                     >
                       <Smartphone className="h-4 w-4" />
                     </Button>
@@ -170,14 +223,24 @@ export function DesignTab({
                       <Card className="p-4">
                         <h3 className="font-medium mb-3">Section Visibility</h3>
                         <div className="space-y-3">
-                          {AVAILABLE_SECTIONS.map((section, index) => (
-                            <div key={section.id} className="flex items-center justify-between p-2 bg-muted/50 rounded-lg">
+                          {enabledSections.map((section, index) => (
+                            <div 
+                              key={section.id} 
+                              className={cn(
+                                "flex items-center justify-between p-2 rounded-lg transition-colors",
+                                section.enabled ? "bg-muted/50" : "bg-muted/20"
+                              )}
+                            >
                               <div className="flex items-center gap-3">
                                 <GripVertical className="h-4 w-4 text-muted-foreground cursor-move" />
-                                <span>{section.name}</span>
+                                <span className={cn(
+                                  section.enabled ? "text-foreground" : "text-muted-foreground"
+                                )}>
+                                  {section.name}
+                                </span>
                               </div>
                               <Switch
-                                checked={enabledSections[index]}
+                                checked={section.enabled}
                                 onCheckedChange={() => handleSectionToggle(index)}
                               />
                             </div>
@@ -204,6 +267,7 @@ export function DesignTab({
                                 )}
                                 style={{ backgroundColor: theme.color }}
                                 onClick={() => handleThemeChange(theme.id)}
+                                title={theme.name}
                               />
                             ))}
                           </div>
@@ -220,16 +284,26 @@ export function DesignTab({
                           <Input 
                             className="mt-1.5" 
                             placeholder="Enter meta title..."
-                            onChange={(e) => handleContentChange('meta', { title: e.target.value })}
+                            value={content.meta.title}
+                            onChange={(e) => handleMetaChange('title', e.target.value)}
+                            maxLength={60}
                           />
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {content.meta.title.length}/60 characters
+                          </p>
                         </div>
                         <div>
                           <Label>Meta Description</Label>
                           <Textarea 
                             className="mt-1.5" 
                             placeholder="Enter meta description..."
-                            onChange={(e) => handleContentChange('meta', { description: e.target.value })}
+                            value={content.meta.description}
+                            onChange={(e) => handleMetaChange('description', e.target.value)}
+                            maxLength={160}
                           />
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {content.meta.description.length}/160 characters
+                          </p>
                         </div>
                       </div>
                     </Card>
