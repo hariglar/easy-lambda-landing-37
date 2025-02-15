@@ -7,44 +7,10 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { 
-  LayoutTemplate, 
-  Rocket, 
-  Building2, 
-  Palette, 
-  Store 
-} from "lucide-react";
+import { Store } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const templates = [
-  {
-    id: "minimal",
-    name: "Minimal Landing",
-    description: "Clean and modern design for startups",
-    icon: LayoutTemplate,
-    thumbnail: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=400&h=300&fit=crop"
-  },
-  {
-    id: "startup",
-    name: "Startup Launch",
-    description: "Perfect for product launches and SaaS",
-    icon: Rocket,
-    thumbnail: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop"
-  },
-  {
-    id: "business",
-    name: "Business Pro",
-    description: "Professional template for enterprises",
-    icon: Building2,
-    thumbnail: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&h=300&fit=crop"
-  },
-  {
-    id: "creative",
-    name: "Creative Portfolio",
-    description: "Showcase your work with style",
-    icon: Palette,
-    thumbnail: "https://images.unsplash.com/photo-1470309864661-68328b2cd0a5?w=400&h=300&fit=crop"
-  },
   {
     id: "ecommerce",
     name: "E-commerce Landing",
