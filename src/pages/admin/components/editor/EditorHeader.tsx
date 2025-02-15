@@ -16,14 +16,7 @@ interface EditorHeaderProps {
   setPageUrl: (url: string) => void;
 }
 
-export function EditorHeader({
-  lastSaved,
-  onSave,
-  isDirty,
-  pageUrl,
-  pageTitle,
-  setPageUrl
-}: EditorHeaderProps) {
+export function EditorHeader({ lastSaved, onSave, isDirty, pageUrl, pageTitle, setPageUrl }: EditorHeaderProps) {
   const navigate = useNavigate();
   const [publishDialogOpen, setPublishDialogOpen] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
@@ -96,6 +89,7 @@ export function EditorHeader({
       toast.success("Page published successfully!");
       setPublishDialogOpen(false);
       
+      // Navigate back to pages list after successful publish
       setTimeout(() => {
         navigate("/admin/pages");
       }, 1500);
