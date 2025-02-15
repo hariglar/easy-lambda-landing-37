@@ -55,8 +55,8 @@ export function PageRow({ page, onDeleteClick, categories = [], onCategoryChange
         <TableCell>
           <div className="flex items-center gap-2">
             <Select
-              value={page.categoryId?.toString() || ""}
-              onValueChange={(value) => onCategoryChange?.(page.id, value ? parseInt(value) : null)}
+              value={page.categoryId?.toString() || "none"}
+              onValueChange={(value) => onCategoryChange?.(page.id, value === "none" ? null : parseInt(value))}
             >
               <SelectTrigger className="h-8">
                 <SelectValue placeholder={
@@ -67,7 +67,7 @@ export function PageRow({ page, onDeleteClick, categories = [], onCategoryChange
                 } />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">No category</SelectItem>
+                <SelectItem value="none">No category</SelectItem>
                 {categories.map((category) => (
                   <SelectItem key={category.id} value={category.id.toString()}>
                     {category.name}

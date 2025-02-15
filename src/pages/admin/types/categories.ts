@@ -9,6 +9,13 @@ export interface Category {
   parentId?: number | null;
 }
 
-export interface PageWithCategory extends Page {
+export interface PageWithCategory {
+  id: number;
+  title: string;
+  status: string;
+  url: string;
+  lastModified: string;
+  views: number;
+  content: any;
   categoryId?: number | null;
 }
