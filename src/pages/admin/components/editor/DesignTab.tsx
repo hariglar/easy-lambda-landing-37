@@ -75,7 +75,6 @@ export function DesignTab({
     items.splice(result.destination.index, 0, reorderedItem);
 
     // Update the content with the new order
-    // Note: This is a placeholder - you'll need to implement the actual reordering logic
     console.log("New section order:", items.map(item => item.id));
   };
 
@@ -85,7 +84,6 @@ export function DesignTab({
         return (
           <div className="space-y-8">
             <div className="sticky top-4 z-50 flex items-center gap-4 bg-white/90 p-4 rounded-lg shadow-sm">
-              {/* Edit Mode Toggle */}
               <div className="flex items-center gap-2">
                 <Pencil className={cn("h-4 w-4", isEditing ? "text-primary" : "text-muted-foreground")} />
                 <Switch
@@ -97,10 +95,8 @@ export function DesignTab({
                 </span>
               </div>
 
-              {/* Section Controls */}
               {isEditing && activeSection && (
-                <>
-                  {/* Animation Control */}
+                <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2">
                     <PlayCircle className="h-4 w-4 text-muted-foreground" />
                     <Select
@@ -120,7 +116,6 @@ export function DesignTab({
                     </Select>
                   </div>
 
-                  {/* Color Control */}
                   <div className="flex items-center gap-2">
                     <Palette className="h-4 w-4 text-muted-foreground" />
                     <Input
@@ -134,7 +129,6 @@ export function DesignTab({
               )}
             </div>
 
-            {/* Section Reordering */}
             {isEditing && (
               <Card className="p-4 mb-8">
                 <Label className="mb-4 block">Reorder Sections</Label>
@@ -174,7 +168,6 @@ export function DesignTab({
               </Card>
             )}
 
-            {/* Template Content */}
             <EcommerceLanding 
               content={content} 
               onContentChange={handleContentChange}
@@ -184,79 +177,40 @@ export function DesignTab({
         );
       default:
         return (
-          <div className="space-y-6">
-            <Card className="p-6">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Page Title</Label>
-                  <Input placeholder="Enter page title..." />
-                </div>
-                <div className="space-y-2">
-                  <Label>URL Path</Label>
-                  <Input placeholder="Enter URL path..." />
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label>Meta Information</Label>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      onClick={() => setMetaExpanded(!metaExpanded)}
-                    >
-                      {metaExpanded ? 'Hide' : 'Show'} Meta Info
-                    </Button>
-                  </div>
-                  {metaExpanded && (
-                    <div className="space-y-4 animate-in slide-in-from-top-2">
-                      <div className="space-y-2">
-                        <Label>Meta Title</Label>
-                        <Input placeholder="Enter meta title..." />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Meta Description</Label>
-                        <Textarea placeholder="Enter meta description..." />
-                      </div>
-                    </div>
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Choose a Template</h3>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {templates.map((template) => (
+                <Card 
+                  key={template.id}
+                  className={cn(
+                    "group cursor-pointer overflow-hidden transition-all",
+                    selectedTemplate === template.id && 'ring-2 ring-primary'
                   )}
-                </div>
-              </div>
-            </Card>
-
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Choose a Template</h3>
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {templates.map((template) => (
-                  <Card 
-                    key={template.id}
-                    className={cn(
-                      "group cursor-pointer overflow-hidden transition-all",
-                      selectedTemplate === template.id && 'ring-2 ring-primary'
+                  onClick={() => setSelectedTemplate(template.id)}
+                >
+                  <div className="aspect-video relative overflow-hidden">
+                    <img 
+                      src={template.thumbnail} 
+                      alt={template.name}
+                      className="object-cover w-full h-full transition-transform group-hover:scale-105"
+                    />
+                    {selectedTemplate === template.id && (
+                      <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
+                        <span className="bg-white text-primary px-3 py-1 rounded-full text-sm font-medium">
+                          Selected
+                        </span>
+                      </div>
                     )}
-                    onClick={() => setSelectedTemplate(template.id)}
-                  >
-                    <div className="aspect-video relative overflow-hidden">
-                      <img 
-                        src={template.thumbnail} 
-                        alt={template.name}
-                        className="object-cover w-full h-full transition-transform group-hover:scale-105"
-                      />
-                      {selectedTemplate === template.id && (
-                        <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
-                          <span className="bg-white text-primary px-3 py-1 rounded-full text-sm font-medium">
-                            Selected
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                    <div className="p-4">
-                      <h4 className="font-semibold">{template.name}</h4>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {template.description}
-                      </p>
-                    </div>
-                  </Card>
-                ))}
-              </div>
+                  </div>
+                  <div className="p-4">
+                    <h4 className="font-semibold">{template.name}</h4>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {template.description}
+                    </p>
+                  </div>
+                </Card>
+              ))}
             </div>
           </div>
         );
