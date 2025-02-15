@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Template } from "../../types";
 import EcommerceLanding from "../../templates/EcommerceLanding";
@@ -16,9 +17,6 @@ import { EditorHeader } from "./EditorHeader";
 import { SectionManager } from "./SectionManager";
 import { ThemeSelector } from "./ThemeSelector";
 import { MetaSettings } from "./MetaSettings";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 
 const AVAILABLE_SECTIONS = [
   { id: 'hero', name: 'Hero Section' },
@@ -28,12 +26,18 @@ const AVAILABLE_SECTIONS = [
   { id: 'testimonials', name: 'Testimonials Section' }
 ] as const;
 
-const THEME_COLORS = [
+interface ThemeColor {
+  id: string;
+  color: string;
+  name: string;
+}
+
+const THEME_COLORS: ThemeColor[] = [
   { id: 'primary', color: '#8B5CF6', name: 'Purple' },
   { id: 'blue', color: '#0EA5E9', name: 'Blue' },
   { id: 'green', color: '#22C55E', name: 'Green' },
   { id: 'rose', color: '#F43F5E', name: 'Rose' }
-] as const;
+];
 
 interface DesignTabProps {
   templateId: string;
@@ -61,7 +65,7 @@ export function DesignTab({
   const [enabledSections, setEnabledSections] = useState(() => 
     AVAILABLE_SECTIONS.map(section => ({
       ...section,
-      enabled: content[section.id]?.visible !== false
+      enabled: Boolean(content[section.id as keyof TemplateContent]?.visible)
     }))
   );
   const [selectedTheme, setSelectedTheme] = useState(() => {
@@ -201,81 +205,38 @@ export function DesignTab({
 
   return (
     <div className="space-y-6">
-      <Card className="p-6">
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label>Page Title</Label>
-            <Input placeholder="Enter page title..." />
-          </div>
-          <div className="space-y-2">
-            <Label>URL Path</Label>
-            <Input placeholder="Enter URL path..." />
-          </div>
-          {/* Meta Information Section */}
-          <div className="space-y-2">
-            {/* Meta Information Toggle */}
-            <div className="flex items-center justify-between">
-              <Label>Meta Information</Label>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setMetaExpanded(!metaExpanded)}
-              >
-                {metaExpanded ? 'Hide' : 'Show'} Meta Info
-              </Button>
-            </div>
-            {/* Meta Information Fields */}
-            {metaExpanded && (
-              <div className="space-y-4 animate-in slide-in-from-top-2">
-                <div className="space-y-2">
-                  <Label>Meta Title</Label>
-                  <Input placeholder="Enter meta title..." />
-                </div>
-                <div className="space-y-2">
-                  <Label>Meta Description</Label>
-                  <Textarea placeholder="Enter meta description..." />
-                </div>
-              </div>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {templates.map((template) => (
+          <Card
+            key={template.id}
+            className={cn(
+              "group cursor-pointer overflow-hidden transition-all",
+              selectedTemplate === String(template.id) && 'ring-2 ring-primary'
             )}
-          </div>
-        </div>
-      </Card>
-
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Choose a Template</h3>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {templates.map((template) => (
-            <Card
-              key={template.id}
-              className={cn(
-                "group cursor-pointer overflow-hidden transition-all",
-                selectedTemplate === template.id && 'ring-2 ring-primary'
+            onClick={() => setSelectedTemplate(String(template.id))}
+          >
+            <div className="aspect-video relative overflow-hidden">
+              <img
+                src={template.thumbnail}
+                alt={template.name}
+                className="object-cover w-full h-full transition-transform group-hover:scale-105"
+              />
+              {selectedTemplate === String(template.id) && (
+                <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
+                  <span className="bg-white text-primary px-3 py-1 rounded-full text-sm font-medium">
+                    Selected
+                  </span>
+                </div>
               )}
-              onClick={() => setSelectedTemplate(template.id)}
-            >
-              <div className="aspect-video relative overflow-hidden">
-                <img
-                  src={template.thumbnail}
-                  alt={template.name}
-                  className="object-cover w-full h-full transition-transform group-hover:scale-105"
-                />
-                {selectedTemplate === template.id && (
-                  <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
-                    <span className="bg-white text-primary px-3 py-1 rounded-full text-sm font-medium">
-                      Selected
-                    </span>
-                  </div>
-                )}
-              </div>
-              <div className="p-4">
-                <h4 className="font-semibold">{template.name}</h4>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {template.description}
-                </p>
-              </div>
-            </Card>
-          ))}
-        </div>
+            </div>
+            <div className="p-4">
+              <h4 className="font-semibold">{template.name}</h4>
+              <p className="text-sm text-muted-foreground mt-1">
+                {template.description}
+              </p>
+            </div>
+          </Card>
+        ))}
       </div>
     </div>
   );

@@ -15,13 +15,25 @@ interface EditorHeaderProps {
   setIsEditing: (value: boolean) => void;
   viewMode: 'desktop' | 'tablet' | 'mobile';
   setViewMode: (mode: 'desktop' | 'tablet' | 'mobile') => void;
+  lastSaved?: Date | null;
+  onSave?: () => Promise<void>;
+  isDirty?: boolean;
+  pageUrl?: string;
+  pageTitle?: string;
+  setPageUrl?: (url: string) => void;
 }
 
 export function EditorHeader({
   isEditing,
   setIsEditing,
   viewMode,
-  setViewMode
+  setViewMode,
+  lastSaved,
+  onSave,
+  isDirty,
+  pageUrl,
+  pageTitle,
+  setPageUrl
 }: EditorHeaderProps) {
   return (
     <div className="border-b">
