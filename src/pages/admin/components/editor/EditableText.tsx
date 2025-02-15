@@ -25,6 +25,19 @@ export function EditableText({
     setCurrentValue(value);
   }, [value]);
 
+  useEffect(() => {
+    if (isEditable && editorRef.current) {
+      // Set focus at the end of the content when editing starts
+      const range = document.createRange();
+      const selection = window.getSelection();
+      range.selectNodeContents(editorRef.current);
+      range.collapse(false);
+      selection?.removeAllRanges();
+      selection?.addRange(range);
+      editorRef.current.focus();
+    }
+  }, [isEditable]);
+
   const handleToolbarAction = (command: string) => {
     document.execCommand(command, false);
     if (editorRef.current) {
@@ -40,6 +53,27 @@ export function EditableText({
   const handleCancel = () => {
     setCurrentValue(value);
     setIsEditable(false);
+  };
+
+  const handleInput = (e: React.FormEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLDivElement;
+    // Preserve the cursor position
+    const selection = window.getSelection();
+    const range = selection?.getRangeAt(0);
+    const offset = range?.endOffset;
+
+    setCurrentValue(target.innerHTML);
+
+    // Restore the cursor position after state update
+    if (offset !== undefined && target === editorRef.current) {
+      requestAnimationFrame(() => {
+        const newRange = document.createRange();
+        newRange.setStart(target.childNodes[0] || target, Math.min(offset, target.textContent?.length || 0));
+        newRange.collapse(true);
+        selection?.removeAllRanges();
+        selection?.addRange(newRange);
+      });
+    }
   };
 
   if (!isEditing) {
@@ -87,13 +121,13 @@ export function EditableText({
         ref={editorRef}
         className={`${className} outline-none ring-2 ring-primary rounded px-1`}
         contentEditable
-        onInput={() => {
-          if (editorRef.current) {
-            setCurrentValue(editorRef.current.innerHTML);
-          }
-        }}
+        onInput={handleInput}
         dangerouslySetInnerHTML={{ __html: currentValue }}
-        dir="ltr"
+        style={{
+          direction: 'ltr',
+          unicodeBidi: 'embed',
+          textAlign: 'left'
+        }}
       />
     </div>
   );
