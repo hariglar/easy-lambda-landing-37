@@ -88,6 +88,10 @@ export function useContent(pageId: string | null) {
       }
       
       localStorage.setItem('pages', JSON.stringify(storedPages));
+      
+      // Store the current content in sessionStorage for preview
+      sessionStorage.setItem('previewData', JSON.stringify(content));
+      
       setLastSaved(new Date());
       setIsDirty(false);
       toast.success("Changes saved successfully!");
