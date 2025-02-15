@@ -24,15 +24,32 @@ export function usePages() {
     const storedCategories = localStorage.getItem('categories');
     if (storedPages) {
       const parsedPages = JSON.parse(storedPages).map((page: PageWithCategory) => {
-        const date = new Date(page.lastModified);
+        let date;
+        try {
+          // Try to parse the existing date
+          date = new Date(page.lastModified);
+          // Check if the date is valid, if not use current date
+          if (isNaN(date.getTime())) {
+            date = new Date();
+          }
+        } catch {
+          date = new Date();
+        }
+        
         return {
           ...page,
-          // Store the ISO string for sorting
           lastModifiedRaw: date.toISOString(),
-          // Format for display
           lastModified: format(date, "MMM d, yyyy HH:mm:ss")
         };
       });
+      
+      // Sort pages by lastModifiedRaw in descending order
+      parsedPages.sort((a, b) => {
+        const aDate = new Date(a.lastModifiedRaw || a.lastModified).getTime();
+        const bDate = new Date(b.lastModifiedRaw || b.lastModified).getTime();
+        return bDate - aDate;
+      });
+      
       setPages(parsedPages);
     }
     if (storedCategories) {
@@ -52,6 +69,14 @@ export function usePages() {
           }
         : page
     );
+    
+    // Sort updated pages by lastModifiedRaw in descending order
+    updatedPages.sort((a, b) => {
+      const aDate = new Date(a.lastModifiedRaw || a.lastModified).getTime();
+      const bDate = new Date(b.lastModifiedRaw || b.lastModified).getTime();
+      return bDate - aDate;
+    });
+    
     setPages(updatedPages);
     localStorage.setItem('pages', JSON.stringify(updatedPages));
     
@@ -99,7 +124,6 @@ export function usePages() {
       const modifier = sortDirection === "asc" ? 1 : -1;
       
       if (sortField === "lastModified") {
-        // Use the raw ISO string for date sorting
         const aDate = new Date(a.lastModifiedRaw || a.lastModified).getTime();
         const bDate = new Date(b.lastModifiedRaw || b.lastModified).getTime();
         return (bDate - aDate) * modifier;
