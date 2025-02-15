@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -25,6 +26,14 @@ interface DesignTabProps {
   handleContentChange: (section: keyof TemplateContent, value: any, index?: number, field?: string) => void;
 }
 
+const DEFAULT_SECTIONS = [
+  { id: "hero", title: "Hero Section" },
+  { id: "features", title: "Features Section" },
+  { id: "products", title: "Products Section" },
+  { id: "newsletter", title: "Newsletter Section" },
+  { id: "testimonials", title: "Testimonials Section" }
+];
+
 export function DesignTab({
   templateId,
   selectedTemplate,
@@ -36,26 +45,29 @@ export function DesignTab({
   handleContentChange
 }: DesignTabProps) {
   const [isEditing, setIsEditing] = useState(false);
-
-  // Initialize sections from content.sectionOrder or default order
-  const [sections, setSections] = useState([
-    { id: "hero", title: "Hero Section" },
-    { id: "features", title: "Features Section" },
-    { id: "products", title: "Products Section" },
-    { id: "newsletter", title: "Newsletter Section" },
-    { id: "testimonials", title: "Testimonials Section" }
-  ]);
+  const [sections, setSections] = useState(DEFAULT_SECTIONS);
 
   // Update sections when content.sectionOrder changes
   useEffect(() => {
-    if (content.sectionOrder) {
-      const orderedSections = content.sectionOrder.map(sectionId => {
-        const section = sections.find(s => s.id === sectionId);
-        return section || { id: sectionId, title: `${sectionId.charAt(0).toUpperCase() + sectionId.slice(1)} Section` };
-      });
-      setSections(orderedSections);
+    // Initialize with default sections if no sectionOrder exists
+    if (!content?.sectionOrder || !Array.isArray(content.sectionOrder)) {
+      console.log('Initializing with default sections');
+      handleContentChange('sectionOrder', DEFAULT_SECTIONS.map(s => s.id));
+      setSections(DEFAULT_SECTIONS);
+      return;
     }
-  }, [content.sectionOrder]);
+
+    // Map existing section order to full section objects
+    const orderedSections = content.sectionOrder.map(sectionId => {
+      const section = DEFAULT_SECTIONS.find(s => s.id === sectionId);
+      return section || { 
+        id: sectionId, 
+        title: `${sectionId.charAt(0).toUpperCase() + sectionId.slice(1)} Section` 
+      };
+    });
+
+    setSections(orderedSections);
+  }, [content?.sectionOrder, handleContentChange]);
 
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
