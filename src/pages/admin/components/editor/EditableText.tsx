@@ -30,18 +30,8 @@ export function EditableText({
       // Set focus at the end of the content when editing starts
       const range = document.createRange();
       const selection = window.getSelection();
-      
-      // Check if there are child nodes before setting the range
-      if (editorRef.current.childNodes.length > 0) {
-        const lastChild = editorRef.current.childNodes[0];
-        const textLength = lastChild.textContent?.length || 0;
-        range.setStart(lastChild, textLength);
-      } else {
-        // If no child nodes, just collapse at the end of the element
-        range.selectNodeContents(editorRef.current);
-      }
-      
-      range.collapse(true);
+      range.selectNodeContents(editorRef.current);
+      range.collapse(false);
       selection?.removeAllRanges();
       selection?.addRange(range);
       editorRef.current.focus();
@@ -78,14 +68,7 @@ export function EditableText({
     if (offset !== undefined && target === editorRef.current) {
       requestAnimationFrame(() => {
         const newRange = document.createRange();
-        // Check if there are child nodes before setting the range
-        if (target.childNodes.length > 0) {
-          const lastChild = target.childNodes[0];
-          const textLength = lastChild.textContent?.length || 0;
-          newRange.setStart(lastChild, Math.min(offset, textLength));
-        } else {
-          newRange.selectNodeContents(target);
-        }
+        newRange.setStart(target.childNodes[0] || target, Math.min(offset, target.textContent?.length || 0));
         newRange.collapse(true);
         selection?.removeAllRanges();
         selection?.addRange(newRange);

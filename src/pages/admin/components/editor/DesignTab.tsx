@@ -7,16 +7,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Template } from "../../types";
+import EcommerceLanding from "../../templates/EcommerceLanding";
 import { TemplateContent } from "../../types/editor";
 import { Switch } from "@/components/ui/switch";
 import { Pencil } from "lucide-react";
-
-// Template Components
-import EcommerceLanding from "../../templates/EcommerceLanding";
-import LuxuryBoutique from "../../templates/LuxuryBoutique";
-import ArtisanMarketplace from "../../templates/ArtisanMarketplace";
-import ModernFashion from "../../templates/ModernFashion";
-import LifestyleBrand from "../../templates/LifestyleBrand";
 
 interface DesignTabProps {
   templateId: string | null;
@@ -42,68 +36,20 @@ export function DesignTab({
   const [isEditing, setIsEditing] = useState(false);
 
   const renderTemplate = () => {
-    const editingControls = (
-      <div className="absolute top-4 right-4 z-50 flex items-center gap-2 bg-white/90 p-2 rounded-lg shadow-sm">
-        <Pencil className={cn("h-4 w-4", isEditing ? "text-primary" : "text-muted-foreground")} />
-        <Switch
-          checked={isEditing}
-          onCheckedChange={setIsEditing}
-        />
-        <span className="text-sm font-medium">
-          {isEditing ? "Editing Mode" : "Preview Mode"}
-        </span>
-      </div>
-    );
-
     switch (templateId) {
-      case "luxury":
-        return (
-          <div className="relative">
-            {editingControls}
-            <LuxuryBoutique 
-              content={content} 
-              onContentChange={handleContentChange}
-              isEditing={isEditing}
-            />
-          </div>
-        );
-      case "artisan":
-        return (
-          <div className="relative">
-            {editingControls}
-            <ArtisanMarketplace 
-              content={content} 
-              onContentChange={handleContentChange}
-              isEditing={isEditing}
-            />
-          </div>
-        );
-      case "modern":
-        return (
-          <div className="relative">
-            {editingControls}
-            <ModernFashion 
-              content={content} 
-              onContentChange={handleContentChange}
-              isEditing={isEditing}
-            />
-          </div>
-        );
-      case "lifestyle":
-        return (
-          <div className="relative">
-            {editingControls}
-            <LifestyleBrand 
-              content={content} 
-              onContentChange={handleContentChange}
-              isEditing={isEditing}
-            />
-          </div>
-        );
       case "ecommerce":
         return (
           <div className="relative">
-            {editingControls}
+            <div className="absolute top-4 right-4 z-50 flex items-center gap-2 bg-white/90 p-2 rounded-lg shadow-sm">
+              <Pencil className={cn("h-4 w-4", isEditing ? "text-primary" : "text-muted-foreground")} />
+              <Switch
+                checked={isEditing}
+                onCheckedChange={setIsEditing}
+              />
+              <span className="text-sm font-medium">
+                {isEditing ? "Editing Mode" : "Preview Mode"}
+              </span>
+            </div>
             <EcommerceLanding 
               content={content} 
               onContentChange={handleContentChange}

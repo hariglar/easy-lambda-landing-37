@@ -26,8 +26,7 @@ export function useEditor() {
     setPageUrl,
     handleContentChange,
     handleSave,
-    setContent,
-    setTemplateId
+    setContent
   } = useContent(pageId);
 
   // Load existing content when editing a page
@@ -50,8 +49,6 @@ export function useEditor() {
         }
         setPageTitle(storedPage.title);
         setPageUrl(storedPage.url);
-        // Set the template ID from the stored page
-        setTemplateId(storedPage.templateId);
         return;
       }
       
@@ -62,14 +59,8 @@ export function useEditor() {
         setPageUrl(mockPage.url);
         setContent(defaultContent);
       }
-    } else if (templateId) {
-      // This is a new page, set the template from the URL parameter
-      console.log('Setting template ID for new page:', templateId);
-      setTemplateId(templateId);
-      // Reset content to default when creating a new page
-      setContent(defaultContent);
     }
-  }, [pageId, templateId, setContent, setPageTitle, setPageUrl, setTemplateId]);
+  }, [pageId, setContent, setPageTitle, setPageUrl]);
 
   return {
     currentTab,

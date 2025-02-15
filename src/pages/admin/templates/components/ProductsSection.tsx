@@ -10,26 +10,18 @@ interface ProductsSectionProps {
 }
 
 export function ProductsSection({ products, onContentChange, isEditing }: ProductsSectionProps) {
-  // Ensure products is treated as an array by accessing the array items
-  const productItems = Array.isArray(products) ? products : [];
-  
-  // Get section title from the products object if it exists
-  const sectionTitle = typeof products === 'object' && 'sectionTitle' in products 
-    ? products.sectionTitle 
-    : "Featured Products";
-
   return (
     <section className="py-16 bg-white">
       <div className="container mx-auto px-4">
         <EditableText
-          value={sectionTitle}
+          value="Featured Products"
           onChange={(value) => onContentChange('products', { sectionTitle: value })}
           className="text-3xl font-bold text-center mb-12"
           identifier="products.sectionTitle"
           isEditing={isEditing}
         />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {productItems.map((product, index) => (
+          {products.map((product, index) => (
             <ProductCard
               key={index}
               product={product}

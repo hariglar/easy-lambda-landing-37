@@ -10,7 +10,6 @@ export function useContent(pageId: string | null) {
   const [lastSaved, setLastSaved] = useState<Date | null>(new Date());
   const [pageTitle, setPageTitle] = useState("New Page");
   const [pageUrl, setPageUrl] = useState("/new-page");
-  const [templateId, setTemplateId] = useState<string | null>(null);
 
   const handleContentChange = (
     section: keyof TemplateContent,
@@ -53,7 +52,6 @@ export function useContent(pageId: string | null) {
             title: pageTitle,
             url: pageUrl,
             content,
-            templateId,
             lastModified: currentDate
           };
         } else {
@@ -68,7 +66,6 @@ export function useContent(pageId: string | null) {
             title: pageTitle,
             url: pageUrl,
             content,
-            templateId,
             lastModified: currentDate
           });
         }
@@ -85,7 +82,6 @@ export function useContent(pageId: string | null) {
           status: "draft",
           url: pageUrl,
           content,
-          templateId,
           lastModified: currentDate,
           views: 0
         });
@@ -101,7 +97,7 @@ export function useContent(pageId: string | null) {
       console.error('Save error:', error);
       toast.error("Failed to save changes. Please try again.");
     }
-  }, [pageId, pageTitle, pageUrl, content, templateId]);
+  }, [pageId, pageTitle, pageUrl, content]);
 
   return {
     content,
@@ -113,8 +109,6 @@ export function useContent(pageId: string | null) {
     setPageTitle,
     pageUrl,
     setPageUrl,
-    templateId,
-    setTemplateId,
     handleContentChange,
     handleSave
   };
