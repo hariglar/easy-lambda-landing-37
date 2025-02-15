@@ -6,7 +6,8 @@ import { isUrlUnique } from "../utils/urlUtils";
 import { defaultContent } from "../types/editor";
 import { toast } from "sonner";
 
-export interface EditorReturn {
+// Move the interface outside and add proper export
+interface EditorReturn {
   currentTab: string;
   setCurrentTab: Dispatch<SetStateAction<string>>;
   selectedTemplate: number | null;
@@ -29,6 +30,9 @@ export interface EditorReturn {
   setTemplateType: Dispatch<SetStateAction<string>>;
 }
 
+// Add type export
+export type { EditorReturn };
+
 export function useEditor(): EditorReturn {
   const [searchParams] = useSearchParams();
   const [currentTab, setCurrentTab] = useState("design");
@@ -40,7 +44,6 @@ export function useEditor(): EditorReturn {
   const [pageTitle, setPageTitle] = useState("New Page");
   const [pageUrl, setPageUrl] = useState("/new-page");
   const [templateType, setTemplateType] = useState(() => {
-    // Initialize with template from URL or default to "ecommerce"
     return searchParams.get("template") || "ecommerce";
   });
 
