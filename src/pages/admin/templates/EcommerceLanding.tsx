@@ -72,24 +72,28 @@ export function EcommerceLanding({ content, onContentChange, isEditing = false }
     })).filter((section): section is SectionConfig => section.component !== null);
   };
 
+  // Update sections when content or editing mode changes
   useEffect(() => {
-    // Add type check for content.sectionOrder
     const order = Array.isArray(content?.sectionOrder) ? content.sectionOrder : defaultOrder;
-    console.log('Using section order:', order); // Debug log
     setSections(createSections(order));
-  }, [content, onContentChange, isEditing]);
+  }, [content, isEditing, onContentChange]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     
     if (over && active.id !== over.id) {
+      // First update the sections state
       setSections((items) => {
         const oldIndex = items.findIndex((item) => item.id === active.id);
         const newIndex = items.findIndex((item) => item.id === over.id);
+        
+        // Create new array with updated order
         const newItems = arrayMove(items, oldIndex, newIndex);
         
-        // Update the section order in the content
+        // Get the new order of section IDs
         const newOrder = newItems.map(item => item.id);
+        
+        // Update the content with the new order
         onContentChange('sectionOrder', newOrder);
         
         return newItems;
@@ -97,8 +101,8 @@ export function EcommerceLanding({ content, onContentChange, isEditing = false }
     }
   };
 
+  // Render preview mode
   if (!isEditing) {
-    // Add type check here as well
     const order = Array.isArray(content?.sectionOrder) ? content.sectionOrder : defaultOrder;
     const orderedSections = createSections(order);
     
@@ -111,6 +115,7 @@ export function EcommerceLanding({ content, onContentChange, isEditing = false }
     );
   }
 
+  // Render editing mode with drag and drop
   return (
     <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
       <main>
