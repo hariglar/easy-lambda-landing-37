@@ -1,3 +1,4 @@
+
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -10,8 +11,20 @@ import { EditorTabs } from "./components/editor/EditorTabs";
 import { DesignTab } from "./components/editor/DesignTab";
 import { templates } from "./data/mockData";
 import { useEditor } from "./hooks/useEditor";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useEffect, useState } from "react";
+import { Category } from "./types/categories";
 
 export default function PageEditor() {
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    const storedCategories = localStorage.getItem('categories');
+    if (storedCategories) {
+      setCategories(JSON.parse(storedCategories));
+    }
+  }, []);
+
   const {
     currentTab,
     setCurrentTab,
@@ -28,6 +41,8 @@ export default function PageEditor() {
     setPageTitle,
     pageUrl,
     setPageUrl,
+    categoryId,
+    setCategoryId,
     handleContentChange,
     handleSave
   } = useEditor();
@@ -72,6 +87,28 @@ export default function PageEditor() {
             <p className="text-sm text-muted-foreground">
               The URL should be unique and contain only letters, numbers, and hyphens
             </p>
+          </div>
+          <div className="space-y-2">
+            <Label>Category</Label>
+            <Select 
+              value={categoryId?.toString() || ""} 
+              onValueChange={(value) => {
+                setCategoryId(value ? Number(value) : null);
+                setIsDirty(true);
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select a category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">No category</SelectItem>
+                {categories.map((category) => (
+                  <SelectItem key={category.id} value={category.id.toString()}>
+                    {category.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </Card>
