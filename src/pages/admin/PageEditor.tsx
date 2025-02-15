@@ -91,9 +91,9 @@ export default function PageEditor() {
           <div className="space-y-2">
             <Label>Category</Label>
             <Select 
-              value={categoryId?.toString() || ""} 
+              value={categoryId?.toString() || "none"} 
               onValueChange={(value) => {
-                setCategoryId(value ? Number(value) : null);
+                setCategoryId(value === "none" ? null : Number(value));
                 setIsDirty(true);
               }}
             >
@@ -101,7 +101,7 @@ export default function PageEditor() {
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">No category</SelectItem>
+                <SelectItem value="none">No category</SelectItem>
                 {categories.map((category) => (
                   <SelectItem key={category.id} value={category.id.toString()}>
                     {category.name}
