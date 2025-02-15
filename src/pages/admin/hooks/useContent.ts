@@ -31,6 +31,10 @@ export function useContent(pageId: string | null) {
       } else {
         newContent[section] = value;
       }
+      
+      // Update preview data immediately when content changes
+      sessionStorage.setItem('previewData', JSON.stringify(newContent));
+      
       return newContent;
     });
   };
