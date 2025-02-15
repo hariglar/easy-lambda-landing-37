@@ -6,7 +6,30 @@ import { useContent } from "./useContent";
 import { isUrlUnique } from "../utils/urlUtils";
 import { defaultContent } from "../types/editor";
 
-export function useEditor() {
+interface EditorReturn {
+  currentTab: string;
+  setCurrentTab: (tab: string) => void;
+  selectedTemplate: number | null;
+  setSelectedTemplate: (template: number | null) => void;
+  metaExpanded: boolean;
+  setMetaExpanded: (expanded: boolean) => void;
+  lastSaved: Date | null;
+  content: typeof defaultContent;
+  isDirty: boolean;
+  setIsDirty: (dirty: boolean) => void;
+  templateId: string;
+  pageTitle: string;
+  setPageTitle: (title: string) => void;
+  pageUrl: string;
+  setPageUrl: (url: string) => void;
+  handleContentChange: (section: keyof typeof defaultContent, value: any, index?: number, field?: string) => void;
+  handleSave: () => Promise<void>;
+  isUrlUnique: typeof isUrlUnique;
+  setTemplateType: (type: string) => void;
+  templateType: string;
+}
+
+export function useEditor(): EditorReturn {
   const [searchParams] = useSearchParams();
   const [currentTab, setCurrentTab] = useState("design");
   const [selectedTemplate, setSelectedTemplate] = useState<number | null>(null);
@@ -78,7 +101,7 @@ export function useEditor() {
     handleContentChange,
     handleSave,
     isUrlUnique,
-    setTemplateType,  // Explicitly include setTemplateType in the return object
-    templateType      // Also include templateType for completeness
+    setTemplateType,
+    templateType
   };
 }
