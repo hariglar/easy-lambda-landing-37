@@ -1,8 +1,7 @@
 
 import { useState } from "react";
-import { Plus, Pencil, Trash2, FolderIcon, ChevronDown, ChevronRight, FileText } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
@@ -10,21 +9,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Category, PageWithCategory } from "../../types/categories";
-import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
+import { CategoryItem } from "./CategoryItem";
+import { CategoryForm } from "./CategoryForm";
 
 interface CategoryManagerProps {
   categories: Category[];
@@ -64,124 +51,30 @@ export function CategoryManager({
     onCategoryAdd(newCategory);
   };
 
-  const renderCategoryItem = (category: Category, level = 0) => {
+  const renderCategoryTree = (category: Category, level = 0) => {
     const hasChildren = categories.some(c => c.parentId === category.id);
     const isExpanded = expanded[category.id];
     const linkedPages = getLinkedPages(category.id);
     const isSelected = selectedCategory?.id === category.id;
+    const childCategories = categories.filter(c => c.parentId === category.id);
 
     return (
-      <div key={category.id} className="space-y-2">
-        <div 
-          className={cn(
-            "flex items-center gap-2 p-2 rounded-lg hover:bg-accent group transition-colors",
-            level > 0 && "ml-6",
-            isSelected && "bg-accent"
-          )}
-          onClick={() => onCategorySelect(category)}
-        >
-          <button
-            className={cn(
-              "w-6 h-6 flex items-center justify-center rounded hover:bg-accent-foreground/10",
-              !hasChildren && "invisible"
-            )}
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleExpand(category.id);
-            }}
-          >
-            {hasChildren && (isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />)}
-          </button>
-          <FolderIcon className="w-5 h-5 text-muted-foreground" />
-          <span className="flex-1 text-sm font-medium">{category.name}</span>
-          
-          <HoverCard>
-            <HoverCardTrigger asChild>
-              <Badge 
-                variant="secondary" 
-                className="mr-2 cursor-help"
-              >
-                {linkedPages.length} pages
-              </Badge>
-            </HoverCardTrigger>
-            <HoverCardContent className="w-80">
-              <div className="space-y-2">
-                <h4 className="text-sm font-semibold">Linked Pages</h4>
-                <ScrollArea className="h-[200px] w-full rounded-md border p-4">
-                  {linkedPages.length > 0 ? (
-                    <div className="space-y-2">
-                      {linkedPages.map(page => (
-                        <div key={page.id} className="flex items-center gap-2">
-                          <FileText className="w-4 h-4 text-muted-foreground" />
-                          <span className="text-sm">{page.title}</span>
-                          <Badge 
-                            variant={page.status === "published" ? "default" : "secondary"}
-                            className="ml-auto text-xs"
-                          >
-                            {page.status}
-                          </Badge>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-sm text-muted-foreground">No pages in this category</p>
-                  )}
-                </ScrollArea>
-              </div>
-            </HoverCardContent>
-          </HoverCard>
-
-          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={(e) => {
-                e.stopPropagation();
-                setEditingCategory(category);
-              }}
-            >
-              <Pencil className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-destructive"
-              onClick={(e) => {
-                e.stopPropagation();
-                onCategoryDelete(category.id);
-              }}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => handleAddCategory(category.id)}>
-                  Add Subcategory
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-        {hasChildren && isExpanded && (
-          <div className="ml-6 space-y-2">
-            {categories
-              .filter(c => c.parentId === category.id)
-              .map(child => renderCategoryItem(child, level + 1))
-            }
-          </div>
-        )}
-      </div>
+      <CategoryItem
+        key={category.id}
+        category={category}
+        level={level}
+        hasChildren={hasChildren}
+        isExpanded={isExpanded}
+        isSelected={isSelected}
+        linkedPages={linkedPages}
+        onToggleExpand={toggleExpand}
+        onCategorySelect={onCategorySelect}
+        onEditCategory={setEditingCategory}
+        onDeleteCategory={onCategoryDelete}
+        onAddSubcategory={handleAddCategory}
+      >
+        {childCategories.map(child => renderCategoryTree(child, level + 1))}
+      </CategoryItem>
     );
   };
 
@@ -200,25 +93,7 @@ export function CategoryManager({
             <DialogHeader>
               <DialogTitle>Add New Category</DialogTitle>
             </DialogHeader>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                const formData = new FormData(e.currentTarget);
-                onCategoryAdd({
-                  name: formData.get("name") as string,
-                  slug: formData.get("name") as string,
-                  description: formData.get("description") as string,
-                });
-                (e.target as HTMLFormElement).reset();
-              }}
-              className="space-y-4"
-            >
-              <div className="space-y-2">
-                <Input name="name" placeholder="Category name" required />
-                <Input name="description" placeholder="Category description (optional)" />
-              </div>
-              <Button type="submit">Add Category</Button>
-            </form>
+            <CategoryForm onSubmit={onCategoryAdd} />
           </DialogContent>
         </Dialog>
       </div>
@@ -227,7 +102,7 @@ export function CategoryManager({
         <div className="p-4 space-y-2">
           {categories
             .filter(category => !category.parentId)
-            .map(category => renderCategoryItem(category))}
+            .map(category => renderCategoryTree(category))}
         </div>
       </div>
 
@@ -237,34 +112,17 @@ export function CategoryManager({
             <DialogTitle>Edit Category</DialogTitle>
           </DialogHeader>
           {editingCategory && (
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                const formData = new FormData(e.currentTarget);
+            <CategoryForm
+              category={editingCategory}
+              onSubmit={(data) => {
                 onCategoryUpdate({
                   ...editingCategory,
-                  name: formData.get("name") as string,
-                  description: formData.get("description") as string,
+                  ...data,
                 });
                 setEditingCategory(null);
               }}
-              className="space-y-4"
-            >
-              <div className="space-y-2">
-                <Input 
-                  name="name" 
-                  defaultValue={editingCategory.name}
-                  placeholder="Category name" 
-                  required 
-                />
-                <Input 
-                  name="description" 
-                  defaultValue={editingCategory.description}
-                  placeholder="Category description (optional)" 
-                />
-              </div>
-              <Button type="submit">Update Category</Button>
-            </form>
+              onCancel={() => setEditingCategory(null)}
+            />
           )}
         </DialogContent>
       </Dialog>
