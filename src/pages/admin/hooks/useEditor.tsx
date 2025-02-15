@@ -6,7 +6,7 @@ import { isUrlUnique } from "../utils/urlUtils";
 import { defaultContent } from "../types/editor";
 import { toast } from "sonner";
 
-interface EditorReturn {
+export interface EditorReturn {
   currentTab: string;
   setCurrentTab: Dispatch<SetStateAction<string>>;
   selectedTemplate: number | null;

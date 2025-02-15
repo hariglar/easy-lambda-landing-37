@@ -1,3 +1,4 @@
+
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -17,6 +18,7 @@ export default function PageEditor() {
   const [searchParams] = useSearchParams();
   const templateParam = searchParams.get('template');
 
+  const editor = useEditor();
   const {
     currentTab,
     setCurrentTab,
@@ -35,12 +37,12 @@ export default function PageEditor() {
     setPageUrl,
     handleContentChange,
     handleSave,
-    setTemplateType,
-    templateType
-  } = useEditor();
+    templateType,
+    setTemplateType
+  } = editor;
 
   useEffect(() => {
-    if (templateParam && typeof setTemplateType === 'function') {
+    if (templateParam && setTemplateType) {
       console.log('Setting initial template from URL:', templateParam);
       setTemplateType(templateParam);
     }
