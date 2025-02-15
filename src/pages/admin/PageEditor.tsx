@@ -1,4 +1,5 @@
 
+import { useEffect } from "react";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { EditorHeader } from "./components/editor/EditorHeader";
 import { EditorTabs } from "./components/editor/EditorTabs";
@@ -11,8 +12,10 @@ import { SettingsTab } from "./components/editor/SettingsTab";
 import { PageMetadataForm } from "./components/editor/PageMetadataForm";
 import { templates } from "./data/mockData";
 import { useContent } from "./hooks/useContent";
+import { useParams } from "react-router-dom";
 
 export default function PageEditor() {
+  const { pageId } = useParams();
   const {
     currentTab,
     setCurrentTab,
@@ -33,7 +36,7 @@ export default function PageEditor() {
     setCategoryId,
     handleContentChange,
     handleSave
-  } = useContent(null);
+  } = useContent(pageId || null);
 
   return (
     <div className="space-y-8 animate-in fade-in">
