@@ -26,7 +26,8 @@ export function useEditor() {
     setPageUrl,
     handleContentChange,
     handleSave,
-    setContent
+    setContent,
+    setTemplateId
   } = useContent(pageId);
 
   // Load existing content when editing a page
@@ -49,6 +50,8 @@ export function useEditor() {
         }
         setPageTitle(storedPage.title);
         setPageUrl(storedPage.url);
+        // Set the template ID from the stored page
+        setTemplateId(storedPage.templateId);
         return;
       }
       
@@ -60,7 +63,14 @@ export function useEditor() {
         setContent(defaultContent);
       }
     }
-  }, [pageId, setContent, setPageTitle, setPageUrl]);
+  }, [pageId, setContent, setPageTitle, setPageUrl, setTemplateId]);
+
+  // Set template ID when creating a new page
+  useEffect(() => {
+    if (templateId) {
+      setTemplateId(templateId);
+    }
+  }, [templateId, setTemplateId]);
 
   return {
     currentTab,
