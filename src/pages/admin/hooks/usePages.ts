@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { PageWithCategory } from "../types/categories";
+import { format } from "date-fns";
 
 type SortField = "title" | "status" | "lastModified" | "views";
 type SortDirection = "asc" | "desc";
@@ -22,7 +23,12 @@ export function usePages() {
     const storedPages = localStorage.getItem('pages');
     const storedCategories = localStorage.getItem('categories');
     if (storedPages) {
-      setPages(JSON.parse(storedPages));
+      // Parse stored pages and ensure the lastModified field is formatted correctly
+      const parsedPages = JSON.parse(storedPages).map((page: PageWithCategory) => ({
+        ...page,
+        lastModified: format(new Date(page.lastModified), "MMM d, yyyy HH:mm:ss")
+      }));
+      setPages(parsedPages);
     }
     if (storedCategories) {
       setCategories(JSON.parse(storedCategories));
@@ -32,7 +38,11 @@ export function usePages() {
   const handleCategoryChange = (pageId: number, categoryId: number | null) => {
     const updatedPages = pages.map(page =>
       page.id === pageId
-        ? { ...page, categoryId }
+        ? { 
+            ...page, 
+            categoryId,
+            lastModified: format(new Date(), "MMM d, yyyy HH:mm:ss")
+          }
         : page
     );
     setPages(updatedPages);
@@ -82,6 +92,9 @@ export function usePages() {
       const modifier = sortDirection === "asc" ? 1 : -1;
       
       if (typeof aValue === "string" && typeof bValue === "string") {
+        if (sortField === "lastModified") {
+          return (new Date(bValue).getTime() - new Date(aValue).getTime()) * modifier;
+        }
         return aValue.localeCompare(bValue) * modifier;
       }
       return ((aValue as number) - (bValue as number)) * modifier;
