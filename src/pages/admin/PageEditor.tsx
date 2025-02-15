@@ -1,4 +1,3 @@
-
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -40,9 +39,8 @@ export default function PageEditor() {
     templateType
   } = useEditor();
 
-  // Set initial template type from URL parameter
   useEffect(() => {
-    if (templateParam) {
+    if (templateParam && typeof setTemplateType === 'function') {
       console.log('Setting initial template from URL:', templateParam);
       setTemplateType(templateParam);
     }
