@@ -3,12 +3,12 @@ import { TemplateContent } from "../../types/editor";
 import { EditableText } from "../../components/editor/EditableText";
 
 interface StatsSectionProps {
-  stats: TemplateContent['stats'];
+  stats?: TemplateContent['stats'];
   onContentChange: (section: keyof TemplateContent, value: any, index: number, field: string) => void;
   isEditing: boolean;
 }
 
-export function StatsSection({ stats, onContentChange, isEditing }: StatsSectionProps) {
+export function StatsSection({ stats = defaultStats, onContentChange, isEditing }: StatsSectionProps) {
   return (
     <section className="py-16 bg-primary text-white">
       <div className="container mx-auto px-4">
@@ -36,3 +36,9 @@ export function StatsSection({ stats, onContentChange, isEditing }: StatsSection
     </section>
   );
 }
+
+const defaultStats: TemplateContent['stats'] = [
+  { value: "150K+", label: "Happy Customers" },
+  { value: "10K+", label: "Products" },
+  { value: "50+", label: "Countries" }
+];
