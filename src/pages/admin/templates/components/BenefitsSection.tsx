@@ -4,7 +4,7 @@ import { TemplateContent } from "../../types/editor";
 import { EditableText } from "../../components/editor/EditableText";
 
 interface BenefitsSectionProps {
-  benefits: TemplateContent['benefits'];
+  benefits?: TemplateContent['benefits'];
   onContentChange: (section: keyof TemplateContent, value: any, index: number, field: string) => void;
   isEditing: boolean;
 }
@@ -15,7 +15,7 @@ const iconMap = {
   truck: Truck
 };
 
-export function BenefitsSection({ benefits, onContentChange, isEditing }: BenefitsSectionProps) {
+export function BenefitsSection({ benefits = defaultBenefits, onContentChange, isEditing }: BenefitsSectionProps) {
   return (
     <section className="py-16 bg-gray-50">
       <div className="container mx-auto px-4">
@@ -51,3 +51,9 @@ export function BenefitsSection({ benefits, onContentChange, isEditing }: Benefi
     </section>
   );
 }
+
+const defaultBenefits: TemplateContent['benefits'] = [
+  { title: "Premium Quality", description: "Handcrafted with the finest materials", icon: "award" },
+  { title: "Expert Support", description: "24/7 dedicated customer service", icon: "headphones" },
+  { title: "Worldwide Shipping", description: "Fast delivery to your doorstep", icon: "truck" }
+];
