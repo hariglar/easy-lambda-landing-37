@@ -15,6 +15,7 @@ import {
   Sparkle 
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 const templates = [
   {
@@ -66,7 +67,15 @@ export function TemplateSelectionDialog({
   const navigate = useNavigate();
 
   const handleTemplateSelect = (templateId: string) => {
-    navigate(`/admin/pages/new?template=${templateId}`);
+    // For now, map all templates to use the ecommerce template functionality
+    const mappedTemplateId = "ecommerce";
+    navigate(`/admin/pages/new?template=${mappedTemplateId}`);
+    
+    // Show a toast to inform the user about template loading
+    const template = templates.find(t => t.id === templateId);
+    if (template) {
+      toast.success(`Loading ${template.name} template`);
+    }
   };
 
   return (
