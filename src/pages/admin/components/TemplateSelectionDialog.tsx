@@ -67,9 +67,8 @@ export function TemplateSelectionDialog({
   const navigate = useNavigate();
 
   const handleTemplateSelect = (templateId: string) => {
-    // For now, map all templates to use the ecommerce template functionality
-    const mappedTemplateId = "ecommerce";
-    navigate(`/admin/pages/new?template=${mappedTemplateId}`);
+    // Use the actual template ID instead of mapping everything to ecommerce
+    navigate(`/admin/pages/new?template=${templateId}`);
     
     // Show a toast to inform the user about template loading
     const template = templates.find(t => t.id === templateId);
