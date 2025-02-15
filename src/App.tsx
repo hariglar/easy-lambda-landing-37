@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { Toaster } from "./components/ui/toaster";
 import { Toaster as SonnerToaster } from "./components/ui/sonner";
-import AdminLayout from "./components/AdminLayout";
+import { AdminLayout } from "./components/AdminLayout";
 import Dashboard from "./pages/admin/Dashboard";
 import Pages from "./pages/admin/Pages";
 import Categories from "./pages/admin/Categories";
