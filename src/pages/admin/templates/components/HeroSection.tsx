@@ -37,25 +37,39 @@ export function HeroSection({ hero, onContentChange, isEditing }: HeroSectionPro
           isEditing={isEditing}
         />
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
-          <Button size="lg" className="min-w-[200px] bg-white text-black hover:bg-white/90">
-            <EditableText
-              value={hero.ctaText}
-              onChange={(value) => onContentChange('hero', { ctaText: value })}
-              className="inline-flex items-center"
-              identifier="hero.ctaText"
-              isEditing={isEditing}
-            />
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
-          <Button size="lg" variant="outline" className="min-w-[200px] border-white text-white hover:bg-white/20">
-            <EditableText
-              value={hero.lookbookText || "View Lookbook"}
-              onChange={(value) => onContentChange('hero', { lookbookText: value })}
-              className="inline-flex items-center"
-              identifier="hero.lookbookText"
-              isEditing={isEditing}
-            />
-          </Button>
+          <div className="min-w-[200px]">
+            <Button size="lg" className="w-full bg-white text-black hover:bg-white/90">
+              <span className="inline-flex items-center">
+                {isEditing ? (
+                  <EditableText
+                    value={hero.ctaText}
+                    onChange={(value) => onContentChange('hero', { ctaText: value })}
+                    className="inline-flex items-center"
+                    identifier="hero.ctaText"
+                    isEditing={isEditing}
+                  />
+                ) : (
+                  hero.ctaText
+                )}
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </span>
+            </Button>
+          </div>
+          <div className="min-w-[200px]">
+            <Button size="lg" variant="outline" className="w-full border-white text-white hover:bg-white/20">
+              {isEditing ? (
+                <EditableText
+                  value={hero.lookbookText || "View Lookbook"}
+                  onChange={(value) => onContentChange('hero', { lookbookText: value })}
+                  className="inline-flex items-center"
+                  identifier="hero.lookbookText"
+                  isEditing={isEditing}
+                />
+              ) : (
+                hero.lookbookText || "View Lookbook"
+              )}
+            </Button>
+          </div>
         </div>
       </div>
     </section>
