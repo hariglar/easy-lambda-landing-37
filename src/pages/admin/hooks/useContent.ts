@@ -11,6 +11,9 @@ export function useContent(pageId: string | null) {
   const [pageTitle, setPageTitle] = useState("New Page");
   const [pageUrl, setPageUrl] = useState("/new-page");
   const [categoryId, setCategoryId] = useState<number | null>(null);
+  const [currentTab, setCurrentTab] = useState("design");
+  const [selectedTemplate, setSelectedTemplate] = useState<number | null>(null);
+  const [metaExpanded, setMetaExpanded] = useState(false);
 
   const handleContentChange = (
     section: keyof TemplateContent,
@@ -114,6 +117,13 @@ export function useContent(pageId: string | null) {
     setPageUrl,
     categoryId,
     setCategoryId,
+    currentTab,
+    setCurrentTab,
+    selectedTemplate,
+    setSelectedTemplate,
+    metaExpanded,
+    setMetaExpanded,
+    templateId: null,
     handleContentChange,
     handleSave
   };

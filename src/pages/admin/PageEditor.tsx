@@ -1,30 +1,12 @@
-
 import { Tabs, TabsContent } from "@/components/ui/tabs";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Globe, ImageIcon, Layout, Layers, Type } from "lucide-react";
 import { EditorHeader } from "./components/editor/EditorHeader";
 import { EditorTabs } from "./components/editor/EditorTabs";
 import { DesignTab } from "./components/editor/DesignTab";
+import { PageMetadataForm } from "./components/editor/PageMetadataForm";
 import { templates } from "./data/mockData";
-import { useEditor } from "./hooks/useEditor";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useEffect, useState } from "react";
-import { Category } from "./types/categories";
+import { useContent } from "./hooks/useContent";
 
 export default function PageEditor() {
-  const [categories, setCategories] = useState<Category[]>([]);
-
-  useEffect(() => {
-    const storedCategories = localStorage.getItem('categories');
-    if (storedCategories) {
-      setCategories(JSON.parse(storedCategories));
-    }
-  }, []);
-
   const {
     currentTab,
     setCurrentTab,
@@ -45,7 +27,7 @@ export default function PageEditor() {
     setCategoryId,
     handleContentChange,
     handleSave
-  } = useEditor();
+  } = useContent(null);
 
   return (
     <div className="space-y-8 animate-in fade-in">
@@ -58,60 +40,15 @@ export default function PageEditor() {
         setPageUrl={setPageUrl}
       />
 
-      <Card className="p-6">
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label>Page Title</Label>
-            <Input
-              value={pageTitle}
-              onChange={(e) => {
-                setPageTitle(e.target.value);
-                setIsDirty(true);
-              }}
-              placeholder="Enter page title..."
-            />
-          </div>
-          <div className="space-y-2">
-            <Label>Page URL</Label>
-            <div className="flex items-center space-x-2">
-              <span className="text-sm text-muted-foreground">/</span>
-              <Input
-                value={pageUrl.startsWith('/') ? pageUrl.slice(1) : pageUrl}
-                onChange={(e) => {
-                  setPageUrl('/' + e.target.value.replace(/^\/*/, ''));
-                  setIsDirty(true);
-                }}
-                placeholder="page-url"
-              />
-            </div>
-            <p className="text-sm text-muted-foreground">
-              The URL should be unique and contain only letters, numbers, and hyphens
-            </p>
-          </div>
-          <div className="space-y-2">
-            <Label>Category</Label>
-            <Select 
-              value={categoryId?.toString() || "none"} 
-              onValueChange={(value) => {
-                setCategoryId(value === "none" ? null : Number(value));
-                setIsDirty(true);
-              }}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select a category" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">No category</SelectItem>
-                {categories.map((category) => (
-                  <SelectItem key={category.id} value={category.id.toString()}>
-                    {category.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-      </Card>
+      <PageMetadataForm
+        pageTitle={pageTitle}
+        setPageTitle={setPageTitle}
+        pageUrl={pageUrl}
+        setPageUrl={setPageUrl}
+        categoryId={categoryId}
+        setCategoryId={setCategoryId}
+        setIsDirty={setIsDirty}
+      />
 
       <Tabs value={currentTab} onValueChange={setCurrentTab} className="space-y-6">
         <EditorTabs />
