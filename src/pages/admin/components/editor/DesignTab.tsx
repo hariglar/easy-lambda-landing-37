@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
@@ -38,7 +37,7 @@ export function DesignTab({
 }: DesignTabProps) {
   const [isEditing, setIsEditing] = useState(false);
 
-  // List of available sections for reordering
+  // Initialize sections from content.sectionOrder or default order
   const [sections, setSections] = useState([
     { id: "hero", title: "Hero Section" },
     { id: "features", title: "Features Section" },
@@ -46,6 +45,17 @@ export function DesignTab({
     { id: "newsletter", title: "Newsletter Section" },
     { id: "testimonials", title: "Testimonials Section" }
   ]);
+
+  // Update sections when content.sectionOrder changes
+  useEffect(() => {
+    if (content.sectionOrder) {
+      const orderedSections = content.sectionOrder.map(sectionId => {
+        const section = sections.find(s => s.id === sectionId);
+        return section || { id: sectionId, title: `${sectionId.charAt(0).toUpperCase() + sectionId.slice(1)} Section` };
+      });
+      setSections(orderedSections);
+    }
+  }, [content.sectionOrder]);
 
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
@@ -56,10 +66,9 @@ export function DesignTab({
 
     setSections(items);
     
-    // Update the content with the new order
-    console.log("New section order:", items.map(item => item.id));
-    // Here you would update your content state with the new order
-    handleContentChange('sectionOrder', items.map(item => item.id));
+    // Update the content with the new section order
+    const newOrder = items.map(item => item.id);
+    handleContentChange('sectionOrder', newOrder);
   };
 
   const renderTemplate = () => {

@@ -1,5 +1,6 @@
 
 export interface TemplateContent {
+  sectionOrder: string[];
   hero: {
     title: string;
     subtitle: string;
@@ -77,6 +78,7 @@ export interface TemplateContent {
 }
 
 export const defaultContent: TemplateContent = {
+  sectionOrder: ["hero", "features", "products", "newsletter", "testimonials"],
   hero: {
     title: "Discover Luxury Fashion",
     subtitle: "Explore our curated collection of premium fashion and accessories",
