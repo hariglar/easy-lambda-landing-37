@@ -10,10 +10,6 @@ export function useContent(pageId: string | null) {
   const [lastSaved, setLastSaved] = useState<Date | null>(new Date());
   const [pageTitle, setPageTitle] = useState("New Page");
   const [pageUrl, setPageUrl] = useState("/new-page");
-  const [categoryId, setCategoryId] = useState<number | null>(null);
-  const [currentTab, setCurrentTab] = useState("design");
-  const [selectedTemplate, setSelectedTemplate] = useState<number | null>(null);
-  const [metaExpanded, setMetaExpanded] = useState(false);
 
   const handleContentChange = (
     section: keyof TemplateContent,
@@ -21,6 +17,7 @@ export function useContent(pageId: string | null) {
     index?: number,
     field?: string
   ) => {
+    console.log('Content changed, setting isDirty to true');
     setIsDirty(true);
     setContent(prev => {
       const newContent = { ...prev };
@@ -55,7 +52,6 @@ export function useContent(pageId: string | null) {
             title: pageTitle,
             url: pageUrl,
             content,
-            categoryId,
             lastModified: currentDate
           };
         } else {
@@ -70,7 +66,6 @@ export function useContent(pageId: string | null) {
             title: pageTitle,
             url: pageUrl,
             content,
-            categoryId,
             lastModified: currentDate
           });
         }
@@ -87,7 +82,6 @@ export function useContent(pageId: string | null) {
           status: "draft",
           url: pageUrl,
           content,
-          categoryId,
           lastModified: currentDate,
           views: 0
         });
@@ -103,7 +97,7 @@ export function useContent(pageId: string | null) {
       console.error('Save error:', error);
       toast.error("Failed to save changes. Please try again.");
     }
-  }, [pageId, pageTitle, pageUrl, content, categoryId]);
+  }, [pageId, pageTitle, pageUrl, content]);
 
   return {
     content,
@@ -115,15 +109,6 @@ export function useContent(pageId: string | null) {
     setPageTitle,
     pageUrl,
     setPageUrl,
-    categoryId,
-    setCategoryId,
-    currentTab,
-    setCurrentTab,
-    selectedTemplate,
-    setSelectedTemplate,
-    metaExpanded,
-    setMetaExpanded,
-    templateId: null,
     handleContentChange,
     handleSave
   };

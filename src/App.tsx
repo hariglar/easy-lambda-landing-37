@@ -1,34 +1,56 @@
 
-import { BrowserRouter as Router, Routes, Route, Outlet } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
-import { ThemeProvider } from "@/components/ThemeProvider";
-import { AdminLayout } from "@/components/AdminLayout";
-import Index from "@/pages/Index";
-import NotFound from "@/pages/NotFound";
-import Dashboard from "@/pages/admin/Dashboard";
-import Pages from "@/pages/admin/Pages";
-import Categories from "@/pages/admin/Categories";
-import PageEditor from "@/pages/admin/PageEditor";
-import Preview from "@/pages/Preview";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AdminLayout } from "./components/AdminLayout";
+import Dashboard from "./pages/admin/Dashboard";
+import Pages from "./pages/admin/Pages";
+import PageEditor from "./pages/admin/PageEditor";
+import Preview from "./pages/Preview";
+import NotFound from "./pages/NotFound";
+import EcommerceLanding from "./pages/admin/templates/EcommerceLanding";
 
-export default function App() {
+const queryClient = new QueryClient();
+
+const PublishedPage = () => {
+  const path = window.location.pathname;
+  const storedPages = JSON.parse(localStorage.getItem('pages') || '[]');
+  const page = storedPages.find((p: any) => p.url === path && p.status === 'published');
+  
+  if (!page) {
+    return <NotFound />;
+  }
+  
   return (
-    <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-      <Router>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/admin" element={<AdminLayout><Outlet /></AdminLayout>}>
-            <Route index element={<Dashboard />} />
-            <Route path="pages" element={<Pages />} />
-            <Route path="categories" element={<Categories />} />
-            <Route path="pages/new" element={<PageEditor />} />
-            <Route path="preview" element={<Preview />} />
-            <Route path="*" element={<NotFound />} />
-          </Route>
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </Router>
-      <Toaster />
-    </ThemeProvider>
+    <EcommerceLanding 
+      content={page.content} 
+      onContentChange={() => {}} 
+      isEditing={false} 
+    />
   );
-}
+};
+
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Navigate to="/admin" replace />} />
+          <Route path="/admin" element={<AdminLayout><Dashboard /></AdminLayout>} />
+          <Route path="/admin/pages" element={<AdminLayout><Pages /></AdminLayout>} />
+          <Route path="/admin/pages/new" element={<AdminLayout><PageEditor /></AdminLayout>} />
+          <Route path="/admin/pages/:id/edit" element={<AdminLayout><PageEditor /></AdminLayout>} />
+          <Route path="/preview/*" element={<Preview />} />
+          <Route path="/admin/*" element={<AdminLayout><NotFound /></AdminLayout>} />
+          <Route path="/*" element={<PublishedPage />} />
+        </Routes>
+      </BrowserRouter>
+    </TooltipProvider>
+  </QueryClientProvider>
+);
+
+export default App;

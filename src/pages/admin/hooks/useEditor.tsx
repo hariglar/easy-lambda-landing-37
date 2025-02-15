@@ -11,7 +11,6 @@ export function useEditor() {
   const [currentTab, setCurrentTab] = useState("design");
   const [selectedTemplate, setSelectedTemplate] = useState<number | null>(null);
   const [metaExpanded, setMetaExpanded] = useState(false);
-  const [categoryId, setCategoryId] = useState<number | null>(null);
 
   const templateId = searchParams.get("template");
   const pageId = searchParams.get("pageId");
@@ -50,7 +49,6 @@ export function useEditor() {
         }
         setPageTitle(storedPage.title);
         setPageUrl(storedPage.url);
-        setCategoryId(storedPage.categoryId || null);
         return;
       }
       
@@ -59,7 +57,6 @@ export function useEditor() {
       if (mockPage) {
         setPageTitle(mockPage.title);
         setPageUrl(mockPage.url);
-        setCategoryId(mockPage.categoryId || null);
         setContent(defaultContent);
       }
     }
@@ -81,8 +78,6 @@ export function useEditor() {
     setPageTitle,
     pageUrl,
     setPageUrl,
-    categoryId,
-    setCategoryId,
     handleContentChange,
     handleSave,
     isUrlUnique

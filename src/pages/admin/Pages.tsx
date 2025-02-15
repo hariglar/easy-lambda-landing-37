@@ -1,63 +1,159 @@
 
-import { usePages } from "./hooks/usePages";
+import { useState, useEffect } from "react";
+import { 
+  Table, 
+  TableHeader, 
+  TableBody, 
+  TableHead,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+} from "@/components/ui/pagination";
+import { ArrowUp, ArrowDown } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import { PagesHeader } from "./components/PagesHeader";
 import { PagesFilter } from "./components/PagesFilter";
-import { PagesTable } from "./components/PagesTable";
-import { PageSizeSelector } from "./components/PageSizeSelector";
+import { PageRow } from "./components/PageRow";
 import { DeletePageDialog } from "./components/DeletePageDialog";
-import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@/components/ui/pagination";
+
+type SortField = "title" | "status" | "lastModified" | "views";
+type SortDirection = "asc" | "desc";
+
+const ITEMS_PER_PAGE = 5;
 
 export default function Pages() {
-  const {
-    pages,
-    categories,
-    searchQuery,
-    setSearchQuery,
-    statusFilter,
-    setStatusFilter,
-    sortField,
-    sortDirection,
-    currentPage,
-    setCurrentPage,
-    pageSize,
-    totalPages,
-    pageToDelete,
-    setPageToDelete,
-    handleSort,
-    handleCategoryChange,
-    handleDeletePage,
-    handlePageSizeChange,
-  } = usePages();
+  const { toast } = useToast();
+  const [pages, setPages] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortField, setSortField] = useState<SortField>("lastModified");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+  const [statusFilter, setStatusFilter] = useState<"all" | "published" | "draft">("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageToDelete, setPageToDelete] = useState<number | null>(null);
+
+  // Load pages from localStorage on component mount
+  useEffect(() => {
+    const storedPages = localStorage.getItem('pages');
+    if (storedPages) {
+      setPages(JSON.parse(storedPages));
+    }
+  }, []);
+
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+  };
+
+  const handleDeletePage = () => {
+    if (pageToDelete) {
+      const updatedPages = pages.filter(page => page.id !== pageToDelete);
+      setPages(updatedPages);
+      localStorage.setItem('pages', JSON.stringify(updatedPages));
+      toast({
+        title: "Page deleted",
+        description: "The page has been successfully deleted.",
+      });
+      setPageToDelete(null);
+    }
+  };
+
+  const filteredAndSortedPages = pages
+    .filter(page => 
+      page.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
+      (statusFilter === "all" || page.status === statusFilter)
+    )
+    .sort((a, b) => {
+      const aValue = a[sortField];
+      const bValue = b[sortField];
+      const modifier = sortDirection === "asc" ? 1 : -1;
+      
+      if (typeof aValue === "string" && typeof bValue === "string") {
+        return aValue.localeCompare(bValue) * modifier;
+      }
+      return ((aValue as number) - (bValue as number)) * modifier;
+    });
+
+  const totalPages = Math.ceil(filteredAndSortedPages.length / ITEMS_PER_PAGE);
+  const paginatedPages = filteredAndSortedPages.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   return (
     <div className="space-y-8 animate-in fade-in">
       <PagesHeader />
       
-      <div className="flex justify-between items-center gap-4">
-        <PagesFilter
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          statusFilter={statusFilter}
-          onStatusChange={setStatusFilter}
-        />
-        <PageSizeSelector
-          pageSize={pageSize}
-          onPageSizeChange={handlePageSizeChange}
-        />
-      </div>
+      <PagesFilter
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        statusFilter={statusFilter}
+        onStatusChange={setStatusFilter}
+      />
 
       <div className="rounded-lg border bg-card">
-        <PagesTable
-          pages={pages}
-          categories={categories}
-          sortField={sortField}
-          sortDirection={sortDirection}
-          onSort={handleSort}
-          onDeleteClick={setPageToDelete}
-          onCategoryChange={handleCategoryChange}
-        />
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead 
+                className="cursor-pointer hover:text-foreground"
+                onClick={() => handleSort("title")}
+              >
+                Title
+                {sortField === "title" && (
+                  sortDirection === "asc" ? <ArrowUp className="w-4 h-4 inline ml-2" /> : <ArrowDown className="w-4 h-4 inline ml-2" />
+                )}
+              </TableHead>
+              <TableHead>URL</TableHead>
+              <TableHead 
+                className="cursor-pointer hover:text-foreground"
+                onClick={() => handleSort("status")}
+              >
+                Status
+                {sortField === "status" && (
+                  sortDirection === "asc" ? <ArrowUp className="w-4 h-4 inline ml-2" /> : <ArrowDown className="w-4 h-4 inline ml-2" />
+                )}
+              </TableHead>
+              <TableHead 
+                className="cursor-pointer hover:text-foreground"
+                onClick={() => handleSort("lastModified")}
+              >
+                Last Modified
+                {sortField === "lastModified" && (
+                  sortDirection === "asc" ? <ArrowUp className="w-4 h-4 inline ml-2" /> : <ArrowDown className="w-4 h-4 inline ml-2" />
+                )}
+              </TableHead>
+              <TableHead 
+                className="cursor-pointer hover:text-foreground"
+                onClick={() => handleSort("views")}
+              >
+                Views
+                {sortField === "views" && (
+                  sortDirection === "asc" ? <ArrowUp className="w-4 h-4 inline ml-2" /> : <ArrowDown className="w-4 h-4 inline ml-2" />
+                )}
+              </TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {paginatedPages.map((page) => (
+              <PageRow 
+                key={page.id} 
+                page={page} 
+                onDeleteClick={setPageToDelete}
+              />
+            ))}
+          </TableBody>
+        </Table>
         
-        {totalPages > 1 && pageSize !== "all" && (
+        {totalPages > 1 && (
           <div className="border-t p-4">
             <Pagination>
               <PaginationContent>
