@@ -2,14 +2,14 @@
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
-  BoldIcon,
-  ItalicIcon,
-  UnderlineIcon,
-  LinkIcon,
-  ListIcon,
-  ListOrderedIcon,
-  SaveIcon,
-  XIcon
+  Bold,
+  Italic,
+  Underline,
+  Link,
+  List,
+  ListOrdered,
+  Save,
+  X
 } from "lucide-react";
 
 interface RichTextToolbarProps {
@@ -42,32 +42,32 @@ export function RichTextToolbar({
     )}>
       <div className="flex items-center gap-0.5 border-r pr-1">
         <Button variant="ghost" size="sm" onClick={onBold} className="h-8 w-8 p-0">
-          <BoldIcon className="h-4 w-4" />
+          <Bold className="h-4 w-4" />
         </Button>
         <Button variant="ghost" size="sm" onClick={onItalic} className="h-8 w-8 p-0">
-          <ItalicIcon className="h-4 w-4" />
+          <Italic className="h-4 w-4" />
         </Button>
         <Button variant="ghost" size="sm" onClick={onUnderline} className="h-8 w-8 p-0">
-          <UnderlineIcon className="h-4 w-4" />
+          <Underline className="h-4 w-4" />
         </Button>
         <Button variant="ghost" size="sm" onClick={onLink} className="h-8 w-8 p-0">
-          <LinkIcon className="h-4 w-4" />
+          <Link className="h-4 w-4" />
         </Button>
       </div>
       <div className="flex items-center gap-0.5 border-r pr-1">
         <Button variant="ghost" size="sm" onClick={onBulletList} className="h-8 w-8 p-0">
-          <ListIcon className="h-4 w-4" />
+          <List className="h-4 w-4" />
         </Button>
         <Button variant="ghost" size="sm" onClick={onNumberedList} className="h-8 w-8 p-0">
-          <ListOrderedIcon className="h-4 w-4" />
+          <ListOrdered className="h-4 w-4" />
         </Button>
       </div>
       <div className="flex items-center gap-0.5">
         <Button variant="ghost" size="sm" onClick={onSave} className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50">
-          <SaveIcon className="h-4 w-4" />
+          <Save className="h-4 w-4" />
         </Button>
         <Button variant="ghost" size="sm" onClick={onCancel} className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50">
-          <XIcon className="h-4 w-4" />
+          <X className="h-4 w-4" />
         </Button>
       </div>
     </div>
