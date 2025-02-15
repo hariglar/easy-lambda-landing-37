@@ -19,7 +19,7 @@ export function HeroSection({ hero, onContentChange, isEditing }: HeroSectionPro
           src={hero.backgroundImage}
           alt="Hero background"
           className="w-full h-full object-cover"
-          onImageChange={(newSrc) => onContentChange('hero', { backgroundImage: newSrc })}
+          onImageChange={(newSrc) => onContentChange('hero', { ...hero, backgroundImage: newSrc })}
           isEditing={isEditing}
         />
       </div>
@@ -27,14 +27,14 @@ export function HeroSection({ hero, onContentChange, isEditing }: HeroSectionPro
       <div className="relative z-10 container mx-auto px-4 text-center text-white">
         <EditableText
           value={hero.title}
-          onChange={(value) => onContentChange('hero', { title: value })}
+          onChange={(value) => onContentChange('hero', { ...hero, title: value })}
           className="text-5xl md:text-6xl font-bold mb-6 animate-in fade-in slide-in-from-bottom-4 duration-700"
           identifier="hero.title"
           isEditing={isEditing}
         />
         <EditableText
           value={hero.subtitle}
-          onChange={(value) => onContentChange('hero', { subtitle: value })}
+          onChange={(value) => onContentChange('hero', { ...hero, subtitle: value })}
           className="text-xl md:text-2xl mb-8 max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200"
           identifier="hero.subtitle"
           isEditing={isEditing}
@@ -43,7 +43,7 @@ export function HeroSection({ hero, onContentChange, isEditing }: HeroSectionPro
           <Button size="lg" className="min-w-[200px] bg-white text-black hover:bg-white/90">
             <EditableText
               value={hero.ctaText}
-              onChange={(value) => onContentChange('hero', { ctaText: value })}
+              onChange={(value) => onContentChange('hero', { ...hero, ctaText: value })}
               className="inline-flex items-center"
               identifier="hero.ctaText"
               isEditing={isEditing}
@@ -53,7 +53,7 @@ export function HeroSection({ hero, onContentChange, isEditing }: HeroSectionPro
           <Button size="lg" variant="outline" className="min-w-[200px] border-white text-white hover:bg-white/20">
             <EditableText
               value={hero.lookbookText || "View Lookbook"}
-              onChange={(value) => onContentChange('hero', { lookbookText: value })}
+              onChange={(value) => onContentChange('hero', { ...hero, lookbookText: value })}
               className="inline-flex items-center"
               identifier="hero.lookbookText"
               isEditing={isEditing}
