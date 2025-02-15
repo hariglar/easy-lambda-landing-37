@@ -1,15 +1,13 @@
 
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Template } from "../../types";
 import EcommerceLanding from "../../templates/EcommerceLanding";
 import { TemplateContent } from "../../types/editor";
 import { Switch } from "@/components/ui/switch";
-import { Pencil, Move, Palette } from "lucide-react";
+import { Pencil, Move } from "lucide-react";
 import {
   DragDropContext,
   Droppable,
@@ -39,17 +37,15 @@ export function DesignTab({
   handleContentChange
 }: DesignTabProps) {
   const [isEditing, setIsEditing] = useState(false);
-  const [activeSection, setActiveSection] = useState<string | null>(null);
-  const [selectedColor, setSelectedColor] = useState("#000000");
 
   // List of available sections for reordering
-  const sections = [
+  const [sections, setSections] = useState([
     { id: "hero", title: "Hero Section" },
     { id: "features", title: "Features Section" },
     { id: "products", title: "Products Section" },
     { id: "newsletter", title: "Newsletter Section" },
     { id: "testimonials", title: "Testimonials Section" }
-  ];
+  ]);
 
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
@@ -58,8 +54,12 @@ export function DesignTab({
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
 
+    setSections(items);
+    
     // Update the content with the new order
     console.log("New section order:", items.map(item => item.id));
+    // Here you would update your content state with the new order
+    handleContentChange('sectionOrder', items.map(item => item.id));
   };
 
   const renderTemplate = () => {
@@ -78,20 +78,6 @@ export function DesignTab({
                   {isEditing ? "Editing Mode" : "Preview Mode"}
                 </span>
               </div>
-
-              {isEditing && activeSection && (
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2">
-                    <Palette className="h-4 w-4 text-muted-foreground" />
-                    <Input
-                      type="color"
-                      value={selectedColor}
-                      onChange={(e) => setSelectedColor(e.target.value)}
-                      className="w-[100px] h-8 p-1"
-                    />
-                  </div>
-                </div>
-              )}
             </div>
 
             {isEditing && (
@@ -116,8 +102,7 @@ export function DesignTab({
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
                                 {...provided.dragHandleProps}
-                                className="flex items-center gap-2 p-3 bg-muted rounded-md cursor-move hover:bg-muted/80"
-                                onClick={() => setActiveSection(section.id)}
+                                className="flex items-center gap-2 p-3 bg-muted rounded-md cursor-move hover:bg-muted/80 transition-colors"
                               >
                                 <Move className="h-4 w-4 text-muted-foreground" />
                                 <span>{section.title}</span>
