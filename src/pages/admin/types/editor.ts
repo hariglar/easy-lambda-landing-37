@@ -5,6 +5,7 @@ export interface TemplateContent {
     subtitle: string;
     ctaText: string;
     backgroundImage: string;
+    lookbookText?: string;
   };
   features: Array<{
     title: string;
@@ -19,6 +20,8 @@ export interface TemplateContent {
   newsletter: {
     title: string;
     description: string;
+    placeholderText: string;
+    buttonText: string;
   };
   sectionOrder?: string[];
 }
@@ -28,7 +31,8 @@ export const defaultContent: TemplateContent = {
     title: "Welcome to Our Store",
     subtitle: "Discover amazing products at great prices",
     ctaText: "Shop Now",
-    backgroundImage: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&h=400&fit=crop"
+    backgroundImage: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&h=400&fit=crop",
+    lookbookText: "View Lookbook"
   },
   features: [
     {
@@ -66,7 +70,9 @@ export const defaultContent: TemplateContent = {
   ],
   newsletter: {
     title: "Subscribe to Our Newsletter",
-    description: "Get updates on new products and special offers"
+    description: "Get updates on new products and special offers",
+    placeholderText: "Enter your email",
+    buttonText: "Subscribe"
   },
   sectionOrder: ['hero', 'features', 'products', 'newsletter']
 }

@@ -18,14 +18,14 @@ export function NewsletterSection({ newsletter, onContentChange, isEditing }: Ne
         <div className="max-w-2xl mx-auto text-center">
           <EditableText
             value={newsletter.title}
-            onChange={(value) => onContentChange('newsletter', { title: value })}
+            onChange={(value) => onContentChange('newsletter', { ...newsletter, title: value })}
             className="text-3xl font-bold mb-4 block"
             identifier="newsletter.title"
             isEditing={isEditing}
           />
           <EditableText
             value={newsletter.description}
-            onChange={(value) => onContentChange('newsletter', { description: value })}
+            onChange={(value) => onContentChange('newsletter', { ...newsletter, description: value })}
             className="mb-8 text-primary-foreground/80 block"
             identifier="newsletter.description"
             isEditing={isEditing}
@@ -41,7 +41,7 @@ export function NewsletterSection({ newsletter, onContentChange, isEditing }: Ne
                 <div className="absolute inset-0 flex items-center">
                   <EditableText
                     value={newsletter.placeholderText}
-                    onChange={(value) => onContentChange('newsletter', { placeholderText: value })}
+                    onChange={(value) => onContentChange('newsletter', { ...newsletter, placeholderText: value })}
                     className="text-black px-3 w-full"
                     identifier="newsletter.placeholderText"
                     isEditing={isEditing}
@@ -57,8 +57,8 @@ export function NewsletterSection({ newsletter, onContentChange, isEditing }: Ne
             )}
             <Button variant="secondary" className="whitespace-nowrap">
               <EditableText
-                value={newsletter.buttonText || "Subscribe"}
-                onChange={(value) => onContentChange('newsletter', { buttonText: value })}
+                value={newsletter.buttonText}
+                onChange={(value) => onContentChange('newsletter', { ...newsletter, buttonText: value })}
                 className="inline-flex items-center"
                 identifier="newsletter.buttonText"
                 isEditing={isEditing}
