@@ -5,12 +5,12 @@ import { ImageEditor } from "../../components/editor/ImageEditor";
 import { Button } from "@/components/ui/button";
 
 interface CtaSectionProps {
-  cta: TemplateContent['cta'];
+  cta?: TemplateContent['cta'];
   onContentChange: (section: keyof TemplateContent, value: any, index?: number, field?: string) => void;
   isEditing: boolean;
 }
 
-export function CtaSection({ cta, onContentChange, isEditing }: CtaSectionProps) {
+export function CtaSection({ cta = defaultCta, onContentChange, isEditing }: CtaSectionProps) {
   return (
     <section className="relative h-[500px] overflow-hidden">
       <ImageEditor
@@ -52,3 +52,10 @@ export function CtaSection({ cta, onContentChange, isEditing }: CtaSectionProps)
     </section>
   );
 }
+
+const defaultCta: TemplateContent['cta'] = {
+  title: "Special Offer",
+  description: "Don't miss out on our latest collection",
+  buttonText: "Shop Now",
+  backgroundImage: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1600&h=900&fit=crop"
+};

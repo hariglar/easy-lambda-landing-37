@@ -4,12 +4,12 @@ import { EditableText } from "../../components/editor/EditableText";
 import { ImageEditor } from "../../components/editor/ImageEditor";
 
 interface CategoriesSectionProps {
-  categories: TemplateContent['categories'];
+  categories?: TemplateContent['categories'];
   onContentChange: (section: keyof TemplateContent, value: any, index: number, field: string) => void;
   isEditing: boolean;
 }
 
-export function CategoriesSection({ categories, onContentChange, isEditing }: CategoriesSectionProps) {
+export function CategoriesSection({ categories = defaultCategories, onContentChange, isEditing }: CategoriesSectionProps) {
   return (
     <section className="py-16 bg-white">
       <div className="container mx-auto px-4">
@@ -50,3 +50,9 @@ export function CategoriesSection({ categories, onContentChange, isEditing }: Ca
     </section>
   );
 }
+
+const defaultCategories: TemplateContent['categories'] = [
+  { name: "Women's Fashion", image: "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=400&h=400&fit=crop", itemCount: 1250 },
+  { name: "Men's Collection", image: "https://images.unsplash.com/photo-1490114538077-0a7f8cb49891?w=400&h=400&fit=crop", itemCount: 890 },
+  { name: "Accessories", image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=400&fit=crop", itemCount: 432 }
+];

@@ -3,12 +3,12 @@ import { TemplateContent } from "../../types/editor";
 import { EditableText } from "../../components/editor/EditableText";
 
 interface PromotionBannerProps {
-  promotion: TemplateContent['promotion'];
+  promotion?: TemplateContent['promotion'];
   onContentChange: (section: keyof TemplateContent, value: any, index?: number, field?: string) => void;
   isEditing: boolean;
 }
 
-export function PromotionBanner({ promotion, onContentChange, isEditing }: PromotionBannerProps) {
+export function PromotionBanner({ promotion = defaultPromotion, onContentChange, isEditing }: PromotionBannerProps) {
   return (
     <div className="bg-primary text-white text-center py-2 px-4">
       <span className="inline-flex items-center gap-2 text-sm">
@@ -38,3 +38,9 @@ export function PromotionBanner({ promotion, onContentChange, isEditing }: Promo
     </div>
   );
 }
+
+const defaultPromotion: TemplateContent['promotion'] = {
+  code: "WELCOME",
+  discount: "20% OFF",
+  expiry: "Limited time offer"
+};
