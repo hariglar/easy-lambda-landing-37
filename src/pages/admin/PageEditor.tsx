@@ -1,4 +1,11 @@
+
 import { Tabs, TabsContent } from "@/components/ui/tabs";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Globe, ImageIcon, Layout, Layers, Type } from "lucide-react";
 import { EditorHeader } from "./components/editor/EditorHeader";
 import { EditorTabs } from "./components/editor/EditorTabs";
 import { DesignTab } from "./components/editor/DesignTab";
@@ -107,6 +114,7 @@ export default function PageEditor() {
                 </div>
               </div>
 
+              {/* Features Section */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Features</h3>
                 {content.features.map((feature, index) => (
@@ -133,6 +141,7 @@ export default function PageEditor() {
                 ))}
               </div>
 
+              {/* Products Section */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Products</h3>
                 {content.products.map((product, index) => (
@@ -179,6 +188,7 @@ export default function PageEditor() {
                 ))}
               </div>
 
+              {/* Newsletter Section */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Newsletter Section</h3>
                 <div className="space-y-4">
