@@ -1,4 +1,3 @@
-
 export interface TemplateContent {
   hero: {
     title: string;
@@ -73,6 +72,10 @@ export interface TemplateContent {
     code: string;
     discount: string;
     expiry: string;
+  };
+  meta: {
+    title: string;
+    description: string;
   };
 }
 
@@ -191,5 +194,9 @@ export const defaultContent: TemplateContent = {
     code: "SUMMER2024",
     discount: "25% OFF",
     expiry: "Limited time offer"
+  },
+  meta: {
+    title: "",
+    description: ""
   }
 };
