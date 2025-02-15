@@ -1,4 +1,3 @@
-
 import { useState, useEffect, Dispatch, SetStateAction } from "react";
 import { useSearchParams } from "react-router-dom";
 import { mockPages } from "../data/mockData";
@@ -6,8 +5,7 @@ import { isUrlUnique } from "../utils/urlUtils";
 import { defaultContent } from "../types/editor";
 import { toast } from "sonner";
 
-// Move the interface outside and add proper export
-interface EditorReturn {
+export interface EditorReturn {
   currentTab: string;
   setCurrentTab: Dispatch<SetStateAction<string>>;
   selectedTemplate: number | null;
@@ -29,9 +27,6 @@ interface EditorReturn {
   templateType: string;
   setTemplateType: Dispatch<SetStateAction<string>>;
 }
-
-// Add type export
-export type { EditorReturn };
 
 export function useEditor(): EditorReturn {
   const [searchParams] = useSearchParams();
