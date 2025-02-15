@@ -36,7 +36,8 @@ export default function PageEditor() {
     setPageUrl,
     handleContentChange,
     handleSave,
-    setTemplateType
+    setTemplateType,
+    templateType
   } = useEditor();
 
   // Set initial template type from URL parameter

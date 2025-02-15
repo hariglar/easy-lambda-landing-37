@@ -78,6 +78,7 @@ export function useEditor() {
     handleContentChange,
     handleSave,
     isUrlUnique,
-    setTemplateType
+    setTemplateType,  // Explicitly include setTemplateType in the return object
+    templateType      // Also include templateType for completeness
   };
 }
