@@ -10,7 +10,22 @@ import { Template } from "../../types";
 import EcommerceLanding from "../../templates/EcommerceLanding";
 import { TemplateContent } from "../../types/editor";
 import { Switch } from "@/components/ui/switch";
-import { Pencil } from "lucide-react";
+import { 
+  Pencil, 
+  Layout, 
+  Eye, 
+  Paintbrush, 
+  Settings2, 
+  Laptop,
+  Smartphone,
+  Tablet
+} from "lucide-react";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 
 interface DesignTabProps {
   templateId: string | null;
@@ -34,27 +49,127 @@ export function DesignTab({
   handleContentChange
 }: DesignTabProps) {
   const [isEditing, setIsEditing] = useState(false);
+  const [viewMode, setViewMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
 
   const renderTemplate = () => {
     switch (templateId) {
       case "ecommerce":
         return (
-          <div className="relative">
-            <div className="absolute top-4 right-4 z-50 flex items-center gap-2 bg-white/90 p-2 rounded-lg shadow-sm">
-              <Pencil className={cn("h-4 w-4", isEditing ? "text-primary" : "text-muted-foreground")} />
-              <Switch
-                checked={isEditing}
-                onCheckedChange={setIsEditing}
+          <div className="space-y-6">
+            <Card className="sticky top-4 z-50">
+              <div className="border-b">
+                <div className="flex h-16 items-center px-4 gap-4">
+                  <div className="flex items-center gap-2 flex-1">
+                    <Pencil className={cn(
+                      "h-4 w-4 transition-colors",
+                      isEditing ? "text-primary" : "text-muted-foreground"
+                    )} />
+                    <Switch
+                      checked={isEditing}
+                      onCheckedChange={setIsEditing}
+                    />
+                    <span className="text-sm font-medium">
+                      {isEditing ? "Editing Mode" : "Preview Mode"}
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center gap-2 border-l pl-4">
+                    <Button
+                      variant={viewMode === 'desktop' ? 'default' : 'ghost'}
+                      size="sm"
+                      onClick={() => setViewMode('desktop')}
+                    >
+                      <Laptop className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant={viewMode === 'tablet' ? 'default' : 'ghost'}
+                      size="sm"
+                      onClick={() => setViewMode('tablet')}
+                    >
+                      <Tablet className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant={viewMode === 'mobile' ? 'default' : 'ghost'}
+                      size="sm"
+                      onClick={() => setViewMode('mobile')}
+                    >
+                      <Smartphone className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              {isEditing && (
+                <Tabs defaultValue="layout" className="p-4">
+                  <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="layout">
+                      <Layout className="h-4 w-4 mr-2" />
+                      Layout
+                    </TabsTrigger>
+                    <TabsTrigger value="style">
+                      <Paintbrush className="h-4 w-4 mr-2" />
+                      Style
+                    </TabsTrigger>
+                    <TabsTrigger value="settings">
+                      <Settings2 className="h-4 w-4 mr-2" />
+                      Settings
+                    </TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="layout" className="space-y-4 mt-4">
+                    <div className="grid gap-4">
+                      <Card className="p-4">
+                        <h3 className="font-medium mb-3">Section Order</h3>
+                        {/* Section reordering UI would go here */}
+                      </Card>
+                    </div>
+                  </TabsContent>
+                  <TabsContent value="style" className="space-y-4 mt-4">
+                    <Card className="p-4">
+                      <h3 className="font-medium mb-3">Theme</h3>
+                      <div className="grid gap-4">
+                        <div>
+                          <Label>Primary Color</Label>
+                          <div className="flex gap-2 mt-1.5">
+                            <Button variant="outline" size="sm" className="h-8 w-8 p-0 bg-primary" />
+                            <Button variant="outline" size="sm" className="h-8 w-8 p-0 bg-blue-500" />
+                            <Button variant="outline" size="sm" className="h-8 w-8 p-0 bg-green-500" />
+                            <Button variant="outline" size="sm" className="h-8 w-8 p-0 bg-purple-500" />
+                          </div>
+                        </div>
+                      </div>
+                    </Card>
+                  </TabsContent>
+                  <TabsContent value="settings" className="space-y-4 mt-4">
+                    <Card className="p-4">
+                      <h3 className="font-medium mb-3">Page Settings</h3>
+                      <div className="space-y-4">
+                        <div>
+                          <Label>Meta Title</Label>
+                          <Input className="mt-1.5" placeholder="Enter meta title..." />
+                        </div>
+                        <div>
+                          <Label>Meta Description</Label>
+                          <Textarea className="mt-1.5" placeholder="Enter meta description..." />
+                        </div>
+                      </div>
+                    </Card>
+                  </TabsContent>
+                </Tabs>
+              )}
+            </Card>
+
+            <div className={cn(
+              "mx-auto transition-all duration-200",
+              viewMode === 'desktop' ? 'max-w-none' : 
+              viewMode === 'tablet' ? 'max-w-[768px]' : 
+              'max-w-[375px]'
+            )}>
+              <EcommerceLanding 
+                content={content} 
+                onContentChange={handleContentChange}
+                isEditing={isEditing}
               />
-              <span className="text-sm font-medium">
-                {isEditing ? "Editing Mode" : "Preview Mode"}
-              </span>
             </div>
-            <EcommerceLanding 
-              content={content} 
-              onContentChange={handleContentChange}
-              isEditing={isEditing}
-            />
           </div>
         );
       default:
