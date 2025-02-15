@@ -1,9 +1,10 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { mockPages } from "../data/mockData";
 import { useContent } from "./useContent";
 import { isUrlUnique } from "../utils/urlUtils";
+import { TemplateContent, defaultContent } from "../types/editor";
 
 export function useEditor() {
   const [searchParams] = useSearchParams();
@@ -39,7 +40,12 @@ export function useEditor() {
       if (storedPage) {
         console.log('Found stored page:', storedPage);
         if (storedPage.content) {
-          setContent(storedPage.content);
+          // Merge the stored content with default content to ensure all new sections exist
+          const mergedContent = {
+            ...defaultContent,
+            ...storedPage.content
+          };
+          setContent(mergedContent);
         }
         setPageTitle(storedPage.title);
         setPageUrl(storedPage.url);
