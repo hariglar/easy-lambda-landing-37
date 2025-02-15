@@ -90,9 +90,9 @@ export function ImageEditor({ src, alt = "", className = "", onImageChange, isEd
             <PopoverContent className="w-80">
               <div className="grid grid-cols-3 gap-2 p-2">
                 {mockImageLibrary.map((imgSrc, index) => (
-                  <div
+                  <button
                     key={index}
-                    className="relative aspect-square overflow-hidden rounded-md hover:ring-2 hover:ring-primary cursor-pointer"
+                    className="relative aspect-square overflow-hidden rounded-md hover:ring-2 hover:ring-primary"
                     onClick={() => {
                       setPreviewSrc(imgSrc);
                       onImageChange(imgSrc);
@@ -104,7 +104,7 @@ export function ImageEditor({ src, alt = "", className = "", onImageChange, isEd
                       alt={`Library image ${index + 1}`}
                       className="object-cover w-full h-full"
                     />
-                  </div>
+                  </button>
                 ))}
               </div>
             </PopoverContent>
