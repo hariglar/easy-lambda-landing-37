@@ -3,14 +3,26 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Template } from "../../types";
 import EcommerceLanding from "../../templates/EcommerceLanding";
 import { TemplateContent } from "../../types/editor";
 import { Switch } from "@/components/ui/switch";
-import { Pencil } from "lucide-react";
+import { Pencil, Move, Palette, PlayCircle } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  DropResult
+} from "@hello-pangea/dnd";
 
 interface DesignTabProps {
   templateId: string | null;
@@ -34,22 +46,135 @@ export function DesignTab({
   handleContentChange
 }: DesignTabProps) {
   const [isEditing, setIsEditing] = useState(false);
+  const [activeSection, setActiveSection] = useState<string | null>(null);
+  const [selectedAnimation, setSelectedAnimation] = useState("none");
+  const [selectedColor, setSelectedColor] = useState("#000000");
+
+  // List of available sections for reordering
+  const sections = [
+    { id: "hero", title: "Hero Section" },
+    { id: "features", title: "Features Section" },
+    { id: "products", title: "Products Section" },
+    { id: "newsletter", title: "Newsletter Section" },
+    { id: "testimonials", title: "Testimonials Section" }
+  ];
+
+  const animations = [
+    { id: "none", name: "No Animation" },
+    { id: "fade-in", name: "Fade In" },
+    { id: "slide-in", name: "Slide In" },
+    { id: "scale-in", name: "Scale In" },
+    { id: "bounce", name: "Bounce" }
+  ];
+
+  const handleDragEnd = (result: DropResult) => {
+    if (!result.destination) return;
+
+    const items = Array.from(sections);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    // Update the content with the new order
+    // Note: This is a placeholder - you'll need to implement the actual reordering logic
+    console.log("New section order:", items.map(item => item.id));
+  };
 
   const renderTemplate = () => {
     switch (templateId) {
       case "ecommerce":
         return (
-          <div className="relative">
-            <div className="absolute top-4 right-4 z-50 flex items-center gap-2 bg-white/90 p-2 rounded-lg shadow-sm">
-              <Pencil className={cn("h-4 w-4", isEditing ? "text-primary" : "text-muted-foreground")} />
-              <Switch
-                checked={isEditing}
-                onCheckedChange={setIsEditing}
-              />
-              <span className="text-sm font-medium">
-                {isEditing ? "Editing Mode" : "Preview Mode"}
-              </span>
+          <div className="space-y-8">
+            <div className="sticky top-4 z-50 flex items-center gap-4 bg-white/90 p-4 rounded-lg shadow-sm">
+              {/* Edit Mode Toggle */}
+              <div className="flex items-center gap-2">
+                <Pencil className={cn("h-4 w-4", isEditing ? "text-primary" : "text-muted-foreground")} />
+                <Switch
+                  checked={isEditing}
+                  onCheckedChange={setIsEditing}
+                />
+                <span className="text-sm font-medium">
+                  {isEditing ? "Editing Mode" : "Preview Mode"}
+                </span>
+              </div>
+
+              {/* Section Controls */}
+              {isEditing && activeSection && (
+                <>
+                  {/* Animation Control */}
+                  <div className="flex items-center gap-2">
+                    <PlayCircle className="h-4 w-4 text-muted-foreground" />
+                    <Select
+                      value={selectedAnimation}
+                      onValueChange={setSelectedAnimation}
+                    >
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Choose animation" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {animations.map((animation) => (
+                          <SelectItem key={animation.id} value={animation.id}>
+                            {animation.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Color Control */}
+                  <div className="flex items-center gap-2">
+                    <Palette className="h-4 w-4 text-muted-foreground" />
+                    <Input
+                      type="color"
+                      value={selectedColor}
+                      onChange={(e) => setSelectedColor(e.target.value)}
+                      className="w-[100px] h-8 p-1"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
+
+            {/* Section Reordering */}
+            {isEditing && (
+              <Card className="p-4 mb-8">
+                <Label className="mb-4 block">Reorder Sections</Label>
+                <DragDropContext onDragEnd={handleDragEnd}>
+                  <Droppable droppableId="sections">
+                    {(provided) => (
+                      <div
+                        {...provided.droppableProps}
+                        ref={provided.innerRef}
+                        className="space-y-2"
+                      >
+                        {sections.map((section, index) => (
+                          <Draggable
+                            key={section.id}
+                            draggableId={section.id}
+                            index={index}
+                          >
+                            {(provided) => (
+                              <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                className="flex items-center gap-2 p-3 bg-muted rounded-md cursor-move hover:bg-muted/80"
+                                onClick={() => setActiveSection(section.id)}
+                              >
+                                <Move className="h-4 w-4 text-muted-foreground" />
+                                <span>{section.title}</span>
+                              </div>
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+                      </div>
+                    )}
+                  </Droppable>
+                </DragDropContext>
+              </Card>
+            )}
+
+            {/* Template Content */}
             <EcommerceLanding 
               content={content} 
               onContentChange={handleContentChange}
