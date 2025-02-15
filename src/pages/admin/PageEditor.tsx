@@ -10,7 +10,7 @@ import { EditorHeader } from "./components/editor/EditorHeader";
 import { EditorTabs } from "./components/editor/EditorTabs";
 import { DesignTab } from "./components/editor/DesignTab";
 import { templates } from "./data/mockData";
-import { useEditor } from "./hooks/useEditor";
+import { useEditor, EditorReturn } from "./hooks/useEditor";
 import { useSearchParams } from "react-router-dom";
 import { useEffect } from "react";
 
@@ -39,7 +39,7 @@ export default function PageEditor() {
     handleSave,
     templateType,
     setTemplateType
-  } = editor;
+  }: EditorReturn = editor;
 
   useEffect(() => {
     if (templateParam && setTemplateType) {

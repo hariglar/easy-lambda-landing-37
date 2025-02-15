@@ -1,4 +1,3 @@
-
 import { useState, useEffect, Dispatch, SetStateAction } from "react";
 import { useSearchParams } from "react-router-dom";
 import { mockPages } from "../data/mockData";
@@ -129,7 +128,6 @@ export function useEditor(): EditorReturn {
     }
   };
 
-  // Load existing content when editing a page
   useEffect(() => {
     if (pageId) {
       console.log('Loading content for pageId:', pageId);
@@ -178,5 +176,5 @@ export function useEditor(): EditorReturn {
     isUrlUnique,
     templateType,
     setTemplateType
-  };
+  } as const;
 }
