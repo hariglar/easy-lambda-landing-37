@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Dispatch, SetStateAction } from "react";
 import { useSearchParams } from "react-router-dom";
 import { mockPages } from "../data/mockData";
 import { useContent } from "./useContent";
@@ -8,25 +8,25 @@ import { defaultContent } from "../types/editor";
 
 interface EditorReturn {
   currentTab: string;
-  setCurrentTab: (tab: string) => void;
+  setCurrentTab: Dispatch<SetStateAction<string>>;
   selectedTemplate: number | null;
-  setSelectedTemplate: (template: number | null) => void;
+  setSelectedTemplate: Dispatch<SetStateAction<number | null>>;
   metaExpanded: boolean;
-  setMetaExpanded: (expanded: boolean) => void;
+  setMetaExpanded: Dispatch<SetStateAction<boolean>>;
   lastSaved: Date | null;
   content: typeof defaultContent;
   isDirty: boolean;
-  setIsDirty: (dirty: boolean) => void;
+  setIsDirty: Dispatch<SetStateAction<boolean>>;
   templateId: string;
   pageTitle: string;
-  setPageTitle: (title: string) => void;
+  setPageTitle: Dispatch<SetStateAction<string>>;
   pageUrl: string;
-  setPageUrl: (url: string) => void;
+  setPageUrl: Dispatch<SetStateAction<string>>;
   handleContentChange: (section: keyof typeof defaultContent, value: any, index?: number, field?: string) => void;
   handleSave: () => Promise<void>;
   isUrlUnique: typeof isUrlUnique;
-  setTemplateType: (type: string) => void;
   templateType: string;
+  setTemplateType: Dispatch<SetStateAction<string>>;
 }
 
 export function useEditor(): EditorReturn {
@@ -101,7 +101,7 @@ export function useEditor(): EditorReturn {
     handleContentChange,
     handleSave,
     isUrlUnique,
-    setTemplateType,
-    templateType
+    templateType,
+    setTemplateType
   };
 }
