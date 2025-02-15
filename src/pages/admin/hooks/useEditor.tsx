@@ -4,6 +4,7 @@ import { useSearchParams } from "react-router-dom";
 import { mockPages } from "../data/mockData";
 import { useContent } from "./useContent";
 import { isUrlUnique } from "../utils/urlUtils";
+import { defaultContent } from "../types/editor";
 
 export function useEditor() {
   const [searchParams] = useSearchParams();
@@ -25,7 +26,9 @@ export function useEditor() {
     setPageUrl,
     handleContentChange,
     handleSave,
-    setContent
+    setContent,
+    templateType,
+    setTemplateType
   } = useContent(pageId);
 
   // Load existing content when editing a page
@@ -43,6 +46,8 @@ export function useEditor() {
         }
         setPageTitle(storedPage.title);
         setPageUrl(storedPage.url);
+        // Set template type from stored page
+        setTemplateType(storedPage.templateType || 'ecommerce');
         return;
       }
       
@@ -53,8 +58,11 @@ export function useEditor() {
         setPageUrl(mockPage.url);
         setContent(defaultContent);
       }
+    } else if (templateId) {
+      // Set template type for new pages
+      setTemplateType(templateId);
     }
-  }, [pageId, setContent, setPageTitle, setPageUrl]);
+  }, [pageId, templateId, setContent, setPageTitle, setPageUrl, setTemplateType]);
 
   return {
     currentTab,
@@ -74,6 +82,7 @@ export function useEditor() {
     setPageUrl,
     handleContentChange,
     handleSave,
-    isUrlUnique
+    isUrlUnique,
+    templateType
   };
 }

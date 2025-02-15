@@ -10,6 +10,7 @@ export function useContent(pageId: string | null) {
   const [lastSaved, setLastSaved] = useState<Date | null>(new Date());
   const [pageTitle, setPageTitle] = useState("New Page");
   const [pageUrl, setPageUrl] = useState("/new-page");
+  const [templateType, setTemplateType] = useState("ecommerce"); // Add template type state
 
   const handleContentChange = (
     section: keyof TemplateContent,
@@ -41,6 +42,8 @@ export function useContent(pageId: string | null) {
       
       const storedPages = JSON.parse(localStorage.getItem('pages') || '[]');
       const currentDate = new Date().toISOString().split('T')[0];
+      const urlParams = new URLSearchParams(window.location.search);
+      const templateId = urlParams.get('template') || 'ecommerce';
 
       if (pageId) {
         const pageIndex = storedPages.findIndex((p: any) => p.id === Number(pageId));
@@ -52,6 +55,7 @@ export function useContent(pageId: string | null) {
             title: pageTitle,
             url: pageUrl,
             content,
+            templateType: templateId, // Save template type
             lastModified: currentDate
           };
         } else {
@@ -66,6 +70,7 @@ export function useContent(pageId: string | null) {
             title: pageTitle,
             url: pageUrl,
             content,
+            templateType: templateId, // Save template type
             lastModified: currentDate
           });
         }
@@ -82,6 +87,7 @@ export function useContent(pageId: string | null) {
           status: "draft",
           url: pageUrl,
           content,
+          templateType: templateId, // Save template type
           lastModified: currentDate,
           views: 0
         });
@@ -110,6 +116,8 @@ export function useContent(pageId: string | null) {
     pageUrl,
     setPageUrl,
     handleContentChange,
-    handleSave
+    handleSave,
+    templateType,
+    setTemplateType
   };
 }
