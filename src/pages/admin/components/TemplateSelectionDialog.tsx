@@ -75,6 +75,7 @@ export function TemplateSelectionDialog({
 
   const handleTemplateSelect = (templateId: string) => {
     navigate(`/admin/pages/new?template=${templateId}`);
+    onOpenChange(false); // Close the dialog after selection
   };
 
   return (

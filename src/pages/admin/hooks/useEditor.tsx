@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { mockPages } from "../data/mockData";
 import { useContent } from "./useContent";
