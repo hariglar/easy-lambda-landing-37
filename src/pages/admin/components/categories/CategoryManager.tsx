@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Plus, Pencil, Trash2, FolderIcon, ChevronDown, ChevronRight } from "lucide-react";
+import { Plus, Pencil, Trash2, FolderIcon, ChevronDown, ChevronRight, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -16,14 +16,24 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Category } from "../../types/categories";
+import { Category, PageWithCategory } from "../../types/categories";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 
 interface CategoryManagerProps {
   categories: Category[];
   onCategoryAdd: (category: Omit<Category, "id">) => void;
   onCategoryUpdate: (category: Category) => void;
   onCategoryDelete: (id: number) => void;
+  onCategorySelect: (category: Category | null) => void;
+  selectedCategory: Category | null;
+  getLinkedPages: (categoryId: number) => PageWithCategory[];
 }
 
 export function CategoryManager({
@@ -31,6 +41,9 @@ export function CategoryManager({
   onCategoryAdd,
   onCategoryUpdate,
   onCategoryDelete,
+  onCategorySelect,
+  selectedCategory,
+  getLinkedPages,
 }: CategoryManagerProps) {
   const [expanded, setExpanded] = useState<Record<number, boolean>>({});
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
@@ -54,32 +67,79 @@ export function CategoryManager({
   const renderCategoryItem = (category: Category, level = 0) => {
     const hasChildren = categories.some(c => c.parentId === category.id);
     const isExpanded = expanded[category.id];
+    const linkedPages = getLinkedPages(category.id);
+    const isSelected = selectedCategory?.id === category.id;
 
     return (
       <div key={category.id} className="space-y-2">
         <div 
           className={cn(
-            "flex items-center gap-2 p-2 rounded-lg hover:bg-accent group",
-            level > 0 && "ml-6"
+            "flex items-center gap-2 p-2 rounded-lg hover:bg-accent group transition-colors",
+            level > 0 && "ml-6",
+            isSelected && "bg-accent"
           )}
+          onClick={() => onCategorySelect(category)}
         >
           <button
             className={cn(
               "w-6 h-6 flex items-center justify-center rounded hover:bg-accent-foreground/10",
               !hasChildren && "invisible"
             )}
-            onClick={() => toggleExpand(category.id)}
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleExpand(category.id);
+            }}
           >
             {hasChildren && (isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />)}
           </button>
           <FolderIcon className="w-5 h-5 text-muted-foreground" />
           <span className="flex-1 text-sm font-medium">{category.name}</span>
+          
+          <HoverCard>
+            <HoverCardTrigger asChild>
+              <Badge 
+                variant="secondary" 
+                className="mr-2 cursor-help"
+              >
+                {linkedPages.length} pages
+              </Badge>
+            </HoverCardTrigger>
+            <HoverCardContent className="w-80">
+              <div className="space-y-2">
+                <h4 className="text-sm font-semibold">Linked Pages</h4>
+                <ScrollArea className="h-[200px] w-full rounded-md border p-4">
+                  {linkedPages.length > 0 ? (
+                    <div className="space-y-2">
+                      {linkedPages.map(page => (
+                        <div key={page.id} className="flex items-center gap-2">
+                          <FileText className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-sm">{page.title}</span>
+                          <Badge 
+                            variant={page.status === "published" ? "default" : "secondary"}
+                            className="ml-auto text-xs"
+                          >
+                            {page.status}
+                          </Badge>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">No pages in this category</p>
+                  )}
+                </ScrollArea>
+              </div>
+            </HoverCardContent>
+          </HoverCard>
+
           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
             <Button
               variant="ghost"
               size="icon"
               className="h-8 w-8"
-              onClick={() => setEditingCategory(category)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setEditingCategory(category);
+              }}
             >
               <Pencil className="h-4 w-4" />
             </Button>
@@ -87,7 +147,10 @@ export function CategoryManager({
               variant="ghost"
               size="icon"
               className="h-8 w-8 text-destructive"
-              onClick={() => onCategoryDelete(category.id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onCategoryDelete(category.id);
+              }}
             >
               <Trash2 className="h-4 w-4" />
             </Button>
@@ -97,6 +160,7 @@ export function CategoryManager({
                   variant="ghost"
                   size="icon"
                   className="h-8 w-8"
+                  onClick={(e) => e.stopPropagation()}
                 >
                   <Plus className="h-4 w-4" />
                 </Button>
