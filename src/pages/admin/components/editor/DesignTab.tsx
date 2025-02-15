@@ -9,14 +9,7 @@ import { Template } from "../../types";
 import EcommerceLanding from "../../templates/EcommerceLanding";
 import { TemplateContent } from "../../types/editor";
 import { Switch } from "@/components/ui/switch";
-import { Pencil, Move, Palette, PlayCircle } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Pencil, Move, Palette } from "lucide-react";
 import {
   DragDropContext,
   Droppable,
@@ -47,7 +40,6 @@ export function DesignTab({
 }: DesignTabProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [activeSection, setActiveSection] = useState<string | null>(null);
-  const [selectedAnimation, setSelectedAnimation] = useState("none");
   const [selectedColor, setSelectedColor] = useState("#000000");
 
   // List of available sections for reordering
@@ -57,14 +49,6 @@ export function DesignTab({
     { id: "products", title: "Products Section" },
     { id: "newsletter", title: "Newsletter Section" },
     { id: "testimonials", title: "Testimonials Section" }
-  ];
-
-  const animations = [
-    { id: "none", name: "No Animation" },
-    { id: "fade-in", name: "Fade In" },
-    { id: "slide-in", name: "Slide In" },
-    { id: "scale-in", name: "Scale In" },
-    { id: "bounce", name: "Bounce" }
   ];
 
   const handleDragEnd = (result: DropResult) => {
@@ -97,25 +81,6 @@ export function DesignTab({
 
               {isEditing && activeSection && (
                 <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2">
-                    <PlayCircle className="h-4 w-4 text-muted-foreground" />
-                    <Select
-                      value={selectedAnimation}
-                      onValueChange={setSelectedAnimation}
-                    >
-                      <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder="Choose animation" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {animations.map((animation) => (
-                          <SelectItem key={animation.id} value={animation.id}>
-                            {animation.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
                   <div className="flex items-center gap-2">
                     <Palette className="h-4 w-4 text-muted-foreground" />
                     <Input
