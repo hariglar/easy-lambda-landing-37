@@ -8,47 +8,47 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { 
-  LayoutTemplate, 
-  Rocket, 
-  Building2, 
-  Palette, 
-  Store 
+  Store, 
+  ShoppingBag, 
+  Medal,
+  Gem,
+  Sparkle 
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const templates = [
   {
-    id: "minimal",
-    name: "Minimal Landing",
-    description: "Clean and modern design for startups",
-    icon: LayoutTemplate,
-    thumbnail: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=400&h=300&fit=crop"
+    id: "luxury",
+    name: "Luxury Boutique",
+    description: "High-end fashion and luxury goods with elegant design",
+    icon: Gem,
+    thumbnail: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=300&fit=crop"
   },
   {
-    id: "startup",
-    name: "Startup Launch",
-    description: "Perfect for product launches and SaaS",
-    icon: Rocket,
-    thumbnail: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop"
-  },
-  {
-    id: "business",
-    name: "Business Pro",
-    description: "Professional template for enterprises",
-    icon: Building2,
-    thumbnail: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&h=300&fit=crop"
-  },
-  {
-    id: "creative",
-    name: "Creative Portfolio",
-    description: "Showcase your work with style",
-    icon: Palette,
+    id: "artisan",
+    name: "Artisan Marketplace",
+    description: "Handcrafted goods with rustic, authentic feel",
+    icon: Medal,
     thumbnail: "https://images.unsplash.com/photo-1470309864661-68328b2cd0a5?w=400&h=300&fit=crop"
   },
   {
+    id: "modern",
+    name: "Modern Fashion",
+    description: "Contemporary fashion with minimalist aesthetic",
+    icon: ShoppingBag,
+    thumbnail: "https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=400&h=300&fit=crop"
+  },
+  {
+    id: "lifestyle",
+    name: "Lifestyle Brand",
+    description: "Curated collection for modern living",
+    icon: Sparkle,
+    thumbnail: "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=400&h=300&fit=crop"
+  },
+  {
     id: "ecommerce",
-    name: "E-commerce Landing",
-    description: "Designed for online stores",
+    name: "Classic Store",
+    description: "Traditional e-commerce with proven layout",
     icon: Store,
     thumbnail: "https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=400&h=300&fit=crop"
   }
@@ -83,7 +83,7 @@ export function TemplateSelectionDialog({
             <Button
               key={template.id}
               variant="outline"
-              className="h-[280px] p-0 overflow-hidden"
+              className="h-[280px] p-0 overflow-hidden hover:border-primary/50 transition-colors"
               onClick={() => handleTemplateSelect(template.id)}
             >
               <div className="w-full h-full flex flex-col">
