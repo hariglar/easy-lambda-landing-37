@@ -1,16 +1,7 @@
 
+import { Bold, Italic, Underline, Link, List, ListOrdered, Save, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import {
-  Bold,
-  Italic,
-  Underline,
-  Link,
-  List,
-  ListOrdered,
-  Save,
-  X
-} from "lucide-react";
 
 interface RichTextToolbarProps {
   onBold: () => void;
