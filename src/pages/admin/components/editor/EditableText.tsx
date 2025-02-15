@@ -2,6 +2,9 @@
 import { useState, useRef, useEffect } from "react";
 import { RichTextToolbar } from "./RichTextToolbar";
 
+// Create a global state for tracking the active editor
+let activeEditorId: string | null = null;
+
 interface EditableTextProps {
   value: string;
   onChange: (value: string) => void;
@@ -25,6 +28,34 @@ export function EditableText({
     setCurrentValue(value);
   }, [value]);
 
+  useEffect(() => {
+    // If this editor becomes editable, make it the active editor
+    if (isEditable) {
+      // If there's another active editor, we need to close it
+      if (activeEditorId && activeEditorId !== identifier) {
+        const event = new CustomEvent('closeEditor', { detail: activeEditorId });
+        window.dispatchEvent(event);
+      }
+      activeEditorId = identifier;
+    } else if (activeEditorId === identifier) {
+      activeEditorId = null;
+    }
+  }, [isEditable, identifier]);
+
+  // Listen for close events from other editors
+  useEffect(() => {
+    const handleCloseEditor = (event: CustomEvent<string>) => {
+      if (event.detail === identifier) {
+        setIsEditable(false);
+      }
+    };
+
+    window.addEventListener('closeEditor', handleCloseEditor as EventListener);
+    return () => {
+      window.removeEventListener('closeEditor', handleCloseEditor as EventListener);
+    };
+  }, [identifier]);
+
   const handleToolbarAction = (command: string) => {
     document.execCommand(command, false);
     const newContent = editorRef.current?.innerHTML || "";
@@ -34,11 +65,13 @@ export function EditableText({
   const handleSave = () => {
     onChange(currentValue);
     setIsEditable(false);
+    activeEditorId = null;
   };
 
   const handleCancel = () => {
     setCurrentValue(value);
     setIsEditable(false);
+    activeEditorId = null;
   };
 
   if (!isEditing) {
