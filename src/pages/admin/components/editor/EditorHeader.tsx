@@ -47,24 +47,12 @@ export function EditorHeader({ lastSaved, onSave, isDirty, pageUrl, pageTitle, s
   };
 
   const handlePublish = async () => {
-    if (isDirty) {
-      try {
-        await onSave();
-      } catch (error) {
-        toast.error("Failed to save changes before publishing. Please try again.");
-        return;
-      }
-    }
+    await onSave();
 
     setIsPublishing(true);
     try {
       const storedPages = JSON.parse(localStorage.getItem('pages') || '[]');
       const currentPageId = new URLSearchParams(window.location.search).get('pageId');
-      
-      if (!currentPageId) {
-        throw new Error("No page ID found");
-      }
-
       const currentPage = storedPages.find((p: any) => p.id === Number(currentPageId));
       
       if (!currentPage) {
@@ -77,6 +65,7 @@ export function EditorHeader({ lastSaved, onSave, isDirty, pageUrl, pageTitle, s
       
       if (isUrlTaken) {
         toast.error("This URL is already in use by another page. Please choose a different URL.");
+        setIsPublishing(false);
         return;
       }
 
@@ -88,13 +77,7 @@ export function EditorHeader({ lastSaved, onSave, isDirty, pageUrl, pageTitle, s
       
       toast.success("Page published successfully!");
       setPublishDialogOpen(false);
-      
-      // Navigate back to pages list after successful publish
-      setTimeout(() => {
-        navigate("/admin/pages");
-      }, 1500);
     } catch (error) {
-      console.error('Publishing error:', error);
       toast.error("Failed to publish page. Please try again.");
     } finally {
       setIsPublishing(false);
