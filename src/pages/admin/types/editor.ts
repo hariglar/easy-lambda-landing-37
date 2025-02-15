@@ -1,3 +1,4 @@
+
 export interface TemplateContent {
   hero: {
     title: string;
@@ -7,16 +8,18 @@ export interface TemplateContent {
     backgroundImage: string;
     visible?: boolean;
   };
-  features: Array<{
+  features: {
     title: string;
     description: string;
-  }> & { visible?: boolean };
-  categories: Array<{
+    visible?: boolean;
+  }[];
+  categories: {
     name: string;
     image: string;
     itemCount: number;
-  }> & { visible?: boolean };
-  products: Array<{
+    visible?: boolean;
+  }[];
+  products: {
     name: string;
     price: string;
     image: string;
@@ -24,10 +27,9 @@ export interface TemplateContent {
     buttonText: string;
     discount?: string;
     badge?: string;
-  }> & {
-    sectionTitle: string;
     visible?: boolean;
-  };
+    sectionTitle?: string;
+  }[];
   newsletter: {
     title: string;
     description: string;
@@ -35,32 +37,37 @@ export interface TemplateContent {
     placeholderText: string;
     visible?: boolean;
   };
-  benefits: Array<{
+  benefits: {
     title: string;
     description: string;
     icon: string;
-  }> & { visible?: boolean };
-  testimonials: Array<{
+    visible?: boolean;
+  }[];
+  testimonials: {
     name: string;
     role: string;
     content: string;
     avatar: string;
     rating: number;
-  }> & { visible?: boolean };
-  brands: Array<{
+    visible?: boolean;
+  }[];
+  brands: {
     name: string;
     logo: string;
-  }> & { visible?: boolean };
-  collections: Array<{
+    visible?: boolean;
+  }[];
+  collections: {
     title: string;
     description: string;
     image: string;
     link: string;
-  }> & { visible?: boolean };
-  faqs: Array<{
+    visible?: boolean;
+  }[];
+  faqs: {
     question: string;
     answer: string;
-  }> & { visible?: boolean };
+    visible?: boolean;
+  }[];
   cta: {
     title: string;
     description: string;
@@ -68,10 +75,11 @@ export interface TemplateContent {
     backgroundImage: string;
     visible?: boolean;
   };
-  stats: Array<{
+  stats: {
     value: string;
     label: string;
-  }> & { visible?: boolean };
+    visible?: boolean;
+  }[];
   promotion: {
     code: string;
     discount: string;
