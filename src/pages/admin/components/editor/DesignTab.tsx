@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,6 +10,7 @@ import { Template } from "../../types";
 import EcommerceLanding from "../../templates/EcommerceLanding";
 import { TemplateContent } from "../../types/editor";
 import { Switch } from "@/components/ui/switch";
+import { toast } from "sonner";
 import { 
   Pencil, 
   Layout, 
@@ -18,7 +19,9 @@ import {
   Settings2, 
   Laptop,
   Smartphone,
-  Tablet
+  Tablet,
+  GripVertical,
+  EyeOff
 } from "lucide-react";
 import {
   Tabs,
@@ -38,6 +41,21 @@ interface DesignTabProps {
   handleContentChange: (section: keyof TemplateContent, value: any, index?: number, field?: string) => void;
 }
 
+const AVAILABLE_SECTIONS = [
+  { id: 'hero', name: 'Hero Section', enabled: true },
+  { id: 'features', name: 'Features Section', enabled: true },
+  { id: 'products', name: 'Products Section', enabled: true },
+  { id: 'newsletter', name: 'Newsletter Section', enabled: true },
+  { id: 'testimonials', name: 'Testimonials Section', enabled: true }
+];
+
+const THEME_COLORS = [
+  { id: 'primary', color: '#8B5CF6', name: 'Purple' },
+  { id: 'blue', color: '#0EA5E9', name: 'Blue' },
+  { id: 'green', color: '#22C55E', name: 'Green' },
+  { id: 'rose', color: '#F43F5E', name: 'Rose' }
+];
+
 export function DesignTab({
   templateId,
   selectedTemplate,
@@ -50,20 +68,49 @@ export function DesignTab({
 }: DesignTabProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [viewMode, setViewMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
+  const [enabledSections, setEnabledSections] = useState(
+    AVAILABLE_SECTIONS.map(section => section.enabled)
+  );
+  const [selectedTheme, setSelectedTheme] = useState('primary');
+
+  const handleSectionToggle = useCallback((index: number) => {
+    setEnabledSections(prev => {
+      const newEnabled = [...prev];
+      newEnabled[index] = !newEnabled[index];
+      
+      // Ensure at least one section is enabled
+      if (newEnabled.filter(Boolean).length === 0) {
+        toast.error("At least one section must be enabled");
+        return prev;
+      }
+      
+      return newEnabled;
+    });
+  }, []);
+
+  const handleThemeChange = useCallback((themeId: string) => {
+    setSelectedTheme(themeId);
+    const themeColor = THEME_COLORS.find(t => t.id === themeId)?.color;
+    if (themeColor) {
+      document.documentElement.style.setProperty('--primary', themeColor);
+      toast.success(`Theme updated to ${THEME_COLORS.find(t => t.id === themeId)?.name}`);
+    }
+  }, []);
 
   const renderTemplate = () => {
     switch (templateId) {
       case "ecommerce":
         return (
           <div className="space-y-6">
-            <Card className="sticky top-4 z-50">
+            <Card className="sticky top-4 z-50 shadow-md">
               <div className="border-b">
                 <div className="flex h-16 items-center px-4 gap-4">
                   <div className="flex items-center gap-2 flex-1">
-                    <Pencil className={cn(
-                      "h-4 w-4 transition-colors",
-                      isEditing ? "text-primary" : "text-muted-foreground"
-                    )} />
+                    {isEditing ? (
+                      <Pencil className="h-4 w-4 text-primary" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-muted-foreground" />
+                    )}
                     <Switch
                       checked={isEditing}
                       onCheckedChange={setIsEditing}
@@ -78,6 +125,7 @@ export function DesignTab({
                       variant={viewMode === 'desktop' ? 'default' : 'ghost'}
                       size="sm"
                       onClick={() => setViewMode('desktop')}
+                      className="transition-all"
                     >
                       <Laptop className="h-4 w-4" />
                     </Button>
@@ -85,6 +133,7 @@ export function DesignTab({
                       variant={viewMode === 'tablet' ? 'default' : 'ghost'}
                       size="sm"
                       onClick={() => setViewMode('tablet')}
+                      className="transition-all"
                     >
                       <Tablet className="h-4 w-4" />
                     </Button>
@@ -92,6 +141,7 @@ export function DesignTab({
                       variant={viewMode === 'mobile' ? 'default' : 'ghost'}
                       size="sm"
                       onClick={() => setViewMode('mobile')}
+                      className="transition-all"
                     >
                       <Smartphone className="h-4 w-4" />
                     </Button>
@@ -118,8 +168,21 @@ export function DesignTab({
                   <TabsContent value="layout" className="space-y-4 mt-4">
                     <div className="grid gap-4">
                       <Card className="p-4">
-                        <h3 className="font-medium mb-3">Section Order</h3>
-                        {/* Section reordering UI would go here */}
+                        <h3 className="font-medium mb-3">Section Visibility</h3>
+                        <div className="space-y-3">
+                          {AVAILABLE_SECTIONS.map((section, index) => (
+                            <div key={section.id} className="flex items-center justify-between p-2 bg-muted/50 rounded-lg">
+                              <div className="flex items-center gap-3">
+                                <GripVertical className="h-4 w-4 text-muted-foreground cursor-move" />
+                                <span>{section.name}</span>
+                              </div>
+                              <Switch
+                                checked={enabledSections[index]}
+                                onCheckedChange={() => handleSectionToggle(index)}
+                              />
+                            </div>
+                          ))}
+                        </div>
                       </Card>
                     </div>
                   </TabsContent>
@@ -130,10 +193,19 @@ export function DesignTab({
                         <div>
                           <Label>Primary Color</Label>
                           <div className="flex gap-2 mt-1.5">
-                            <Button variant="outline" size="sm" className="h-8 w-8 p-0 bg-primary" />
-                            <Button variant="outline" size="sm" className="h-8 w-8 p-0 bg-blue-500" />
-                            <Button variant="outline" size="sm" className="h-8 w-8 p-0 bg-green-500" />
-                            <Button variant="outline" size="sm" className="h-8 w-8 p-0 bg-purple-500" />
+                            {THEME_COLORS.map((theme) => (
+                              <Button
+                                key={theme.id}
+                                variant="outline"
+                                size="sm"
+                                className={cn(
+                                  "h-8 w-8 p-0 rounded-full transition-all",
+                                  selectedTheme === theme.id && "ring-2 ring-offset-2 ring-primary"
+                                )}
+                                style={{ backgroundColor: theme.color }}
+                                onClick={() => handleThemeChange(theme.id)}
+                              />
+                            ))}
                           </div>
                         </div>
                       </div>
@@ -145,11 +217,19 @@ export function DesignTab({
                       <div className="space-y-4">
                         <div>
                           <Label>Meta Title</Label>
-                          <Input className="mt-1.5" placeholder="Enter meta title..." />
+                          <Input 
+                            className="mt-1.5" 
+                            placeholder="Enter meta title..."
+                            onChange={(e) => handleContentChange('meta', { title: e.target.value })}
+                          />
                         </div>
                         <div>
                           <Label>Meta Description</Label>
-                          <Textarea className="mt-1.5" placeholder="Enter meta description..." />
+                          <Textarea 
+                            className="mt-1.5" 
+                            placeholder="Enter meta description..."
+                            onChange={(e) => handleContentChange('meta', { description: e.target.value })}
+                          />
                         </div>
                       </div>
                     </Card>
@@ -162,7 +242,8 @@ export function DesignTab({
               "mx-auto transition-all duration-200",
               viewMode === 'desktop' ? 'max-w-none' : 
               viewMode === 'tablet' ? 'max-w-[768px]' : 
-              'max-w-[375px]'
+              'max-w-[375px]',
+              !isEditing && 'pt-8'
             )}>
               <EcommerceLanding 
                 content={content} 
