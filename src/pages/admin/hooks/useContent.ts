@@ -3,6 +3,7 @@ import { useState, useCallback } from "react";
 import { TemplateContent, defaultContent } from "../types/editor";
 import { toast } from "sonner";
 import { mockPages } from "../data/mockData";
+import { format } from "date-fns";
 
 export function useContent(pageId: string | null) {
   const [content, setContent] = useState<TemplateContent>(defaultContent);
@@ -43,7 +44,8 @@ export function useContent(pageId: string | null) {
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       const storedPages = JSON.parse(localStorage.getItem('pages') || '[]');
-      const currentDate = new Date().toISOString().split('T')[0];
+      const now = new Date();
+      const formattedDate = format(now, "MMM d, yyyy HH:mm:ss");
 
       if (pageId) {
         const pageIndex = storedPages.findIndex((p: any) => p.id === Number(pageId));
@@ -56,12 +58,13 @@ export function useContent(pageId: string | null) {
             url: pageUrl,
             content,
             categoryId,
-            lastModified: currentDate
+            lastModifiedRaw: now.toISOString(),
+            lastModified: formattedDate
           };
         } else {
           const mockPage = mockPages.find(p => p.id === Number(pageId));
           console.log('Creating new stored page from mock:', mockPage);
-          storedPages.push({
+          storedPages.unshift({
             ...(mockPage || {
               id: Number(pageId),
               status: "draft",
@@ -71,7 +74,8 @@ export function useContent(pageId: string | null) {
             url: pageUrl,
             content,
             categoryId,
-            lastModified: currentDate
+            lastModifiedRaw: now.toISOString(),
+            lastModified: formattedDate
           });
         }
       } else {
@@ -81,20 +85,21 @@ export function useContent(pageId: string | null) {
           0
         ) + 1;
         console.log('Creating completely new page:', newPageId);
-        storedPages.push({
+        storedPages.unshift({
           id: newPageId,
           title: pageTitle,
           status: "draft",
           url: pageUrl,
           content,
           categoryId,
-          lastModified: currentDate,
+          lastModifiedRaw: now.toISOString(),
+          lastModified: formattedDate,
           views: 0
         });
       }
       
       localStorage.setItem('pages', JSON.stringify(storedPages));
-      setLastSaved(new Date());
+      setLastSaved(now);
       setIsDirty(false);
       toast.success("Changes saved successfully!");
       
