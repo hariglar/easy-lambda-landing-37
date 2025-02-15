@@ -10,7 +10,8 @@ import { EditorHeader } from "./components/editor/EditorHeader";
 import { EditorTabs } from "./components/editor/EditorTabs";
 import { DesignTab } from "./components/editor/DesignTab";
 import { templates } from "./data/mockData";
-import { useEditor, type EditorReturn } from "./hooks/useEditor";
+import { useEditor } from "./hooks/useEditor";
+import type { EditorReturn } from "./hooks/useEditor";
 import { useSearchParams } from "react-router-dom";
 import { useEffect } from "react";
 
