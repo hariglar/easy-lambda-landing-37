@@ -1,3 +1,4 @@
+
 import { useState, useCallback, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -50,6 +51,17 @@ interface DesignTabProps {
   handleContentChange: (field: keyof TemplateContent, value: any) => void;
 }
 
+const isSectionVisible = (content: TemplateContent, sectionId: keyof TemplateContent): boolean => {
+  const section = content[sectionId];
+  if (!section) return true;
+  
+  if (Array.isArray(section)) {
+    return 'visible' in section ? section.visible !== false : true;
+  }
+  
+  return 'visible' in section ? section.visible !== false : true;
+};
+
 export function DesignTab({
   templateId,
   selectedTemplate,
@@ -65,7 +77,7 @@ export function DesignTab({
   const [enabledSections, setEnabledSections] = useState(() => 
     AVAILABLE_SECTIONS.map(section => ({
       ...section,
-      enabled: Boolean(content[section.id as keyof TemplateContent]?.visible)
+      enabled: isSectionVisible(content, section.id as keyof TemplateContent)
     }))
   );
   const [selectedTheme, setSelectedTheme] = useState(() => {
@@ -87,11 +99,14 @@ export function DesignTab({
       newSections[index] = { ...section, enabled: newEnabled };
       
       const sectionId = section.id as keyof TemplateContent;
-      if (content[sectionId]) {
-        handleContentChange(sectionId, {
-          ...content[sectionId],
-          visible: newEnabled
-        });
+      const currentValue = content[sectionId];
+      
+      if (currentValue) {
+        const newValue = Array.isArray(currentValue)
+          ? { ...currentValue, visible: newEnabled }
+          : { ...currentValue, visible: newEnabled };
+          
+        handleContentChange(sectionId, newValue);
       }
 
       return newSections;
