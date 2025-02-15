@@ -2,10 +2,18 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { TableRow, TableCell } from "@/components/ui/table";
-import { Eye, FileEdit, Globe, Trash2 } from "lucide-react";
+import { Eye, FileEdit, Globe, Trash2, FolderIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { PagePreviewDialog } from "./PagePreviewDialog";
 import { TemplateContent } from "../types/editor";
+import { Category } from "../types/categories";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface PageRowProps {
   page: {
@@ -16,13 +24,18 @@ interface PageRowProps {
     lastModified: string;
     views: number;
     content: TemplateContent;
+    categoryId?: number | null;
   };
   onDeleteClick: (id: number) => void;
+  categories?: Category[];
+  onCategoryChange?: (pageId: number, categoryId: number | null) => void;
 }
 
-export function PageRow({ page, onDeleteClick }: PageRowProps) {
+export function PageRow({ page, onDeleteClick, categories = [], onCategoryChange }: PageRowProps) {
   const navigate = useNavigate();
   const [showPreview, setShowPreview] = useState(false);
+
+  const category = categories.find(c => c.id === page.categoryId);
 
   return (
     <>
@@ -38,6 +51,31 @@ export function PageRow({ page, onDeleteClick }: PageRowProps) {
             {page.status === 'published' ? <Globe className="w-3 h-3" /> : null}
             {page.status}
           </span>
+        </TableCell>
+        <TableCell>
+          <div className="flex items-center gap-2">
+            <Select
+              value={page.categoryId?.toString() || ""}
+              onValueChange={(value) => onCategoryChange?.(page.id, value ? parseInt(value) : null)}
+            >
+              <SelectTrigger className="h-8">
+                <SelectValue placeholder={
+                  <span className="flex items-center gap-2 text-muted-foreground">
+                    <FolderIcon className="w-4 h-4" />
+                    <span>Select category</span>
+                  </span>
+                } />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">No category</SelectItem>
+                {categories.map((category) => (
+                  <SelectItem key={category.id} value={category.id.toString()}>
+                    {category.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </TableCell>
         <TableCell>{page.lastModified}</TableCell>
         <TableCell>{page.views.toLocaleString()}</TableCell>

@@ -5,7 +5,8 @@ import {
   Image, 
   Settings, 
   Eye,
-  PlusCircle 
+  PlusCircle,
+  FolderTree 
 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -31,6 +32,11 @@ const menuItems = [
     title: "Pages",
     icon: FileEdit,
     path: "/admin/pages"
+  },
+  {
+    title: "Categories",
+    icon: FolderTree,
+    path: "/admin/categories"
   },
   {
     title: "Media",

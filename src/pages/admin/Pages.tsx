@@ -41,6 +41,7 @@ const PAGE_SIZE_OPTIONS = [
 export default function Pages() {
   const { toast } = useToast();
   const [pages, setPages] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortField, setSortField] = useState<SortField>("lastModified");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
@@ -49,13 +50,32 @@ export default function Pages() {
   const [pageSize, setPageSize] = useState<string>("5");
   const [pageToDelete, setPageToDelete] = useState<number | null>(null);
 
-  // Load pages from localStorage on component mount
+  // Load pages and categories from localStorage on component mount
   useEffect(() => {
     const storedPages = localStorage.getItem('pages');
+    const storedCategories = localStorage.getItem('categories');
     if (storedPages) {
       setPages(JSON.parse(storedPages));
     }
+    if (storedCategories) {
+      setCategories(JSON.parse(storedCategories));
+    }
   }, []);
+
+  const handleCategoryChange = (pageId: number, categoryId: number | null) => {
+    const updatedPages = pages.map(page =>
+      page.id === pageId
+        ? { ...page, categoryId }
+        : page
+    );
+    setPages(updatedPages);
+    localStorage.setItem('pages', JSON.stringify(updatedPages));
+    
+    toast({
+      title: "Category updated",
+      description: "The page category has been updated successfully."
+    });
+  };
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -160,6 +180,7 @@ export default function Pages() {
                   sortDirection === "asc" ? <ArrowUp className="w-4 h-4 inline ml-2" /> : <ArrowDown className="w-4 h-4 inline ml-2" />
                 )}
               </TableHead>
+              <TableHead>Category</TableHead>
               <TableHead 
                 className="cursor-pointer hover:text-foreground"
                 onClick={() => handleSort("lastModified")}
@@ -187,6 +208,8 @@ export default function Pages() {
                 key={page.id} 
                 page={page} 
                 onDeleteClick={setPageToDelete}
+                categories={categories}
+                onCategoryChange={handleCategoryChange}
               />
             ))}
           </TableBody>
