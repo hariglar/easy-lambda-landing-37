@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { 
   Table, 
@@ -13,6 +12,13 @@ import {
   PaginationItem,
   PaginationLink,
 } from "@/components/ui/pagination";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ArrowUp, ArrowDown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { PagesHeader } from "./components/PagesHeader";
@@ -23,7 +29,14 @@ import { DeletePageDialog } from "./components/DeletePageDialog";
 type SortField = "title" | "status" | "lastModified" | "views";
 type SortDirection = "asc" | "desc";
 
-const ITEMS_PER_PAGE = 5;
+const PAGE_SIZE_OPTIONS = [
+  { value: "5", label: "5 per page" },
+  { value: "10", label: "10 per page" },
+  { value: "20", label: "20 per page" },
+  { value: "50", label: "50 per page" },
+  { value: "100", label: "100 per page" },
+  { value: "all", label: "Show all" }
+];
 
 export default function Pages() {
   const { toast } = useToast();
@@ -33,6 +46,7 @@ export default function Pages() {
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
   const [statusFilter, setStatusFilter] = useState<"all" | "published" | "draft">("all");
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState<string>("5");
   const [pageToDelete, setPageToDelete] = useState<number | null>(null);
 
   // Load pages from localStorage on component mount
@@ -65,6 +79,11 @@ export default function Pages() {
     }
   };
 
+  const handlePageSizeChange = (value: string) => {
+    setPageSize(value);
+    setCurrentPage(1); // Reset to first page when changing page size
+  };
+
   const filteredAndSortedPages = pages
     .filter(page => 
       page.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
@@ -81,22 +100,42 @@ export default function Pages() {
       return ((aValue as number) - (bValue as number)) * modifier;
     });
 
-  const totalPages = Math.ceil(filteredAndSortedPages.length / ITEMS_PER_PAGE);
-  const paginatedPages = filteredAndSortedPages.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
+  const itemsPerPage = pageSize === "all" ? filteredAndSortedPages.length : parseInt(pageSize);
+  const totalPages = Math.ceil(filteredAndSortedPages.length / itemsPerPage);
+  const paginatedPages = pageSize === "all" 
+    ? filteredAndSortedPages 
+    : filteredAndSortedPages.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+      );
 
   return (
     <div className="space-y-8 animate-in fade-in">
       <PagesHeader />
       
-      <PagesFilter
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        statusFilter={statusFilter}
-        onStatusChange={setStatusFilter}
-      />
+      <div className="flex justify-between items-center gap-4">
+        <PagesFilter
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          statusFilter={statusFilter}
+          onStatusChange={setStatusFilter}
+        />
+        <Select
+          value={pageSize}
+          onValueChange={handlePageSizeChange}
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Select page size" />
+          </SelectTrigger>
+          <SelectContent>
+            {PAGE_SIZE_OPTIONS.map(option => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
       <div className="rounded-lg border bg-card">
         <Table>
@@ -153,7 +192,7 @@ export default function Pages() {
           </TableBody>
         </Table>
         
-        {totalPages > 1 && (
+        {totalPages > 1 && pageSize !== "all" && (
           <div className="border-t p-4">
             <Pagination>
               <PaginationContent>
