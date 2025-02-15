@@ -45,7 +45,7 @@ export function useEditor() {
         }
         setPageTitle(storedPage.title);
         setPageUrl(storedPage.url);
-        setTemplateType(storedPage.templateType || templateId || 'ecommerce');
+        setTemplateType(storedPage.templateType || 'ecommerce');
         return;
       }
       
@@ -56,9 +56,6 @@ export function useEditor() {
         setContent(defaultContent);
         setTemplateType(templateId || 'ecommerce');
       }
-    } else if (templateId) {
-      console.log('Setting template type for new page:', templateId);
-      setTemplateType(templateId);
     }
   }, [pageId, templateId, setContent, setPageTitle, setPageUrl, setTemplateType]);
 
@@ -73,13 +70,14 @@ export function useEditor() {
     content,
     isDirty,
     setIsDirty,
-    templateId: templateType, // Use templateType instead of templateId
+    templateId: templateType,
     pageTitle,
     setPageTitle,
     pageUrl,
     setPageUrl,
     handleContentChange,
     handleSave,
-    isUrlUnique
+    isUrlUnique,
+    setTemplateType
   };
 }

@@ -1,5 +1,5 @@
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { TemplateContent, defaultContent } from "../types/editor";
 import { toast } from "sonner";
 import { mockPages } from "../data/mockData";
@@ -10,20 +10,7 @@ export function useContent(pageId: string | null) {
   const [lastSaved, setLastSaved] = useState<Date | null>(new Date());
   const [pageTitle, setPageTitle] = useState("New Page");
   const [pageUrl, setPageUrl] = useState("/new-page");
-  const [templateType, setTemplateType] = useState(() => {
-    // Initialize template type from URL params
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('template') || 'ecommerce';
-  });
-
-  // Update template type when URL changes
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const newTemplateType = urlParams.get('template');
-    if (newTemplateType) {
-      setTemplateType(newTemplateType);
-    }
-  }, [window.location.search]);
+  const [templateType, setTemplateType] = useState("ecommerce");
 
   const handleContentChange = (
     section: keyof TemplateContent,
@@ -71,7 +58,7 @@ export function useContent(pageId: string | null) {
             lastModified: currentDate
           };
         } else {
-          console.log('Creating new page from existing ID with template:', templateType);
+          console.log('Creating new page with template:', templateType);
           const mockPage = mockPages.find(p => p.id === Number(pageId));
           storedPages.push({
             ...(mockPage || {
@@ -92,7 +79,7 @@ export function useContent(pageId: string | null) {
           ...mockPages.map(p => p.id),
           0
         ) + 1;
-        console.log('Creating new page with template:', templateType);
+        console.log('Creating completely new page:', newPageId);
         storedPages.push({
           id: newPageId,
           title: pageTitle,
