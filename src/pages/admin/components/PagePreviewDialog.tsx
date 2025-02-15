@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { Globe } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
-import { EcommerceLanding } from "../templates/EcommerceLanding";
+import EcommerceLanding from "../templates/EcommerceLanding";
 import { TemplateContent } from "../types/editor";
 
 interface PagePreviewDialogProps {

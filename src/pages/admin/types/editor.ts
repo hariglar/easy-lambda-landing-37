@@ -4,8 +4,8 @@ export interface TemplateContent {
     title: string;
     subtitle: string;
     ctaText: string;
+    lookbookText: string;
     backgroundImage: string;
-    lookbookText?: string;
   };
   features: Array<{
     title: string;
@@ -14,65 +14,60 @@ export interface TemplateContent {
   products: Array<{
     name: string;
     price: string;
-    rating: number;
     image: string;
-  }>;
+    rating: number;
+    buttonText: string;
+  }> & {
+    sectionTitle: string;
+  };
   newsletter: {
     title: string;
     description: string;
-    placeholderText: string;
     buttonText: string;
+    placeholderText: string;
   };
-  sectionOrder?: string[];
 }
 
 export const defaultContent: TemplateContent = {
   hero: {
-    title: "Welcome to Our Store",
-    subtitle: "Discover amazing products at great prices",
+    title: "Discover Luxury Fashion",
+    subtitle: "Explore our curated collection of premium fashion and accessories",
     ctaText: "Shop Now",
-    backgroundImage: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&h=400&fit=crop",
-    lookbookText: "View Lookbook"
+    lookbookText: "View Lookbook",
+    backgroundImage: "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=1600&h=900&fit=crop"
   },
   features: [
-    {
-      title: "Fast Shipping",
-      description: "Get your items delivered quickly"
-    },
-    {
-      title: "24/7 Support",
-      description: "We're here to help anytime"
-    },
-    {
-      title: "Best Prices",
-      description: "Competitive prices on all items"
-    }
+    { title: "Free Shipping", description: "On orders over $50" },
+    { title: "Easy Returns", description: "30-day return policy" },
+    { title: "Secure Payments", description: "100% secure checkout" }
   ],
-  products: [
+  products: Object.assign([
     {
-      name: "Premium Product",
-      price: "$99.99",
-      rating: 4.5,
+      name: "Premium Watch",
+      price: "$299",
+      rating: 4.8,
+      buttonText: "Add to Cart",
       image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=400&fit=crop"
     },
     {
-      name: "Quality Item",
-      price: "$79.99",
-      rating: 4.0,
+      name: "Designer Handbag",
+      price: "$199",
+      rating: 4.9,
+      buttonText: "Add to Cart",
       image: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&h=400&fit=crop"
     },
     {
-      name: "Amazing Product",
-      price: "$149.99",
-      rating: 4.8,
+      name: "Wireless Earbuds",
+      price: "$159",
+      rating: 4.7,
+      buttonText: "Add to Cart",
       image: "https://images.unsplash.com/photo-1572569511254-d8f925fe2cbb?w=400&h=400&fit=crop"
     }
-  ],
+  ], { sectionTitle: "Featured Products" }),
   newsletter: {
     title: "Subscribe to Our Newsletter",
-    description: "Get updates on new products and special offers",
-    placeholderText: "Enter your email",
-    buttonText: "Subscribe"
-  },
-  sectionOrder: ['hero', 'features', 'products', 'newsletter']
-}
+    description: "Get exclusive offers and be the first to know about new arrivals",
+    buttonText: "Subscribe",
+    placeholderText: "Enter your email"
+  }
+};

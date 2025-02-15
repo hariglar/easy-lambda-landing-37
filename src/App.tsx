@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,7 +10,7 @@ import Pages from "./pages/admin/Pages";
 import PageEditor from "./pages/admin/PageEditor";
 import Preview from "./pages/Preview";
 import NotFound from "./pages/NotFound";
-import { EcommerceLanding } from "./pages/admin/templates/EcommerceLanding";
+import EcommerceLanding from "./pages/admin/templates/EcommerceLanding";
 
 const queryClient = new QueryClient();
 
