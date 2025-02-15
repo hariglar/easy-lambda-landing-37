@@ -21,7 +21,9 @@ import {
   Smartphone,
   Tablet,
   GripVertical,
-  EyeOff
+  EyeOff,
+  Check,
+  AlertCircle
 } from "lucide-react";
 import {
   Tabs,
@@ -29,32 +31,27 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
-
-interface DesignTabProps {
-  templateId: string | null;
-  selectedTemplate: number | null;
-  setSelectedTemplate: (id: number | null) => void;
-  metaExpanded: boolean;
-  setMetaExpanded: (expanded: boolean) => void;
-  templates: Template[];
-  content: TemplateContent;
-  handleContentChange: (section: keyof TemplateContent, value: any, index?: number, field?: string) => void;
-}
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const AVAILABLE_SECTIONS = [
-  { id: 'hero', name: 'Hero Section', enabled: true },
-  { id: 'features', name: 'Features Section', enabled: true },
-  { id: 'products', name: 'Products Section', enabled: true },
-  { id: 'newsletter', name: 'Newsletter Section', enabled: true },
-  { id: 'testimonials', name: 'Testimonials Section', enabled: true }
-];
+  { id: 'hero', name: 'Hero Section' },
+  { id: 'features', name: 'Features Section' },
+  { id: 'products', name: 'Products Section' },
+  { id: 'newsletter', name: 'Newsletter Section' },
+  { id: 'testimonials', name: 'Testimonials Section' }
+] as const;
 
 const THEME_COLORS = [
   { id: 'primary', color: '#8B5CF6', name: 'Purple' },
   { id: 'blue', color: '#0EA5E9', name: 'Blue' },
   { id: 'green', color: '#22C55E', name: 'Green' },
   { id: 'rose', color: '#F43F5E', name: 'Rose' }
-];
+] as const;
 
 export function DesignTab({
   templateId,
@@ -68,63 +65,80 @@ export function DesignTab({
 }: DesignTabProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [viewMode, setViewMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
-  const [enabledSections, setEnabledSections] = useState(
+  const [enabledSections, setEnabledSections] = useState(() => 
     AVAILABLE_SECTIONS.map(section => ({
       ...section,
-      enabled: true
+      enabled: content[section.id]?.visible !== false
     }))
   );
-  const [selectedTheme, setSelectedTheme] = useState('primary');
 
-  // Enhanced section toggle with content visibility
+  const [selectedTheme, setSelectedTheme] = useState(() => {
+    const saved = localStorage.getItem('selected-theme');
+    return saved || 'primary';
+  });
+
+  // Section visibility handling
   const handleSectionToggle = useCallback((index: number) => {
     setEnabledSections(prev => {
       const newSections = [...prev];
-      newSections[index] = {
-        ...newSections[index],
-        enabled: !newSections[index].enabled
-      };
-      
-      // Ensure at least one section is enabled
-      if (!newSections.some(section => section.enabled)) {
-        toast.error("At least one section must be enabled");
+      const section = newSections[index];
+      const newEnabled = !section.enabled;
+
+      // Prevent disabling all sections
+      if (!newEnabled && !prev.some((s, i) => i !== index && s.enabled)) {
+        toast.error("At least one section must remain visible", {
+          description: "You cannot hide all sections"
+        });
         return prev;
       }
 
-      // Update the content visibility
-      const sectionId = newSections[index].id as keyof TemplateContent;
+      newSections[index] = { ...section, enabled: newEnabled };
+      
+      // Update content visibility
+      const sectionId = section.id as keyof TemplateContent;
       if (content[sectionId]) {
         handleContentChange(sectionId, {
           ...content[sectionId],
-          visible: newSections[index].enabled
+          visible: newEnabled
         });
+        
+        toast.success(
+          newEnabled ? `${section.name} is now visible` : `${section.name} is now hidden`,
+          { icon: newEnabled ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" /> }
+        );
       }
-      
+
       return newSections;
     });
   }, [content, handleContentChange]);
 
-  // Enhanced theme change with validation
+  // Theme handling
   const handleThemeChange = useCallback((themeId: string) => {
     try {
-      const themeColor = THEME_COLORS.find(t => t.id === themeId)?.color;
-      if (!themeColor) {
-        throw new Error("Invalid theme color");
-      }
+      const theme = THEME_COLORS.find(t => t.id === themeId);
+      if (!theme) throw new Error("Invalid theme");
 
       setSelectedTheme(themeId);
-      document.documentElement.style.setProperty('--primary', themeColor);
-      
-      // Store theme preference
+      document.documentElement.style.setProperty('--primary', theme.color);
       localStorage.setItem('selected-theme', themeId);
-      
-      toast.success(`Theme updated to ${THEME_COLORS.find(t => t.id === themeId)?.name}`);
-    } catch (error) {
-      toast.error("Failed to update theme. Please try again.");
-    }
-  }, []);
 
-  // Load saved theme on mount
+      handleContentChange('theme', {
+        primaryColor: theme.color,
+        name: theme.name
+      });
+
+      toast.success(`Theme updated to ${theme.name}`, {
+        icon: <Check className="h-4 w-4" />
+      });
+    } catch (error) {
+      toast.error("Failed to update theme", {
+        description: "Please try again or contact support if the issue persists",
+        icon: <AlertCircle className="h-4 w-4" />
+      });
+    }
+  }, [handleContentChange]);
+
+  // Load saved theme
   useEffect(() => {
     const savedTheme = localStorage.getItem('selected-theme');
     if (savedTheme) {
@@ -132,18 +146,24 @@ export function DesignTab({
     }
   }, [handleThemeChange]);
 
-  // Improved meta information handling
+  // Meta information handling
   const handleMetaChange = useCallback((field: 'title' | 'description', value: string) => {
     handleContentChange('meta', {
       ...content.meta,
       [field]: value
     });
     
-    // Validate meta information
-    if (field === 'title' && value.length > 60) {
-      toast.warning("Meta title should be less than 60 characters for SEO optimization");
-    } else if (field === 'description' && value.length > 160) {
-      toast.warning("Meta description should be less than 160 characters for SEO optimization");
+    const maxLength = field === 'title' ? 60 : 160;
+    const remaining = maxLength - value.length;
+    
+    if (remaining <= 10) {
+      toast.warning(
+        `${field === 'title' ? 'Meta title' : 'Meta description'} is getting long`,
+        {
+          description: `${remaining} characters remaining for optimal SEO`,
+          icon: <AlertCircle className="h-4 w-4" />
+        }
+      );
     }
   }, [content.meta, handleContentChange]);
 
@@ -156,48 +176,81 @@ export function DesignTab({
               <div className="border-b">
                 <div className="flex h-16 items-center px-4 gap-4">
                   <div className="flex items-center gap-2 flex-1">
-                    {isEditing ? (
-                      <Pencil className="h-4 w-4 text-primary" />
-                    ) : (
-                      <Eye className="h-4 w-4 text-muted-foreground" />
-                    )}
-                    <Switch
-                      checked={isEditing}
-                      onCheckedChange={setIsEditing}
-                    />
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="flex items-center gap-2">
+                            {isEditing ? (
+                              <Pencil className="h-4 w-4 text-primary" />
+                            ) : (
+                              <Eye className="h-4 w-4 text-muted-foreground" />
+                            )}
+                            <Switch
+                              checked={isEditing}
+                              onCheckedChange={setIsEditing}
+                            />
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{isEditing ? "Switch to preview mode" : "Switch to editing mode"}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                     <span className="text-sm font-medium">
                       {isEditing ? "Editing Mode" : "Preview Mode"}
                     </span>
                   </div>
                   
                   <div className="flex items-center gap-2 border-l pl-4">
-                    <Button
-                      variant={viewMode === 'desktop' ? 'default' : 'ghost'}
-                      size="sm"
-                      onClick={() => setViewMode('desktop')}
-                      className="transition-all"
-                      title="Desktop view"
-                    >
-                      <Laptop className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant={viewMode === 'tablet' ? 'default' : 'ghost'}
-                      size="sm"
-                      onClick={() => setViewMode('tablet')}
-                      className="transition-all"
-                      title="Tablet view"
-                    >
-                      <Tablet className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant={viewMode === 'mobile' ? 'default' : 'ghost'}
-                      size="sm"
-                      onClick={() => setViewMode('mobile')}
-                      className="transition-all"
-                      title="Mobile view"
-                    >
-                      <Smartphone className="h-4 w-4" />
-                    </Button>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant={viewMode === 'desktop' ? 'default' : 'ghost'}
+                            size="sm"
+                            onClick={() => setViewMode('desktop')}
+                            className="transition-all"
+                          >
+                            <Laptop className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Desktop view</p>
+                        </TooltipContent>
+                      </Tooltip>
+
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant={viewMode === 'tablet' ? 'default' : 'ghost'}
+                            size="sm"
+                            onClick={() => setViewMode('tablet')}
+                            className="transition-all"
+                          >
+                            <Tablet className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Tablet view</p>
+                        </TooltipContent>
+                      </Tooltip>
+
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant={viewMode === 'mobile' ? 'default' : 'ghost'}
+                            size="sm"
+                            onClick={() => setViewMode('mobile')}
+                            className="transition-all"
+                          >
+                            <Smartphone className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Mobile view</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
                 </div>
               </div>
@@ -257,18 +310,25 @@ export function DesignTab({
                           <Label>Primary Color</Label>
                           <div className="flex gap-2 mt-1.5">
                             {THEME_COLORS.map((theme) => (
-                              <Button
-                                key={theme.id}
-                                variant="outline"
-                                size="sm"
-                                className={cn(
-                                  "h-8 w-8 p-0 rounded-full transition-all",
-                                  selectedTheme === theme.id && "ring-2 ring-offset-2 ring-primary"
-                                )}
-                                style={{ backgroundColor: theme.color }}
-                                onClick={() => handleThemeChange(theme.id)}
-                                title={theme.name}
-                              />
+                              <TooltipProvider key={theme.id}>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      className={cn(
+                                        "h-8 w-8 p-0 rounded-full transition-all",
+                                        selectedTheme === theme.id && "ring-2 ring-offset-2 ring-primary"
+                                      )}
+                                      style={{ backgroundColor: theme.color }}
+                                      onClick={() => handleThemeChange(theme.id)}
+                                    />
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>{theme.name} theme</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
                             ))}
                           </div>
                         </div>
@@ -288,7 +348,10 @@ export function DesignTab({
                             onChange={(e) => handleMetaChange('title', e.target.value)}
                             maxLength={60}
                           />
-                          <p className="text-xs text-muted-foreground mt-1">
+                          <p className={cn(
+                            "text-xs mt-1",
+                            content.meta.title.length > 50 ? "text-yellow-500" : "text-muted-foreground"
+                          )}>
                             {content.meta.title.length}/60 characters
                           </p>
                         </div>
@@ -301,7 +364,10 @@ export function DesignTab({
                             onChange={(e) => handleMetaChange('description', e.target.value)}
                             maxLength={160}
                           />
-                          <p className="text-xs text-muted-foreground mt-1">
+                          <p className={cn(
+                            "text-xs mt-1",
+                            content.meta.description.length > 145 ? "text-yellow-500" : "text-muted-foreground"
+                          )}>
                             {content.meta.description.length}/160 characters
                           </p>
                         </div>
@@ -313,7 +379,7 @@ export function DesignTab({
             </Card>
 
             <div className={cn(
-              "mx-auto transition-all duration-200",
+              "mx-auto transition-all duration-300",
               viewMode === 'desktop' ? 'max-w-none' : 
               viewMode === 'tablet' ? 'max-w-[768px]' : 
               'max-w-[375px]',
