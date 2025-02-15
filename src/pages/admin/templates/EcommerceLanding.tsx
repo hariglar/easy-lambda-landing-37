@@ -7,7 +7,7 @@ import { TemplateContent } from "../types/editor";
 import { DndContext, closestCenter, DragEndEvent } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 import { DraggableSection } from "../components/editor/DraggableSection";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 interface EcommerceLandingProps {
   content: TemplateContent;
@@ -25,8 +25,7 @@ const defaultOrder = ['hero', 'features', 'products', 'newsletter'];
 export function EcommerceLanding({ content, onContentChange, isEditing = false }: EcommerceLandingProps) {
   const [sections, setSections] = useState<SectionConfig[]>([]);
 
-  const createSections = (orderArray: unknown) => {
-    // Ensure orderArray is a valid array, otherwise use default order
+  const createSections = useCallback((orderArray: unknown) => {
     const validOrder = Array.isArray(orderArray) ? orderArray : defaultOrder;
     
     return validOrder.map(id => ({
@@ -70,52 +69,44 @@ export function EcommerceLanding({ content, onContentChange, isEditing = false }
         }
       })(),
     })).filter((section): section is SectionConfig => section.component !== null);
-  };
+  }, [content, onContentChange, isEditing]);
 
-  // Update sections when content or editing mode changes
   useEffect(() => {
-    const order = Array.isArray(content?.sectionOrder) ? content.sectionOrder : defaultOrder;
-    setSections(createSections(order));
-  }, [content, isEditing, onContentChange]);
+    if (content) {
+      const order = Array.isArray(content.sectionOrder) ? content.sectionOrder : defaultOrder;
+      setSections(createSections(order));
+    }
+  }, [content, createSections]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     
     if (over && active.id !== over.id) {
-      // First update the sections state
-      setSections((items) => {
-        const oldIndex = items.findIndex((item) => item.id === active.id);
-        const newIndex = items.findIndex((item) => item.id === over.id);
-        
-        // Create new array with updated order
-        const newItems = arrayMove(items, oldIndex, newIndex);
-        
-        // Get the new order of section IDs
-        const newOrder = newItems.map(item => item.id);
-        
-        // Update the content with the new order
-        onContentChange('sectionOrder', newOrder);
-        
-        return newItems;
-      });
+      const oldIndex = sections.findIndex((item) => item.id === active.id);
+      const newIndex = sections.findIndex((item) => item.id === over.id);
+      
+      // Create new array with updated order
+      const newSections = arrayMove(sections, oldIndex, newIndex);
+      
+      // Get the new order of section IDs
+      const newOrder = newSections.map(item => item.id);
+      
+      // Update both the local state and the parent component
+      setSections(newSections);
+      onContentChange('sectionOrder', newOrder);
     }
   };
 
-  // Render preview mode
   if (!isEditing) {
-    const order = Array.isArray(content?.sectionOrder) ? content.sectionOrder : defaultOrder;
-    const orderedSections = createSections(order);
-    
     return (
       <main>
-        {orderedSections.map((section) => (
+        {sections.map((section) => (
           <div key={section.id}>{section.component}</div>
         ))}
       </main>
     );
   }
 
-  // Render editing mode with drag and drop
   return (
     <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
       <main>
