@@ -10,6 +10,7 @@ import Categories from "./pages/admin/Categories";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import PageEditor from "./pages/admin/PageEditor";
+import { Outlet } from "react-router-dom";
 
 export default function App() {
   return (
@@ -17,7 +18,7 @@ export default function App() {
       <ThemeProvider>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/admin" element={<AdminLayout />}>
+          <Route path="/admin" element={<AdminLayout><Outlet /></AdminLayout>}>
             <Route index element={<Dashboard />} />
             <Route path="pages" element={<Pages />} />
             <Route path="pages/new" element={<PageEditor />} />
