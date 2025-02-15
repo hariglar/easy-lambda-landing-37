@@ -5,12 +5,12 @@ import { EditableText } from "../../components/editor/EditableText";
 import { ImageEditor } from "../../components/editor/ImageEditor";
 
 interface TestimonialsSectionProps {
-  testimonials: TemplateContent['testimonials'];
+  testimonials?: TemplateContent['testimonials'];
   onContentChange: (section: keyof TemplateContent, value: any, index: number, field: string) => void;
   isEditing: boolean;
 }
 
-export function TestimonialsSection({ testimonials, onContentChange, isEditing }: TestimonialsSectionProps) {
+export function TestimonialsSection({ testimonials = defaultTestimonials, onContentChange, isEditing }: TestimonialsSectionProps) {
   return (
     <section className="py-16 bg-white">
       <div className="container mx-auto px-4">
@@ -72,3 +72,20 @@ export function TestimonialsSection({ testimonials, onContentChange, isEditing }
     </section>
   );
 }
+
+const defaultTestimonials: TemplateContent['testimonials'] = [
+  {
+    name: "Sarah Johnson",
+    role: "Fashion Blogger",
+    content: "The quality of their products is exceptional. I'm always impressed with their attention to detail.",
+    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
+    rating: 5
+  },
+  {
+    name: "Michael Chen",
+    role: "Style Consultant",
+    content: "A game-changer in luxury fashion. Their collection is both timeless and trendy.",
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop",
+    rating: 4.8
+  }
+];
