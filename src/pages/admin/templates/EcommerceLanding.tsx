@@ -8,6 +8,7 @@ import { DndContext, closestCenter, DragEndEvent } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 import { DraggableSection } from "../components/editor/DraggableSection";
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 
 interface EcommerceLandingProps {
   content: TemplateContent;
@@ -24,12 +25,11 @@ const defaultOrder = ['hero', 'features', 'products', 'newsletter'];
 
 export function EcommerceLanding({ content, onContentChange, isEditing = false }: EcommerceLandingProps) {
   const [sections, setSections] = useState<SectionConfig[]>([]);
+  const [order, setOrder] = useState<string[]>(content?.sectionOrder || defaultOrder);
 
-  const createSections = (orderArray: unknown) => {
-    // Ensure orderArray is a valid array, otherwise use default order
-    const validOrder = Array.isArray(orderArray) ? orderArray : defaultOrder;
-    
-    return validOrder.map(id => ({
+  // Create sections based on current order
+  const createSections = (currentOrder: string[]) => {
+    return currentOrder.map(id => ({
       id,
       component: (() => {
         switch (id) {
@@ -72,30 +72,33 @@ export function EcommerceLanding({ content, onContentChange, isEditing = false }
     })).filter((section): section is SectionConfig => section.component !== null);
   };
 
+  // Update sections when content or order changes
   useEffect(() => {
-    const order = Array.isArray(content?.sectionOrder) ? content.sectionOrder : defaultOrder;
-    setSections(createSections(order));
-  }, [content, isEditing, onContentChange]);
+    const newOrder = content?.sectionOrder || defaultOrder;
+    setOrder(newOrder);
+    setSections(createSections(newOrder));
+  }, [content, isEditing]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     
     if (over && active.id !== over.id) {
-      setSections((items) => {
-        const oldIndex = items.findIndex((item) => item.id === active.id);
-        const newIndex = items.findIndex((item) => item.id === over.id);
+      const oldIndex = order.indexOf(active.id.toString());
+      const newIndex = order.indexOf(over.id.toString());
+      
+      if (oldIndex !== -1 && newIndex !== -1) {
+        const newOrder = arrayMove(order, oldIndex, newIndex);
         
-        // Create new array with updated order
-        const newItems = arrayMove(items, oldIndex, newIndex);
+        // Update local state
+        setOrder(newOrder);
+        setSections(createSections(newOrder));
         
-        // Get the new order of section IDs
-        const newOrder = newItems.map(item => item.id);
-        
-        // Update the content with the new order
+        // Notify parent component
         onContentChange('sectionOrder', newOrder);
         
-        return newItems;
-      });
+        // Show success toast
+        toast.success("Section order updated");
+      }
     }
   };
 
@@ -112,7 +115,7 @@ export function EcommerceLanding({ content, onContentChange, isEditing = false }
   return (
     <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
       <main>
-        <SortableContext items={sections.map(s => s.id)} strategy={verticalListSortingStrategy}>
+        <SortableContext items={order} strategy={verticalListSortingStrategy}>
           {sections.map((section) => (
             <DraggableSection key={section.id} id={section.id}>
               {section.component}
