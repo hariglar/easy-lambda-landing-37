@@ -1,3 +1,4 @@
+
 import { useState, useEffect, Dispatch, SetStateAction } from "react";
 import { useSearchParams } from "react-router-dom";
 import { mockPages } from "../data/mockData";
@@ -38,7 +39,10 @@ export function useEditor(): EditorReturn {
   const [lastSaved, setLastSaved] = useState<Date | null>(new Date());
   const [pageTitle, setPageTitle] = useState("New Page");
   const [pageUrl, setPageUrl] = useState("/new-page");
-  const [templateType, setTemplateType] = useState("ecommerce");
+  const [templateType, setTemplateType] = useState(() => {
+    // Initialize with template from URL or default to "ecommerce"
+    return searchParams.get("template") || "ecommerce";
+  });
 
   const templateId = searchParams.get("template");
   const pageId = searchParams.get("pageId");
@@ -77,6 +81,7 @@ export function useEditor(): EditorReturn {
         const pageIndex = storedPages.findIndex((p: any) => p.id === Number(pageId));
         
         if (pageIndex !== -1) {
+          console.log('Updating existing page with template:', templateType);
           storedPages[pageIndex] = {
             ...storedPages[pageIndex],
             title: pageTitle,
@@ -86,6 +91,7 @@ export function useEditor(): EditorReturn {
             lastModified: currentDate
           };
         } else {
+          console.log('Creating new page with template:', templateType);
           const mockPage = mockPages.find(p => p.id === Number(pageId));
           storedPages.push({
             ...(mockPage || {
@@ -106,6 +112,7 @@ export function useEditor(): EditorReturn {
           ...mockPages.map(p => p.id),
           0
         ) + 1;
+        console.log('Creating completely new page with template:', templateType);
         storedPages.push({
           id: newPageId,
           title: pageTitle,
@@ -141,7 +148,10 @@ export function useEditor(): EditorReturn {
         }
         setPageTitle(storedPage.title);
         setPageUrl(storedPage.url);
-        setTemplateType(storedPage.templateType || 'ecommerce');
+        if (storedPage.templateType) {
+          console.log('Setting template type from stored page:', storedPage.templateType);
+          setTemplateType(storedPage.templateType);
+        }
         return;
       }
       
@@ -150,8 +160,14 @@ export function useEditor(): EditorReturn {
         setPageTitle(mockPage.title);
         setPageUrl(mockPage.url);
         setContent(defaultContent);
-        setTemplateType(templateId || 'ecommerce');
+        if (templateId) {
+          console.log('Setting template type from URL:', templateId);
+          setTemplateType(templateId);
+        }
       }
+    } else if (templateId) {
+      console.log('Setting template type from URL (new page):', templateId);
+      setTemplateType(templateId);
     }
   }, [pageId, templateId]);
 
@@ -176,5 +192,5 @@ export function useEditor(): EditorReturn {
     isUrlUnique,
     templateType,
     setTemplateType
-  } as const;
+  };
 }
