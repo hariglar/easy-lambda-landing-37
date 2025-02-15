@@ -47,39 +47,39 @@ export function DesignTab({
   const [isEditing, setIsEditing] = useState(false);
   const [sections, setSections] = useState(DEFAULT_SECTIONS);
 
-  // Update sections when content.sectionOrder changes
+  // Initialize sections on mount and when content changes
   useEffect(() => {
-    // Initialize with default sections if no sectionOrder exists
-    if (!content?.sectionOrder || !Array.isArray(content.sectionOrder)) {
-      console.log('Initializing with default sections');
-      handleContentChange('sectionOrder', DEFAULT_SECTIONS.map(s => s.id));
+    if (!content?.sectionOrder?.length) {
+      // If no section order exists, initialize with default
+      const defaultOrder = DEFAULT_SECTIONS.map(s => s.id);
+      handleContentChange('sectionOrder', defaultOrder);
       setSections(DEFAULT_SECTIONS);
-      return;
+    } else {
+      // Map the current section order to full section objects
+      const orderedSections = content.sectionOrder.map(sectionId => {
+        const defaultSection = DEFAULT_SECTIONS.find(s => s.id === sectionId);
+        return defaultSection || {
+          id: sectionId,
+          title: `${sectionId.charAt(0).toUpperCase() + sectionId.slice(1)} Section`
+        };
+      });
+      setSections(orderedSections);
     }
-
-    // Map existing section order to full section objects
-    const orderedSections = content.sectionOrder.map(sectionId => {
-      const section = DEFAULT_SECTIONS.find(s => s.id === sectionId);
-      return section || { 
-        id: sectionId, 
-        title: `${sectionId.charAt(0).toUpperCase() + sectionId.slice(1)} Section` 
-      };
-    });
-
-    setSections(orderedSections);
   }, [content?.sectionOrder, handleContentChange]);
 
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
 
-    const items = Array.from(sections);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
+    const newSections = Array.from(sections);
+    const [reorderedItem] = newSections.splice(result.source.index, 1);
+    newSections.splice(result.destination.index, 0, reorderedItem);
 
-    setSections(items);
+    // Update local state
+    setSections(newSections);
     
-    // Update the content with the new section order
-    const newOrder = items.map(item => item.id);
+    // Update parent state with new order
+    const newOrder = newSections.map(section => section.id);
+    console.log('New section order:', newOrder);
     handleContentChange('sectionOrder', newOrder);
   };
 
