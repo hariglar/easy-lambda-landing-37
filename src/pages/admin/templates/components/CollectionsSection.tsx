@@ -4,12 +4,12 @@ import { EditableText } from "../../components/editor/EditableText";
 import { ImageEditor } from "../../components/editor/ImageEditor";
 
 interface CollectionsSectionProps {
-  collections: TemplateContent['collections'];
+  collections?: TemplateContent['collections'];
   onContentChange: (section: keyof TemplateContent, value: any, index: number, field: string) => void;
   isEditing: boolean;
 }
 
-export function CollectionsSection({ collections, onContentChange, isEditing }: CollectionsSectionProps) {
+export function CollectionsSection({ collections = defaultCollections, onContentChange, isEditing }: CollectionsSectionProps) {
   return (
     <section className="py-16 bg-gray-50">
       <div className="container mx-auto px-4">
@@ -49,3 +49,18 @@ export function CollectionsSection({ collections, onContentChange, isEditing }: 
     </section>
   );
 }
+
+const defaultCollections: TemplateContent['collections'] = [
+  {
+    title: "Summer Collection",
+    description: "Light and breezy pieces for the perfect summer look",
+    image: "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=800&h=400&fit=crop",
+    link: "/summer"
+  },
+  {
+    title: "Winter Essentials",
+    description: "Stay warm and stylish with our winter collection",
+    image: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800&h=400&fit=crop",
+    link: "/winter"
+  }
+];
