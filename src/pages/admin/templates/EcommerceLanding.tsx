@@ -21,51 +21,56 @@ type SectionConfig = {
 };
 
 export function EcommerceLanding({ content, onContentChange, isEditing = false }: EcommerceLandingProps) {
+  const defaultOrder = ['hero', 'features', 'products', 'newsletter'];
   const [sections, setSections] = useState<SectionConfig[]>([]);
 
+  const createSections = (orderArray: string[]) => {
+    return orderArray.map(id => ({
+      id,
+      component: (() => {
+        switch (id) {
+          case 'hero':
+            return (
+              <HeroSection
+                hero={content.hero}
+                onContentChange={onContentChange}
+                isEditing={isEditing}
+              />
+            );
+          case 'features':
+            return (
+              <FeaturesSection
+                features={content.features}
+                onContentChange={onContentChange}
+                isEditing={isEditing}
+              />
+            );
+          case 'products':
+            return (
+              <ProductsSection
+                products={content.products}
+                onContentChange={onContentChange}
+                isEditing={isEditing}
+              />
+            );
+          case 'newsletter':
+            return (
+              <NewsletterSection
+                newsletter={content.newsletter}
+                onContentChange={onContentChange}
+                isEditing={isEditing}
+              />
+            );
+          default:
+            return null;
+        }
+      })(),
+    })).filter((section): section is SectionConfig => section.component !== null);
+  };
+
   useEffect(() => {
-    setSections([
-      {
-        id: 'hero',
-        component: (
-          <HeroSection
-            hero={content.hero}
-            onContentChange={onContentChange}
-            isEditing={isEditing}
-          />
-        ),
-      },
-      {
-        id: 'features',
-        component: (
-          <FeaturesSection
-            features={content.features}
-            onContentChange={onContentChange}
-            isEditing={isEditing}
-          />
-        ),
-      },
-      {
-        id: 'products',
-        component: (
-          <ProductsSection
-            products={content.products}
-            onContentChange={onContentChange}
-            isEditing={isEditing}
-          />
-        ),
-      },
-      {
-        id: 'newsletter',
-        component: (
-          <NewsletterSection
-            newsletter={content.newsletter}
-            onContentChange={onContentChange}
-            isEditing={isEditing}
-          />
-        ),
-      },
-    ]);
+    const order = content.sectionOrder || defaultOrder;
+    setSections(createSections(order));
   }, [content, onContentChange, isEditing]);
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -75,16 +80,24 @@ export function EcommerceLanding({ content, onContentChange, isEditing = false }
       setSections((items) => {
         const oldIndex = items.findIndex((item) => item.id === active.id);
         const newIndex = items.findIndex((item) => item.id === over.id);
+        const newItems = arrayMove(items, oldIndex, newIndex);
         
-        return arrayMove(items, oldIndex, newIndex);
+        // Update the section order in the content
+        const newOrder = newItems.map(item => item.id);
+        onContentChange('sectionOrder', newOrder);
+        
+        return newItems;
       });
     }
   };
 
   if (!isEditing) {
+    const order = content.sectionOrder || defaultOrder;
+    const orderedSections = createSections(order);
+    
     return (
       <main>
-        {sections.map((section) => (
+        {orderedSections.map((section) => (
           <div key={section.id}>{section.component}</div>
         ))}
       </main>
