@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Clock, Save, Globe, Copy } from "lucide-react";
+import { Clock, Save, Globe, Copy, ExternalLink } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -49,6 +49,18 @@ export function EditorHeaderActions({ lastSaved, onSave, isDirty, pageUrl, onPub
     }
   };
 
+  const handlePreviewInNewTab = () => {
+    // Get the current page data from sessionStorage
+    const previewData = sessionStorage.getItem('previewData');
+    if (!previewData) {
+      toast.error("Preview data not available. Please save your changes first.");
+      return;
+    }
+
+    // Open preview in new tab
+    window.open('/preview', '_blank');
+  };
+
   return (
     <div className="flex items-center gap-4">
       {lastSaved && (
@@ -57,6 +69,14 @@ export function EditorHeaderActions({ lastSaved, onSave, isDirty, pageUrl, onPub
           Last saved {lastSaved.toLocaleTimeString()}
         </div>
       )}
+      <Button 
+        variant="outline" 
+        onClick={handlePreviewInNewTab}
+        className="gap-2"
+      >
+        <ExternalLink className="w-4 h-4" />
+        Preview
+      </Button>
       <Button variant="outline" onClick={handleDuplicate}>
         <Copy className="w-4 h-4 mr-2" />
         Duplicate
