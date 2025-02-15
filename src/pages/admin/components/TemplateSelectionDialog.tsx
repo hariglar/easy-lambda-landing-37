@@ -12,8 +12,7 @@ import {
   Rocket, 
   Building2, 
   Palette, 
-  Store,
-  ShoppingBag
+  Store 
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -52,13 +51,6 @@ const templates = [
     description: "Designed for online stores",
     icon: Store,
     thumbnail: "https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=400&h=300&fit=crop"
-  },
-  {
-    id: "ecommerce-2",
-    name: "E-commerce Landing 2",
-    description: "Alternative design for online stores",
-    icon: ShoppingBag,
-    thumbnail: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=300&fit=crop"
   }
 ];
 
@@ -75,7 +67,6 @@ export function TemplateSelectionDialog({
 
   const handleTemplateSelect = (templateId: string) => {
     navigate(`/admin/pages/new?template=${templateId}`);
-    onOpenChange(false); // Close the dialog after selection
   };
 
   return (

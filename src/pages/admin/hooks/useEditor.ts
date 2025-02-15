@@ -1,15 +1,52 @@
 
-import { useState, useCallback } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { TemplateContent, defaultContent } from "../types/editor";
-import { toast } from "sonner";
 import { mockPages } from "../data/mockData";
+import { toast } from "sonner";
 
-export function useContent(pageId: string | null) {
+export function useEditor() {
+  const [searchParams] = useSearchParams();
+  const [currentTab, setCurrentTab] = useState("design");
+  const [selectedTemplate, setSelectedTemplate] = useState<number | null>(null);
+  const [metaExpanded, setMetaExpanded] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(new Date());
   const [content, setContent] = useState<TemplateContent>(defaultContent);
   const [isDirty, setIsDirty] = useState(false);
-  const [lastSaved, setLastSaved] = useState<Date | null>(new Date());
   const [pageTitle, setPageTitle] = useState("New Page");
   const [pageUrl, setPageUrl] = useState("/new-page");
+
+  const templateId = searchParams.get("template");
+  const pageId = searchParams.get("pageId");
+
+  // Load existing content when editing a page
+  useEffect(() => {
+    if (pageId) {
+      console.log('Loading content for pageId:', pageId);
+      const storedPages = JSON.parse(localStorage.getItem('pages') || '[]');
+      
+      // First check stored pages
+      const storedPage = storedPages.find(p => p.id === Number(pageId));
+      if (storedPage) {
+        console.log('Found stored page:', storedPage);
+        if (storedPage.content) {
+          setContent(storedPage.content);
+        }
+        setPageTitle(storedPage.title);
+        setPageUrl(storedPage.url);
+        return;
+      }
+      
+      // If not found in stored pages, check mock pages
+      const mockPage = mockPages.find(p => p.id === Number(pageId));
+      if (mockPage) {
+        setPageTitle(mockPage.title);
+        setPageUrl(mockPage.url);
+        // For mock pages, initialize with default content
+        setContent(defaultContent);
+      }
+    }
+  }, [pageId]);
 
   const handleContentChange = (
     section: keyof TemplateContent,
@@ -17,7 +54,6 @@ export function useContent(pageId: string | null) {
     index?: number,
     field?: string
   ) => {
-    console.log('Content changed, setting isDirty to true');
     setIsDirty(true);
     setContent(prev => {
       const newContent = { ...prev };
@@ -35,17 +71,20 @@ export function useContent(pageId: string | null) {
     });
   };
 
-  const handleSave = useCallback(async () => {
+  const handleSave = async () => {
     try {
+      // Simulate API delay
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       const storedPages = JSON.parse(localStorage.getItem('pages') || '[]');
       const currentDate = new Date().toISOString().split('T')[0];
 
       if (pageId) {
+        // Always create or update in storedPages
         const pageIndex = storedPages.findIndex((p: any) => p.id === Number(pageId));
         
         if (pageIndex !== -1) {
+          // Update existing stored page
           console.log('Updating existing stored page:', pageId);
           storedPages[pageIndex] = {
             ...storedPages[pageIndex],
@@ -55,6 +94,7 @@ export function useContent(pageId: string | null) {
             lastModified: currentDate
           };
         } else {
+          // Create new stored page, either from mock or as new
           const mockPage = mockPages.find(p => p.id === Number(pageId));
           console.log('Creating new stored page from mock:', mockPage);
           storedPages.push({
@@ -70,6 +110,7 @@ export function useContent(pageId: string | null) {
           });
         }
       } else {
+        // Create completely new page
         const newPageId = Math.max(
           ...storedPages.map((p: any) => p.id),
           ...mockPages.map(p => p.id),
@@ -97,14 +138,20 @@ export function useContent(pageId: string | null) {
       console.error('Save error:', error);
       toast.error("Failed to save changes. Please try again.");
     }
-  }, [pageId, pageTitle, pageUrl, content]);
+  };
 
   return {
+    currentTab,
+    setCurrentTab,
+    selectedTemplate,
+    setSelectedTemplate,
+    metaExpanded,
+    setMetaExpanded,
+    lastSaved,
     content,
-    setContent,
     isDirty,
     setIsDirty,
-    lastSaved,
+    templateId,
     pageTitle,
     setPageTitle,
     pageUrl,

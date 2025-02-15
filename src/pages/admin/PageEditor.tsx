@@ -1,4 +1,3 @@
-
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,15 +10,8 @@ import { EditorTabs } from "./components/editor/EditorTabs";
 import { DesignTab } from "./components/editor/DesignTab";
 import { templates } from "./data/mockData";
 import { useEditor } from "./hooks/useEditor";
-import type { EditorReturn } from "./hooks/useEditor";
-import { useSearchParams } from "react-router-dom";
-import { useEffect } from "react";
 
 export default function PageEditor() {
-  const [searchParams] = useSearchParams();
-  const templateParam = searchParams.get('template');
-
-  const editor = useEditor();
   const {
     currentTab,
     setCurrentTab,
@@ -37,17 +29,8 @@ export default function PageEditor() {
     pageUrl,
     setPageUrl,
     handleContentChange,
-    handleSave,
-    templateType,
-    setTemplateType
-  }: EditorReturn = editor;
-
-  useEffect(() => {
-    if (templateParam && setTemplateType) {
-      console.log('Setting initial template from URL:', templateParam);
-      setTemplateType(templateParam);
-    }
-  }, [templateParam, setTemplateType]);
+    handleSave
+  } = useEditor();
 
   return (
     <div className="space-y-8 animate-in fade-in">
