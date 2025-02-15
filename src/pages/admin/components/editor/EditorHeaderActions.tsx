@@ -12,13 +12,18 @@ interface EditorHeaderActionsProps {
   onPublish: () => void;
 }
 
-export function EditorHeaderActions({ lastSaved, onSave, isDirty, pageUrl, onPublish }: EditorHeaderActionsProps) {
+export function EditorHeaderActions({
+  lastSaved,
+  onSave,
+  isDirty,
+  pageUrl,
+  onPublish
+}: EditorHeaderActionsProps) {
   const navigate = useNavigate();
-  
+
   const handleDuplicate = async () => {
     try {
       await onSave();
-      
       const storedPages = JSON.parse(localStorage.getItem('pages') || '[]');
       const currentPageId = new URLSearchParams(window.location.search).get('pageId');
       const currentPage = storedPages.find((p: any) => p.id === Number(currentPageId));
