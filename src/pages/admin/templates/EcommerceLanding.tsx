@@ -12,12 +12,17 @@ interface EcommerceLandingProps {
   isEditing: boolean;
 }
 
-const SECTION_COMPONENTS = {
-  hero: HeroSection,
-  features: FeaturesSection,
-  products: ProductsSection,
-  newsletter: NewsletterSection,
-  testimonials: TestimonialsSection
+type SectionComponent = {
+  component: React.ComponentType<any>;
+  propsKey: keyof TemplateContent;
+};
+
+const SECTION_COMPONENTS: Record<string, SectionComponent> = {
+  hero: { component: HeroSection, propsKey: 'hero' },
+  features: { component: FeaturesSection, propsKey: 'features' },
+  products: { component: ProductsSection, propsKey: 'products' },
+  newsletter: { component: NewsletterSection, propsKey: 'newsletter' },
+  testimonials: { component: TestimonialsSection, propsKey: 'testimonials' }
 };
 
 export default function EcommerceLanding({ content, onContentChange, isEditing }: EcommerceLandingProps) {
@@ -27,16 +32,22 @@ export default function EcommerceLanding({ content, onContentChange, isEditing }
   return (
     <div className="w-full min-h-screen">
       {sectionOrder.map((sectionId) => {
-        const Component = SECTION_COMPONENTS[sectionId as keyof typeof SECTION_COMPONENTS];
-        if (!Component) return null;
+        const sectionConfig = SECTION_COMPONENTS[sectionId];
+        if (!sectionConfig) return null;
 
-        // Pass the correct props based on section type
+        const { component: Component, propsKey } = sectionConfig;
+
+        // Get the specific props for this section type
+        const sectionProps = {
+          [propsKey]: content[propsKey],
+          onContentChange,
+          isEditing
+        };
+
         return (
           <Component
             key={sectionId}
-            {...content[sectionId as keyof TemplateContent]}
-            onContentChange={onContentChange}
-            isEditing={isEditing}
+            {...sectionProps}
           />
         );
       })}
