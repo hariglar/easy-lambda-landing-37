@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { TemplateContent } from "../../types/editor";
 import { EditableText } from "../../components/editor/EditableText";
+import { ImageEditor } from "../../components/editor/ImageEditor";
 
 interface HeroSectionProps {
   hero: TemplateContent['hero'];
@@ -13,13 +14,15 @@ interface HeroSectionProps {
 export function HeroSection({ hero, onContentChange, isEditing }: HeroSectionProps) {
   return (
     <section className="relative h-[600px] flex items-center justify-center overflow-hidden">
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ 
-          backgroundImage: hero.backgroundImage ? `url("${hero.backgroundImage}")` : 'none',
-          backgroundColor: !hero.backgroundImage ? 'rgb(15 23 42)' : undefined,
-        }} 
-      />
+      <div className="absolute inset-0">
+        <ImageEditor
+          src={hero.backgroundImage}
+          alt="Hero background"
+          className="w-full h-full object-cover"
+          onImageChange={(newSrc) => onContentChange('hero', { backgroundImage: newSrc })}
+          isEditing={isEditing}
+        />
+      </div>
       <div className="absolute inset-0 bg-black/40" />
       <div className="relative z-10 container mx-auto px-4 text-center text-white">
         <EditableText
