@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { 
   Table, 
@@ -35,12 +34,10 @@ export default function Pages() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageToDelete, setPageToDelete] = useState<number | null>(null);
 
-  // Load pages from localStorage on component mount
+  // Clear old pages and load mock pages on component mount
   useEffect(() => {
-    const storedPages = localStorage.getItem('pages');
-    if (storedPages) {
-      setPages(JSON.parse(storedPages));
-    }
+    localStorage.removeItem('pages');
+    setPages([]);
   }, []);
 
   const handleSort = (field: SortField) => {
