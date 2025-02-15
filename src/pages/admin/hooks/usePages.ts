@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { PageWithCategory } from "../types/categories";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 
 type SortField = "title" | "status" | "lastModified" | "views";
 type SortDirection = "asc" | "desc";
@@ -23,11 +23,16 @@ export function usePages() {
     const storedPages = localStorage.getItem('pages');
     const storedCategories = localStorage.getItem('categories');
     if (storedPages) {
-      // Parse stored pages and ensure the lastModified field is formatted correctly
-      const parsedPages = JSON.parse(storedPages).map((page: PageWithCategory) => ({
-        ...page,
-        lastModified: format(new Date(page.lastModified), "MMM d, yyyy HH:mm:ss")
-      }));
+      const parsedPages = JSON.parse(storedPages).map((page: PageWithCategory) => {
+        const date = new Date(page.lastModified);
+        return {
+          ...page,
+          // Store the ISO string for sorting
+          lastModifiedRaw: date.toISOString(),
+          // Format for display
+          lastModified: format(date, "MMM d, yyyy HH:mm:ss")
+        };
+      });
       setPages(parsedPages);
     }
     if (storedCategories) {
@@ -36,12 +41,14 @@ export function usePages() {
   }, []);
 
   const handleCategoryChange = (pageId: number, categoryId: number | null) => {
+    const now = new Date();
     const updatedPages = pages.map(page =>
       page.id === pageId
         ? { 
             ...page, 
             categoryId,
-            lastModified: format(new Date(), "MMM d, yyyy HH:mm:ss")
+            lastModifiedRaw: now.toISOString(),
+            lastModified: format(now, "MMM d, yyyy HH:mm:ss")
           }
         : page
     );
@@ -91,10 +98,14 @@ export function usePages() {
       const bValue = b[sortField];
       const modifier = sortDirection === "asc" ? 1 : -1;
       
+      if (sortField === "lastModified") {
+        // Use the raw ISO string for date sorting
+        const aDate = new Date(a.lastModifiedRaw || a.lastModified).getTime();
+        const bDate = new Date(b.lastModifiedRaw || b.lastModified).getTime();
+        return (bDate - aDate) * modifier;
+      }
+      
       if (typeof aValue === "string" && typeof bValue === "string") {
-        if (sortField === "lastModified") {
-          return (new Date(bValue).getTime() - new Date(aValue).getTime()) * modifier;
-        }
         return aValue.localeCompare(bValue) * modifier;
       }
       return ((aValue as number) - (bValue as number)) * modifier;
