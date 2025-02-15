@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { defaultContent } from "./admin/types/editor";
-import EcommerceLanding from "./admin/templates/EcommerceLanding";
+import { EcommerceLanding } from "./admin/templates/EcommerceLanding";
 
 export default function Preview() {
   const [dimensions, setDimensions] = useState({
