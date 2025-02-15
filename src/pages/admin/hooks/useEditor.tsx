@@ -62,15 +62,14 @@ export function useEditor() {
         setPageUrl(mockPage.url);
         setContent(defaultContent);
       }
-    }
-  }, [pageId, setContent, setPageTitle, setPageUrl, setTemplateId]);
-
-  // Set template ID when creating a new page
-  useEffect(() => {
-    if (templateId) {
+    } else if (templateId) {
+      // This is a new page, set the template from the URL parameter
+      console.log('Setting template ID for new page:', templateId);
       setTemplateId(templateId);
+      // Reset content to default when creating a new page
+      setContent(defaultContent);
     }
-  }, [templateId, setTemplateId]);
+  }, [pageId, templateId, setContent, setPageTitle, setPageUrl, setTemplateId]);
 
   return {
     currentTab,
