@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Template } from "../../types";
@@ -32,7 +32,14 @@ export function DesignTab({
 }: DesignTabProps) {
   const [isEditing, setIsEditing] = useState(false);
 
+  // Add debugging logs
+  useEffect(() => {
+    console.log('Current templateId:', templateId);
+  }, [templateId]);
+
   const renderTemplate = () => {
+    console.log('Rendering template with ID:', templateId);
+    
     switch (templateId) {
       case "ecommerce":
         return (
@@ -69,6 +76,7 @@ export function DesignTab({
           </div>
         );
       default:
+        console.log('No matching template found for ID:', templateId);
         return null;
     }
   };

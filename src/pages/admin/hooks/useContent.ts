@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { TemplateContent, defaultContent } from "../types/editor";
 import { toast } from "sonner";
 import { mockPages } from "../data/mockData";
@@ -10,7 +10,20 @@ export function useContent(pageId: string | null) {
   const [lastSaved, setLastSaved] = useState<Date | null>(new Date());
   const [pageTitle, setPageTitle] = useState("New Page");
   const [pageUrl, setPageUrl] = useState("/new-page");
-  const [templateType, setTemplateType] = useState("ecommerce"); // Add template type state
+  const [templateType, setTemplateType] = useState(() => {
+    // Initialize template type from URL params
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('template') || 'ecommerce';
+  });
+
+  // Update template type when URL changes
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const newTemplateType = urlParams.get('template');
+    if (newTemplateType) {
+      setTemplateType(newTemplateType);
+    }
+  }, [window.location.search]);
 
   const handleContentChange = (
     section: keyof TemplateContent,
@@ -18,7 +31,6 @@ export function useContent(pageId: string | null) {
     index?: number,
     field?: string
   ) => {
-    console.log('Content changed, setting isDirty to true');
     setIsDirty(true);
     setContent(prev => {
       const newContent = { ...prev };
@@ -42,25 +54,25 @@ export function useContent(pageId: string | null) {
       
       const storedPages = JSON.parse(localStorage.getItem('pages') || '[]');
       const currentDate = new Date().toISOString().split('T')[0];
-      const urlParams = new URLSearchParams(window.location.search);
-      const templateId = urlParams.get('template') || 'ecommerce';
+
+      console.log('Saving with template type:', templateType);
 
       if (pageId) {
         const pageIndex = storedPages.findIndex((p: any) => p.id === Number(pageId));
         
         if (pageIndex !== -1) {
-          console.log('Updating existing stored page:', pageId);
+          console.log('Updating existing page with template:', templateType);
           storedPages[pageIndex] = {
             ...storedPages[pageIndex],
             title: pageTitle,
             url: pageUrl,
             content,
-            templateType: templateId, // Save template type
+            templateType,
             lastModified: currentDate
           };
         } else {
+          console.log('Creating new page from existing ID with template:', templateType);
           const mockPage = mockPages.find(p => p.id === Number(pageId));
-          console.log('Creating new stored page from mock:', mockPage);
           storedPages.push({
             ...(mockPage || {
               id: Number(pageId),
@@ -70,7 +82,7 @@ export function useContent(pageId: string | null) {
             title: pageTitle,
             url: pageUrl,
             content,
-            templateType: templateId, // Save template type
+            templateType,
             lastModified: currentDate
           });
         }
@@ -80,14 +92,14 @@ export function useContent(pageId: string | null) {
           ...mockPages.map(p => p.id),
           0
         ) + 1;
-        console.log('Creating completely new page:', newPageId);
+        console.log('Creating new page with template:', templateType);
         storedPages.push({
           id: newPageId,
           title: pageTitle,
           status: "draft",
           url: pageUrl,
           content,
-          templateType: templateId, // Save template type
+          templateType,
           lastModified: currentDate,
           views: 0
         });
@@ -103,7 +115,7 @@ export function useContent(pageId: string | null) {
       console.error('Save error:', error);
       toast.error("Failed to save changes. Please try again.");
     }
-  }, [pageId, pageTitle, pageUrl, content]);
+  }, [pageId, pageTitle, pageUrl, content, templateType]);
 
   return {
     content,

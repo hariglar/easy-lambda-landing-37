@@ -37,7 +37,6 @@ export function useEditor() {
       console.log('Loading content for pageId:', pageId);
       const storedPages = JSON.parse(localStorage.getItem('pages') || '[]');
       
-      // First check stored pages
       const storedPage = storedPages.find(p => p.id === Number(pageId));
       if (storedPage) {
         console.log('Found stored page:', storedPage);
@@ -46,20 +45,19 @@ export function useEditor() {
         }
         setPageTitle(storedPage.title);
         setPageUrl(storedPage.url);
-        // Set template type from stored page
-        setTemplateType(storedPage.templateType || 'ecommerce');
+        setTemplateType(storedPage.templateType || templateId || 'ecommerce');
         return;
       }
       
-      // If not found in stored pages, check mock pages
       const mockPage = mockPages.find(p => p.id === Number(pageId));
       if (mockPage) {
         setPageTitle(mockPage.title);
         setPageUrl(mockPage.url);
         setContent(defaultContent);
+        setTemplateType(templateId || 'ecommerce');
       }
     } else if (templateId) {
-      // Set template type for new pages
+      console.log('Setting template type for new page:', templateId);
       setTemplateType(templateId);
     }
   }, [pageId, templateId, setContent, setPageTitle, setPageUrl, setTemplateType]);
@@ -75,14 +73,13 @@ export function useEditor() {
     content,
     isDirty,
     setIsDirty,
-    templateId,
+    templateId: templateType, // Use templateType instead of templateId
     pageTitle,
     setPageTitle,
     pageUrl,
     setPageUrl,
     handleContentChange,
     handleSave,
-    isUrlUnique,
-    templateType
+    isUrlUnique
   };
 }
