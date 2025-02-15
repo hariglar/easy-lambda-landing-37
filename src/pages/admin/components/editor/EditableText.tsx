@@ -27,7 +27,6 @@ export function EditableText({
 
   useEffect(() => {
     if (isEditable && editorRef.current) {
-      // Set focus at the end of the content when editing starts
       const range = document.createRange();
       const selection = window.getSelection();
       range.selectNodeContents(editorRef.current);
@@ -57,23 +56,7 @@ export function EditableText({
 
   const handleInput = (e: React.FormEvent<HTMLDivElement>) => {
     const target = e.target as HTMLDivElement;
-    // Preserve the cursor position
-    const selection = window.getSelection();
-    const range = selection?.getRangeAt(0);
-    const offset = range?.endOffset;
-
     setCurrentValue(target.innerHTML);
-
-    // Restore the cursor position after state update
-    if (offset !== undefined && target === editorRef.current) {
-      requestAnimationFrame(() => {
-        const newRange = document.createRange();
-        newRange.setStart(target.childNodes[0] || target, Math.min(offset, target.textContent?.length || 0));
-        newRange.collapse(true);
-        selection?.removeAllRanges();
-        selection?.addRange(newRange);
-      });
-    }
   };
 
   if (!isEditing) {
