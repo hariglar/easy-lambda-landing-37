@@ -31,10 +31,6 @@ export function useContent(pageId: string | null) {
       } else {
         newContent[section] = value;
       }
-      
-      // Update preview data immediately when content changes
-      sessionStorage.setItem('previewData', JSON.stringify(newContent));
-      
       return newContent;
     });
   };
@@ -92,10 +88,6 @@ export function useContent(pageId: string | null) {
       }
       
       localStorage.setItem('pages', JSON.stringify(storedPages));
-      
-      // Store the current content in sessionStorage for preview
-      sessionStorage.setItem('previewData', JSON.stringify(content));
-      
       setLastSaved(new Date());
       setIsDirty(false);
       toast.success("Changes saved successfully!");
