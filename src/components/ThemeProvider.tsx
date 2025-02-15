@@ -9,6 +9,7 @@ type ThemeProviderProps = {
   defaultTheme?: string;
   forcedTheme?: string;
   themes?: string[];
+  storageKey?: string;
 }
 
 export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
