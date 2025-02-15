@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { PageWithCategory } from "../types/categories";
@@ -24,30 +23,14 @@ export function usePages() {
     const storedCategories = localStorage.getItem('categories');
     if (storedPages) {
       const parsedPages = JSON.parse(storedPages).map((page: PageWithCategory) => {
-        let date;
-        try {
-          // Try to parse the existing date
-          date = new Date(page.lastModified);
-          // Check if the date is valid, if not use current date
-          if (isNaN(date.getTime())) {
-            date = new Date();
-          }
-        } catch {
-          date = new Date();
+        if (!page.lastModifiedRaw) {
+          const date = new Date(page.lastModified);
+          return {
+            ...page,
+            lastModifiedRaw: date.toISOString()
+          };
         }
-        
-        return {
-          ...page,
-          lastModifiedRaw: date.toISOString(),
-          lastModified: format(date, "MMM d, yyyy HH:mm:ss")
-        };
-      });
-      
-      // Sort pages by lastModifiedRaw in descending order
-      parsedPages.sort((a, b) => {
-        const aDate = new Date(a.lastModifiedRaw || a.lastModified).getTime();
-        const bDate = new Date(b.lastModifiedRaw || b.lastModified).getTime();
-        return bDate - aDate;
+        return page;
       });
       
       setPages(parsedPages);
@@ -70,7 +53,6 @@ export function usePages() {
         : page
     );
     
-    // Sort updated pages by lastModifiedRaw in descending order
     updatedPages.sort((a, b) => {
       const aDate = new Date(a.lastModifiedRaw || a.lastModified).getTime();
       const bDate = new Date(b.lastModifiedRaw || b.lastModified).getTime();
@@ -119,15 +101,15 @@ export function usePages() {
       (statusFilter === "all" || page.status === statusFilter)
     )
     .sort((a, b) => {
-      const aValue = a[sortField];
-      const bValue = b[sortField];
-      const modifier = sortDirection === "asc" ? 1 : -1;
-      
       if (sortField === "lastModified") {
         const aDate = new Date(a.lastModifiedRaw || a.lastModified).getTime();
         const bDate = new Date(b.lastModifiedRaw || b.lastModified).getTime();
-        return (bDate - aDate) * modifier;
+        return sortDirection === "asc" ? aDate - bDate : bDate - aDate;
       }
+
+      const aValue = a[sortField];
+      const bValue = b[sortField];
+      const modifier = sortDirection === "asc" ? 1 : -1;
       
       if (typeof aValue === "string" && typeof bValue === "string") {
         return aValue.localeCompare(bValue) * modifier;
