@@ -20,12 +20,16 @@ type SectionConfig = {
   component: JSX.Element;
 };
 
+const defaultOrder = ['hero', 'features', 'products', 'newsletter'];
+
 export function EcommerceLanding({ content, onContentChange, isEditing = false }: EcommerceLandingProps) {
-  const defaultOrder = ['hero', 'features', 'products', 'newsletter'];
   const [sections, setSections] = useState<SectionConfig[]>([]);
 
-  const createSections = (orderArray: string[]) => {
-    return orderArray.map(id => ({
+  const createSections = (orderArray: unknown) => {
+    // Ensure orderArray is a valid array, otherwise use default order
+    const validOrder = Array.isArray(orderArray) ? orderArray : defaultOrder;
+    
+    return validOrder.map(id => ({
       id,
       component: (() => {
         switch (id) {
@@ -69,7 +73,9 @@ export function EcommerceLanding({ content, onContentChange, isEditing = false }
   };
 
   useEffect(() => {
-    const order = content.sectionOrder || defaultOrder;
+    // Add type check for content.sectionOrder
+    const order = Array.isArray(content?.sectionOrder) ? content.sectionOrder : defaultOrder;
+    console.log('Using section order:', order); // Debug log
     setSections(createSections(order));
   }, [content, onContentChange, isEditing]);
 
@@ -92,7 +98,8 @@ export function EcommerceLanding({ content, onContentChange, isEditing = false }
   };
 
   if (!isEditing) {
-    const order = content.sectionOrder || defaultOrder;
+    // Add type check here as well
+    const order = Array.isArray(content?.sectionOrder) ? content.sectionOrder : defaultOrder;
     const orderedSections = createSections(order);
     
     return (
