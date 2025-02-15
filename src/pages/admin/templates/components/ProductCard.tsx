@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ShoppingBag, Star, Heart } from "lucide-react";
 import { TemplateContent } from "../../types/editor";
 import { EditableText } from "../../components/editor/EditableText";
+import { ImageEditor } from "../../components/editor/ImageEditor";
 
 interface ProductCardProps {
   product: TemplateContent['products'][0];
@@ -18,10 +19,12 @@ export function ProductCard({ product, index, onContentChange, isEditing }: Prod
       style={{ animationDelay: `${index * 200}ms` }}
     >
       <div className="aspect-square relative overflow-hidden">
-        <img 
-          src={product.image} 
+        <ImageEditor
+          src={product.image}
           alt={product.name}
           className="object-cover w-full h-full transition-transform group-hover:scale-105"
+          onImageChange={(newSrc) => onContentChange('products', newSrc, index, 'image')}
+          isEditing={isEditing}
         />
         <Button
           variant="secondary"
