@@ -15,7 +15,6 @@ export interface PageWithCategory {
   status: string;
   url: string;
   lastModified: string;
-  lastModifiedRaw?: string;
   views: number;
   content: any;
   categoryId?: number | null;

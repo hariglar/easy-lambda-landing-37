@@ -2,7 +2,6 @@
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { PageWithCategory } from "../types/categories";
-import { format, parseISO } from "date-fns";
 
 type SortField = "title" | "status" | "lastModified" | "views";
 type SortDirection = "asc" | "desc";
@@ -23,34 +22,7 @@ export function usePages() {
     const storedPages = localStorage.getItem('pages');
     const storedCategories = localStorage.getItem('categories');
     if (storedPages) {
-      const parsedPages = JSON.parse(storedPages).map((page: PageWithCategory) => {
-        let date;
-        try {
-          // Try to parse the existing date
-          date = new Date(page.lastModified);
-          // Check if the date is valid, if not use current date
-          if (isNaN(date.getTime())) {
-            date = new Date();
-          }
-        } catch {
-          date = new Date();
-        }
-        
-        return {
-          ...page,
-          lastModifiedRaw: date.toISOString(),
-          lastModified: format(date, "MMM d, yyyy HH:mm:ss")
-        };
-      });
-      
-      // Sort pages by lastModifiedRaw in descending order
-      parsedPages.sort((a, b) => {
-        const aDate = new Date(a.lastModifiedRaw || a.lastModified).getTime();
-        const bDate = new Date(b.lastModifiedRaw || b.lastModified).getTime();
-        return bDate - aDate;
-      });
-      
-      setPages(parsedPages);
+      setPages(JSON.parse(storedPages));
     }
     if (storedCategories) {
       setCategories(JSON.parse(storedCategories));
@@ -58,25 +30,11 @@ export function usePages() {
   }, []);
 
   const handleCategoryChange = (pageId: number, categoryId: number | null) => {
-    const now = new Date();
     const updatedPages = pages.map(page =>
       page.id === pageId
-        ? { 
-            ...page, 
-            categoryId,
-            lastModifiedRaw: now.toISOString(),
-            lastModified: format(now, "MMM d, yyyy HH:mm:ss")
-          }
+        ? { ...page, categoryId }
         : page
     );
-    
-    // Sort updated pages by lastModifiedRaw in descending order
-    updatedPages.sort((a, b) => {
-      const aDate = new Date(a.lastModifiedRaw || a.lastModified).getTime();
-      const bDate = new Date(b.lastModifiedRaw || b.lastModified).getTime();
-      return bDate - aDate;
-    });
-    
     setPages(updatedPages);
     localStorage.setItem('pages', JSON.stringify(updatedPages));
     
@@ -122,12 +80,6 @@ export function usePages() {
       const aValue = a[sortField];
       const bValue = b[sortField];
       const modifier = sortDirection === "asc" ? 1 : -1;
-      
-      if (sortField === "lastModified") {
-        const aDate = new Date(a.lastModifiedRaw || a.lastModified).getTime();
-        const bDate = new Date(b.lastModifiedRaw || b.lastModified).getTime();
-        return (bDate - aDate) * modifier;
-      }
       
       if (typeof aValue === "string" && typeof bValue === "string") {
         return aValue.localeCompare(bValue) * modifier;
