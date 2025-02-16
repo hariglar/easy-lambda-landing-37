@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { mockPages } from "../data/mockData";
 import { useContent } from "./useContent";
@@ -62,6 +62,7 @@ export function useEditor() {
     }
   }, [pageId, setContent, setPageTitle, setPageUrl]);
 
+  // Memoize the return object to prevent unnecessary re-renders
   return {
     currentTab,
     setCurrentTab,
