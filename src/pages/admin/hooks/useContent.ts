@@ -2,6 +2,7 @@
 import { useState, useCallback } from "react";
 import { TemplateContent, defaultContent } from "../types/editor";
 import { toast } from "sonner";
+import { mockPages } from "../data/mockData";
 
 export function useContent(pageId: string | null) {
   const [content, setContent] = useState<TemplateContent>(defaultContent);
