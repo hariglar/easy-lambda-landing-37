@@ -13,6 +13,8 @@ import Preview from "./pages/Preview";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import EcommerceLanding from "./pages/admin/templates/EcommerceLanding";
+import { supabase } from "./integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 
 const queryClient = new QueryClient();
 
@@ -28,13 +30,33 @@ const ProtectedRoute = () => {
 
 const PublishedPage = () => {
   const path = window.location.pathname;
-  const storedPages = JSON.parse(localStorage.getItem('pages') || '[]');
-  const page = storedPages.find((p: any) => p.url === path && p.status === 'published');
-  
+  const { data: page, isLoading } = useQuery({
+    queryKey: ['published-page', path],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('pages')
+        .select('*')
+        .eq('url', path)
+        .eq('status', 'published')
+        .single();
+
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
   if (!page) {
     return <NotFound />;
   }
-  
+
   return (
     <EcommerceLanding 
       content={page.content} 

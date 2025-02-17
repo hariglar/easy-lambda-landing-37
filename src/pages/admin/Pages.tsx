@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { 
   Table, 
@@ -25,8 +26,11 @@ import { PagesHeader } from "./components/PagesHeader";
 import { PagesFilter } from "./components/PagesFilter";
 import { PageRow } from "./components/PageRow";
 import { DeletePageDialog } from "./components/DeletePageDialog";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
-type SortField = "title" | "status" | "lastModified" | "views";
+type SortField = "title" | "status" | "last_modified" | "views";
 type SortDirection = "asc" | "desc";
 
 const PAGE_SIZE_OPTIONS = [
@@ -40,22 +44,38 @@ const PAGE_SIZE_OPTIONS = [
 
 export default function Pages() {
   const { toast } = useToast();
-  const [pages, setPages] = useState([]);
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortField, setSortField] = useState<SortField>("lastModified");
+  const [sortField, setSortField] = useState<SortField>("last_modified");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
   const [statusFilter, setStatusFilter] = useState<"all" | "published" | "draft">("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState<string>("5");
   const [pageToDelete, setPageToDelete] = useState<number | null>(null);
 
-  // Load pages from localStorage on component mount
-  useEffect(() => {
-    const storedPages = localStorage.getItem('pages');
-    if (storedPages) {
-      setPages(JSON.parse(storedPages));
-    }
-  }, []);
+  const { data: pages = [], isLoading } = useQuery({
+    queryKey: ['pages', user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('pages')
+        .select('*')
+        .order('last_modified', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching pages:', error);
+        toast({
+          title: "Error fetching pages",
+          description: error.message,
+          variant: "destructive",
+        });
+        return [];
+      }
+
+      return data;
+    },
+    enabled: !!user,
+  });
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -66,22 +86,36 @@ export default function Pages() {
     }
   };
 
-  const handleDeletePage = () => {
+  const handleDeletePage = async () => {
     if (pageToDelete) {
-      const updatedPages = pages.filter(page => page.id !== pageToDelete);
-      setPages(updatedPages);
-      localStorage.setItem('pages', JSON.stringify(updatedPages));
-      toast({
-        title: "Page deleted",
-        description: "The page has been successfully deleted.",
-      });
-      setPageToDelete(null);
+      try {
+        const { error } = await supabase
+          .from('pages')
+          .delete()
+          .eq('id', pageToDelete);
+
+        if (error) throw error;
+
+        queryClient.invalidateQueries({ queryKey: ['pages'] });
+        toast({
+          title: "Page deleted",
+          description: "The page has been successfully deleted.",
+        });
+        setPageToDelete(null);
+      } catch (error: any) {
+        console.error('Error deleting page:', error);
+        toast({
+          title: "Error deleting page",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
     }
   };
 
   const handlePageSizeChange = (value: string) => {
     setPageSize(value);
-    setCurrentPage(1); // Reset to first page when changing page size
+    setCurrentPage(1);
   };
 
   const filteredAndSortedPages = pages
@@ -108,6 +142,14 @@ export default function Pages() {
         (currentPage - 1) * itemsPerPage,
         currentPage * itemsPerPage
       );
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 animate-in fade-in">
@@ -162,10 +204,10 @@ export default function Pages() {
               </TableHead>
               <TableHead 
                 className="cursor-pointer hover:text-foreground"
-                onClick={() => handleSort("lastModified")}
+                onClick={() => handleSort("last_modified")}
               >
                 Last Modified
-                {sortField === "lastModified" && (
+                {sortField === "last_modified" && (
                   sortDirection === "asc" ? <ArrowUp className="w-4 h-4 inline ml-2" /> : <ArrowDown className="w-4 h-4 inline ml-2" />
                 )}
               </TableHead>
