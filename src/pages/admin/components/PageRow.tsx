@@ -6,12 +6,17 @@ import { Eye, FileEdit, Globe, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { PagePreviewDialog } from "./PagePreviewDialog";
 import { TemplateContent } from "../types/editor";
-import { Database } from "@/integrations/supabase/types";
-
-type PageRow = Database['public']['Tables']['pages']['Row'];
 
 interface PageRowProps {
-  page: PageRow;
+  page: {
+    id: number;
+    title: string;
+    status: string;
+    url: string;
+    lastModified: string;
+    views: number;
+    content: TemplateContent;
+  };
   onDeleteClick: (id: number) => void;
 }
 
@@ -34,7 +39,7 @@ export function PageRow({ page, onDeleteClick }: PageRowProps) {
             {page.status}
           </span>
         </TableCell>
-        <TableCell>{new Date(page.last_modified || '').toLocaleDateString()}</TableCell>
+        <TableCell>{page.lastModified}</TableCell>
         <TableCell>{page.views.toLocaleString()}</TableCell>
         <TableCell className="text-right">
           <div className="flex items-center justify-end gap-2">
@@ -48,7 +53,7 @@ export function PageRow({ page, onDeleteClick }: PageRowProps) {
             <Button 
               variant="ghost" 
               size="icon"
-              onClick={() => navigate(`/admin/pages/${page.id}/edit`)}
+              onClick={() => navigate(`/admin/pages/new?pageId=${page.id}&template=ecommerce`)}
             >
               <FileEdit className="w-4 h-4" />
             </Button>

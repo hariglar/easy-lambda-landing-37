@@ -1,24 +1,53 @@
 
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Globe } from "lucide-react";
+import { useEffect, useState, useRef } from "react";
 import EcommerceLanding from "../templates/EcommerceLanding";
-import { Database } from "@/integrations/supabase/types";
 import { TemplateContent } from "../types/editor";
 
 interface PagePreviewDialogProps {
+  page: {
+    id: number;
+    title: string;
+    status: string;
+    url: string;
+    lastModified: string;
+    views: number;
+    content: TemplateContent;
+  };
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  page: Database['public']['Tables']['pages']['Row'];
 }
 
-export function PagePreviewDialog({ open, onOpenChange, page }: PagePreviewDialogProps) {
+export function PagePreviewDialog({
+  page,
+  open,
+  onOpenChange,
+}: PagePreviewDialogProps) {
+  const ref = useRef<HTMLDivElement>(null);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-screen-xl h-[90vh] overflow-y-auto">
-        <EcommerceLanding
-          content={page.content as unknown as TemplateContent}
-          onContentChange={() => {}}
-          isEditing={false}
-        />
+      <DialogContent className="max-w-screen-xl h-[90vh]">
+        <DialogHeader>
+          <DialogTitle>Page Preview</DialogTitle>
+          <DialogDescription>
+            This is how your page will look when published
+          </DialogDescription>
+        </DialogHeader>
+        <div ref={ref} className="relative flex-1 overflow-y-auto">
+          <EcommerceLanding 
+            content={page.content} 
+            onContentChange={() => {}} 
+            isEditing={false}
+          />
+        </div>
       </DialogContent>
     </Dialog>
   );
