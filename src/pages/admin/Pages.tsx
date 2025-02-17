@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { 
   Table, 
   TableHeader, 
@@ -29,7 +29,9 @@ import { DeletePageDialog } from "./components/DeletePageDialog";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { Database } from "@/integrations/supabase/types";
 
+type Page = Database['public']['Tables']['pages']['Row'];
 type SortField = "title" | "status" | "last_modified" | "views";
 type SortDirection = "asc" | "desc";
 

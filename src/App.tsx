@@ -15,6 +15,8 @@ import Auth from "./pages/Auth";
 import EcommerceLanding from "./pages/admin/templates/EcommerceLanding";
 import { supabase } from "./integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import { TemplateContent } from "./pages/admin/types/editor";
+import { Database } from "./integrations/supabase/types";
 
 const queryClient = new QueryClient();
 
@@ -57,9 +59,12 @@ const PublishedPage = () => {
     return <NotFound />;
   }
 
+  // Type assertion to ensure content is treated as TemplateContent
+  const content = page.content as unknown as TemplateContent;
+
   return (
     <EcommerceLanding 
-      content={page.content} 
+      content={content} 
       onContentChange={() => {}} 
       isEditing={false} 
     />
